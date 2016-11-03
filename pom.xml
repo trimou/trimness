@@ -1,0 +1,182 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+      <groupId>org.sonatype.oss</groupId>
+      <artifactId>oss-parent</artifactId>
+      <version>9</version>
+   </parent>
+
+   <groupId>org.trimou</groupId>
+   <artifactId>trimou-basis-parent</artifactId>
+   <version>1.0.0-SNAPSHOT</version>
+   <packaging>pom</packaging>
+   <url>http://www.trimou.org</url>
+
+   <licenses>
+      <license>
+         <name>The Apache Software License, Version 2.0</name>
+         <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+         <distribution>repo</distribution>
+      </license>
+   </licenses>
+
+   <scm>
+      <connection>scm:git:git://github.com/trimou/trimou-basis.git</connection>
+      <developerConnection>scm:git:git@github.com:trimou/trimou-basis.git</developerConnection>
+      <url>https://github.com/trimou/trimou-base</url>
+   </scm>
+
+   <developers>
+      <developer>
+         <name>Martin Kouba</name>
+      </developer>
+   </developers>
+
+   <issueManagement>
+      <system>GitHub</system>
+      <url>https://github.com/trimou/trimou/issues</url>
+   </issueManagement>
+
+   <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <maven.compiler.source>1.8</maven.compiler.source>
+      <maven.compiler.target>1.8</maven.compiler.target>
+      <!-- Versions -->
+      <version.trimou>2.1.0.Final</version.trimou>
+      <version.jooq>3.8.4</version.jooq>
+      <version.weld>2.4.1.Final</version.weld>
+      <version.weld-vertx>1.0.0.CR2</version.weld-vertx>
+      <version.vertx>3.2.1</version.vertx>
+      <version.jandex>2.0.3.Final</version.jandex>
+      <version.junit>4.12</version.junit>
+      <version.rest.assured>3.0.1</version.rest.assured>
+      <version.mockito>2.2.7</version.mockito>
+      <version.arquillian>1.1.11.Final</version.arquillian>
+      <version.arquillian.se.container>1.0.1.Final</version.arquillian.se.container>
+      <version.slf4j>1.7.21</version.slf4j>
+      <version.shrinkwrap.resolver>2.2.4</version.shrinkwrap.resolver>
+      <version.json-path>2.2.0</version.json-path>
+   </properties>
+
+   <modules>
+      <module>basis</module>
+      <module>tests</module>
+   </modules>
+
+   <dependencyManagement>
+      <dependencies>
+
+         <dependency>
+            <groupId>org.trimou</groupId>
+            <artifactId>trimou-core</artifactId>
+            <version>${version.trimou}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.trimou</groupId>
+            <artifactId>trimou-extension-gson</artifactId>
+            <version>${version.trimou}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.jboss.weld.se</groupId>
+            <artifactId>weld-se-core</artifactId>
+            <version>${version.weld}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.jboss.weld.vertx</groupId>
+            <artifactId>weld-vertx-web</artifactId>
+            <version>${version.weld-vertx}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web</artifactId>
+            <version>${version.vertx}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-unit</artifactId>
+            <version>${version.vertx}</version>
+            <scope>test</scope>
+         </dependency>
+
+         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.21</version>
+            <scope>test</scope>
+         </dependency>
+
+         <!-- Mockito needs this to workaround some JDK bug -->
+         <!-- See also https://github.com/mockito/mockito/issues/366 -->
+         <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-codegen</artifactId>
+            <version>${version.vertx}</version>
+            <scope>test</scope>
+         </dependency>
+
+         <dependency>
+            <groupId>org.jboss</groupId>
+            <artifactId>jandex</artifactId>
+            <version>${version.jandex}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+         </dependency>
+
+         <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${version.rest.assured}</version>
+            <scope>test</scope>
+         </dependency>
+
+         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${version.mockito}</version>
+            <scope>test</scope>
+         </dependency>
+
+         <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>${version.json-path}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <version>${version.arquillian}</version>
+            <scope>test</scope>
+         </dependency>
+
+         <dependency>
+            <groupId>org.jboss.arquillian.container</groupId>
+            <artifactId>container-se-managed</artifactId>
+            <version>${version.arquillian.se.container}</version>
+            <scope>test</scope>
+         </dependency>
+
+         <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-bom</artifactId>
+            <version>${version.shrinkwrap.resolver}</version>
+            <type>pom</type>
+            <scope>import</scope>
+         </dependency>
+
+      </dependencies>
+   </dependencyManagement>
+
+</project>
