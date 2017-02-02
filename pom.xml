@@ -45,9 +45,9 @@
       <maven.compiler.target>1.8</maven.compiler.target>
       <!-- Versions -->
       <version.trimou>2.1.0.Final</version.trimou>
-      <version.jooq>3.8.4</version.jooq>
-      <version.weld>2.4.1.Final</version.weld>
-      <version.weld-vertx>1.0.0.CR2</version.weld-vertx>
+      <version.weld>2.4.2.Final</version.weld>
+      <version.weld-vertx>1.0.0.CR4</version.weld-vertx>
+      <version.weld-junit>1.0.0.Beta1</version.weld-junit>
       <version.vertx>3.2.1</version.vertx>
       <version.jandex>2.0.3.Final</version.jandex>
       <version.junit>4.12</version.junit>
@@ -84,6 +84,13 @@
             <groupId>org.jboss.weld.se</groupId>
             <artifactId>weld-se-core</artifactId>
             <version>${version.weld}</version>
+         </dependency>
+
+         <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-junit4</artifactId>
+            <version>${version.weld-junit}</version>
+            <scope>test</scope>
          </dependency>
 
          <dependency>
