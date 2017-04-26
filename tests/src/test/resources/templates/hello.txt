@@ -1,1 +1,1 @@
-Hello {{#data}}{{this}}{{#if iter.hasNext}}, {{/if}}{{/data}}!
+Hello {{#model}}{{this}}{{#if iter.hasNext}}, {{/if}}{{/model}}!

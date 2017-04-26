@@ -1,1 +1,1 @@
-##{{meta.templateId}}## Hello {{data.name}} and {{global.foo}}!
+##{{meta.templateId}}## Hello {{model.name}} and {{global.foo}}!

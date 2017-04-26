@@ -3,16 +3,16 @@
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>org.trimou</groupId>
-      <artifactId>trimou-basis-parent</artifactId>
+      <artifactId>trimness-parent</artifactId>
       <version>1.0.0-SNAPSHOT</version>
    </parent>
-   <artifactId>trimou-basis-tests</artifactId>
+   <artifactId>trimness-tests</artifactId>
 
    <dependencies>
 
       <dependency>
          <groupId>org.trimou</groupId>
-         <artifactId>trimou-basis</artifactId>
+         <artifactId>trimness-core</artifactId>
          <version>${project.version}</version>
       </dependency>
 
