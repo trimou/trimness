@@ -45,7 +45,7 @@ public class ConfigurationProvider {
         for (ConfigurationKeySource source : configurationSources) {
             keys.addAll(source.getConfigurationKeys());
         }
-        this.configuration = new ImmutableConfiguration(ImmutableConfiguration.initPropertiesMap(keys));
+        this.configuration = ImmutableConfiguration.init(keys);
     }
 
     @Produces

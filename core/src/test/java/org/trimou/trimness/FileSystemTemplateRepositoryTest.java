@@ -26,12 +26,12 @@ import org.trimou.trimness.template.Template;
 public class FileSystemTemplateRepositoryTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.of(FileSystemTemplateRepository.class, MockVertxProducer.class, DummyBasisConfiguration.class,
+    public WeldInitiator weld = WeldInitiator.of(FileSystemTemplateRepository.class, MockVertxProducer.class, DummyConfiguration.class,
             CompositeContentTypeExtractor.class);
 
     @Test
     public void testBasicOperations() {
-        DummyBasisConfiguration configuration = weld.select(DummyBasisConfiguration.class).get();
+        DummyConfiguration configuration = weld.select(DummyConfiguration.class).get();
         configuration.put(FS_TEMPLATE_REPO_DIR, "src/test/resources/templates");
         configuration.put(FS_TEMPLATE_REPO_MATCH, ".*\\.html");
 
@@ -46,7 +46,7 @@ public class FileSystemTemplateRepositoryTest {
 
     @Test
     public void testScanInterval() throws IOException, InterruptedException {
-        DummyBasisConfiguration configuration = weld.select(DummyBasisConfiguration.class).get();
+        DummyConfiguration configuration = weld.select(DummyConfiguration.class).get();
         configuration.put(FS_TEMPLATE_REPO_DIR, "src/test/resources/templates");
         configuration.put(FS_TEMPLATE_REPO_SCAN_INTERVAL, 100l);
 

@@ -18,6 +18,7 @@ package org.trimou.trimness.config;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -28,34 +29,23 @@ import org.trimou.util.ImmutableMap;
  *
  * @author Martin Kouba
  */
-public class ImmutableConfiguration implements Configuration {
+public class ImmutableConfiguration implements Configuration, Iterable<ConfigurationKey> {
 
     private static final String RESOURCE_FILE = "/trimness.properties";
 
-    private final Map<String, Object> properties;
+    private final Map<ConfigurationKey, Object> properties;
 
-    /**
-     *
-     * @param properties
-     */
-    ImmutableConfiguration(Map<String, Object> properties) {
+    private ImmutableConfiguration(Map<ConfigurationKey, Object> properties) {
         this.properties = ImmutableMap.copyOf(properties);
     }
-
-    public <T extends ConfigurationKey> Long getLongValue(T key) {
-        return (Long) properties.getOrDefault(key.get(), key.getDefaultValue());
+    @Override
+    public Object getValue(ConfigurationKey key) {
+        return properties.getOrDefault(key, key.getDefaultValue());
     }
 
-    public <T extends ConfigurationKey> Integer getIntegerValue(T key) {
-        return (Integer) properties.getOrDefault(key.get(), key.getDefaultValue());
-    }
-
-    public <T extends ConfigurationKey> String getStringValue(T key) {
-        return properties.getOrDefault(key.get(), key.getDefaultValue()).toString();
-    }
-
-    public <T extends ConfigurationKey> Boolean getBooleanValue(T key) {
-        return (Boolean) properties.getOrDefault(key.get(), key.getDefaultValue());
+    @Override
+    public Iterator<ConfigurationKey> iterator() {
+        return properties.keySet().iterator();
     }
 
     static Object convertConfigValue(Class<?> defaultValueType, Object value) {
@@ -75,9 +65,9 @@ public class ImmutableConfiguration implements Configuration {
      *
      * @param keys
      */
-    static Map<String, Object> initPropertiesMap(Set<ConfigurationKey> keys) {
+    static ImmutableConfiguration init(Set<ConfigurationKey> keys) {
 
-        Map<String, Object> properties = new HashMap<>();
+        Map<ConfigurationKey, Object> properties = new HashMap<>();
         Properties resourceProperties = new Properties();
 
         try {
@@ -117,9 +107,9 @@ public class ImmutableConfiguration implements Configuration {
             } else {
                 value = configKey.getDefaultValue();
             }
-            properties.put(key, value);
+            properties.put(configKey, value);
         }
-        return properties;
+        return new ImmutableConfiguration(properties);
     }
 
 }

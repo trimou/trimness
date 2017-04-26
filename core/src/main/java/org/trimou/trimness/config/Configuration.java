@@ -20,14 +20,24 @@ package org.trimou.trimness.config;
  *
  * @author Martin Kouba
  */
-public interface Configuration {
+public interface Configuration extends Iterable<ConfigurationKey> {
 
-    public <T extends ConfigurationKey> Long getLongValue(T key);
+    default Long getLongValue(ConfigurationKey key) {
+        return (Long) getValue(key);
+    }
 
-    public <T extends ConfigurationKey> Integer getIntegerValue(T key);
+    default Integer getIntegerValue(ConfigurationKey key) {
+        return (Integer) getValue(key);
+    }
 
-    public <T extends ConfigurationKey> String getStringValue(T key);
+    default String getStringValue(ConfigurationKey key) {
+        return getValue(key).toString();
+    }
 
-    public <T extends ConfigurationKey> Boolean getBooleanValue(T key);
+    default Boolean getBooleanValue(ConfigurationKey key) {
+        return (Boolean) getValue(key);
+    }
+
+    Object getValue(ConfigurationKey key);
 
 }

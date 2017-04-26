@@ -17,6 +17,8 @@ package org.trimou.trimness;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.jboss.weld.environment.se.WeldContainer;
 import org.jboss.weld.vertx.web.WeldWebVerticle;
@@ -78,7 +80,10 @@ public class TrimnessVerticle extends AbstractVerticle {
                         configuration.getIntegerValue(TrimnessConfigurationKey.PORT),
                         configuration.getStringValue(TrimnessConfigurationKey.HOST));
 
-                LOGGER.info("Basis verticle started for deployment {0}", deploymentID());
+                LOGGER.info("\n=========================\nTrimness verticle started\n-------------------------\n{0}\n=========================",
+                        StreamSupport.stream(configuration.spliterator(), false)
+                                .map((key) -> key.get() + "=" + configuration.getStringValue(key))
+                                .collect(Collectors.joining("\n")));
 
                 startFuture.complete();
             } else {

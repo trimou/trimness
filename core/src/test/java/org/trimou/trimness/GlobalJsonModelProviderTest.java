@@ -22,11 +22,11 @@ import com.google.gson.JsonElement;
 public class GlobalJsonModelProviderTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.of(GlobalJsonModelProvider.class, DummyBasisConfiguration.class);
+    public WeldInitiator weld = WeldInitiator.of(GlobalJsonModelProvider.class, DummyConfiguration.class);
 
     @Test
     public void testBasicOperations() {
-        DummyBasisConfiguration configuration = weld.select(DummyBasisConfiguration.class).get();
+        DummyConfiguration configuration = weld.select(DummyConfiguration.class).get();
         configuration.put(GLOBAL_JSON_DATA_FILE, "src/test/resources/global-data.json");
 
         GlobalJsonModelProvider provider = weld.select(GlobalJsonModelProvider.class).get();
