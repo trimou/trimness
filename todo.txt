@@ -1,3 +1,0 @@
-- to gson or not to gson?
-- ClassPathTemplateRepository + shaded jar example
-- ?unite GsonProvider + MustacheEngineProvider + BasisConfigurationProvider
