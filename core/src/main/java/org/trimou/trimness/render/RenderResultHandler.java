@@ -18,6 +18,7 @@ package org.trimou.trimness.render;
 import static io.vertx.core.http.HttpMethod.GET;
 import static org.jboss.weld.vertx.web.WebRoute.HandlerType.BLOCKING;
 import static org.trimou.trimness.util.Strings.APP_JSON;
+import static org.trimou.trimness.util.Strings.HEADER_CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.ID;
 import static org.trimou.trimness.util.Strings.RESULT_TYPE;
 
@@ -63,6 +64,10 @@ public class RenderResultHandler implements Handler<RoutingContext> {
         if (!result.isComplete()) {
             Resources.ok(ctx, Resources.success("Result %s not complete yet", id).toString());
             return;
+        }
+
+        if (result.getContentType() != null) {
+            ctx.response().putHeader(HEADER_CONTENT_TYPE, result.getContentType());
         }
 
         ResultType resultType = ResultType.of(ctx.request().getParam(RESULT_TYPE));

@@ -1,5 +1,6 @@
 package org.trimou.trimness;
 
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertNotNull;
 import static org.trimou.trimness.config.TrimnessConfigurationKey.FS_TEMPLATE_REPO_DIR;
@@ -68,7 +69,8 @@ public class AsyncRenderTest extends TrimnessTest {
                 .body("{\"async\" : true, \"id\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
                 .post("/render");
 
-        response.then().assertThat().statusCode(200);
+        response.then().assertThat().statusCode(200)
+                .header(Strings.HEADER_CONTENT_TYPE, is(Strings.APP_JSON));
         String resultId = response.path(RESULT_ID).toString();
         assertNotNull(resultId);
 
@@ -76,6 +78,7 @@ public class AsyncRenderTest extends TrimnessTest {
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .get("/render/" + resultId + "?resultType=raw");
         response.then().assertThat().statusCode(200)
+                .header(Strings.HEADER_CONTENT_TYPE, is(Strings.TEXT_PLAIN))
                 .body(equalTo("Hello me, Lu, foo!"));
     }
 
