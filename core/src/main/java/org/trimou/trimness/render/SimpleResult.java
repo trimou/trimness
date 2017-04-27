@@ -24,11 +24,11 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class SimpleResult implements Result {
 
-    static SimpleResult init(Long id, String templateId, String contentType) {
+    static SimpleResult init(String id, String templateId, String contentType) {
         return new SimpleResult(id, templateId, Code.INCOMPLETE, null, null, contentType);
     }
 
-    private final Long id;
+    private final String id;
 
     private final String templateId;
 
@@ -51,7 +51,7 @@ public class SimpleResult implements Result {
      * @param templateId
      * @param contentType
      */
-    SimpleResult(Long id, String templateId, Code code, String errorMessage, String output, String contentType) {
+    SimpleResult(String id, String templateId, Code code, String errorMessage, String output, String contentType) {
         this.id = id;
         this.code = new AtomicReference<>(code);
         this.errorMessage = new AtomicReference<>();
@@ -61,7 +61,7 @@ public class SimpleResult implements Result {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

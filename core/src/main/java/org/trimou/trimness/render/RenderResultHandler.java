@@ -48,7 +48,7 @@ public class RenderResultHandler implements Handler<RoutingContext> {
     @Override
     public void handle(RoutingContext ctx) {
 
-        Long id = getId(ctx);
+        String id = ctx.request().getParam(ID);
         if (id == null) {
             Resources.badRequest(ctx,
                     Resources.failure("Invalid result id: %s", ctx.request().getParam(ID)).toString());
@@ -80,14 +80,6 @@ public class RenderResultHandler implements Handler<RoutingContext> {
             Resources.ok(ctx, Resources.metadataResult(result, gson));
         default:
             throw new IllegalStateException("Unsupported result type: " + resultType);
-        }
-    }
-
-    private Long getId(RoutingContext ctx) {
-        try {
-            return Long.valueOf(ctx.request().getParam(ID));
-        } catch (NumberFormatException e) {
-            return null;
         }
     }
 

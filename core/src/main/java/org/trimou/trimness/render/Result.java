@@ -26,7 +26,7 @@ public interface Result {
      *
      * @return the id, must be unique
      */
-    Long getId();
+    String getId();
 
     /**
      *

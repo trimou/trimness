@@ -29,7 +29,7 @@ public interface ResultRepository {
      * @return the result with the given id or <code>null</code> if such a
      *         result does not exist
      */
-    Result get(Long resultId);
+    Result get(String resultId);
 
     /**
      * Initialize an incomplete result.
@@ -45,7 +45,7 @@ public interface ResultRepository {
      * @param resultId
      * @return <code>true</code> if removed, <code>false</code> otherwise
      */
-    boolean remove(Long resultId);
+    boolean remove(String resultId);
 
     /**
      *

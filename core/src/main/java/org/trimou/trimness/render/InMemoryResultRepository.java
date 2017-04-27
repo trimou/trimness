@@ -31,28 +31,28 @@ public class InMemoryResultRepository implements ResultRepository {
 
     private AtomicLong idGenerator;
 
-    private ConcurrentMap<Long, SimpleResult> results;
+    private ConcurrentMap<String, SimpleResult> results;
 
     @PostConstruct
     void init() {
-        idGenerator = new AtomicLong();
+        idGenerator = new AtomicLong(System.currentTimeMillis());
         results = new ConcurrentHashMap<>();
     }
 
     @Override
-    public SimpleResult get(Long id) {
+    public SimpleResult get(String id) {
         return results.get(id);
     }
 
     @Override
     public Result init(String templateId, String contentType) {
-        SimpleResult result = SimpleResult.init(idGenerator.incrementAndGet(), templateId, contentType);
+        SimpleResult result = SimpleResult.init("" + idGenerator.incrementAndGet(), templateId, contentType);
         results.put(result.getId(), result);
         return result;
     }
 
     @Override
-    public boolean remove(Long id) {
+    public boolean remove(String id) {
         return results.remove(id) != null;
     }
 

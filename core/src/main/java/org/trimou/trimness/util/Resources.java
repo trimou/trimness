@@ -112,7 +112,7 @@ public class Resources {
         return response;
     }
 
-    public static String asyncResult(Long resultId) {
+    public static String asyncResult(String resultId) {
         JsonObject metadata = success();
         metadata.addProperty(RESULT_ID, resultId);
         return metadata.toString();
