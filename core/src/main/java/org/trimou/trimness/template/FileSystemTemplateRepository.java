@@ -56,6 +56,8 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 /**
+ * Loads templates from the local filesystem.
+ *
  * TODO reload only changed template, not the whole directory
  *
  * @author Martin Kouba
@@ -95,7 +97,7 @@ public class FileSystemTemplateRepository implements TemplateRepository {
 
         File dir = new File(path);
         if (!dir.canRead()) {
-            LOGGER.warn("Template dir does not exist or cannot be read: " + dir);
+            LOGGER.debug("Template dir does not exist or cannot be read: " + dir);
             return;
         }
 

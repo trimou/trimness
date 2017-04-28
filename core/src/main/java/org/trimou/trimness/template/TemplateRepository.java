@@ -15,6 +15,7 @@
  */
 package org.trimou.trimness.template;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.trimou.engine.priority.WithPriority;
@@ -50,10 +51,13 @@ public interface TemplateRepository extends WithPriority, Validateable {
     Template get(String id);
 
     /**
-     * Note that the returned set does not necessarily contain all available templates.
+     * Note that the returned set does not necessarily contain all available
+     * templates.
      *
      * @return all templates stored in the repository
      */
-    Set<Template> getAll();
+    default Set<Template> getAll() {
+        return Collections.emptySet();
+    }
 
 }

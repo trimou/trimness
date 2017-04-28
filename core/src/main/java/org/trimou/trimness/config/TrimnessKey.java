@@ -15,8 +15,11 @@
  */
 package org.trimou.trimness.config;
 
+import org.trimou.trimness.TrimnessVerticle;
 import org.trimou.trimness.model.GlobalJsonModelProvider;
+import org.trimou.trimness.render.RenderHandler;
 import org.trimou.trimness.template.ClassPathTemplateRepository;
+import org.trimou.trimness.template.FileSystemTemplateRepository;
 
 /**
  * Core configuration keys.
@@ -27,18 +30,46 @@ import org.trimou.trimness.template.ClassPathTemplateRepository;
  */
 public enum TrimnessKey implements Key {
 
-    // org.trimou.trimness.host
+    /**
+     * <tt>org.trimou.trimness.host</tt>
+     *
+     * @see TrimnessVerticle
+     */
     HOST("localhost"),
-    // org.trimou.trimness.port
+
+    /**
+     * <tt>org.trimou.trimness.port</tt>
+     *
+     * @see TrimnessVerticle
+     */
     PORT(8080),
-    // org.trimou.trimness.defaultResultTimeout
+
+    /**
+     * <tt>org.trimou.trimness.defaultResultTimeout</tt>
+     *
+     * @see RenderHandler
+     */
     DEFAULT_RESULT_TIMEOUT(300000l),
 
-    // org.trimou.trimness.templateDir
+    /**
+     * <tt>org.trimou.trimness.templateDir</tt>
+     *
+     * @see FileSystemTemplateRepository
+     */
     TEMPLATE_DIR(System.getProperty("user.dir") + SecurityActions.getSystemProperty("file.separator") + "templates"),
-    // org.trimou.trimness.templateDirScanInterval
+
+    /**
+     * <tt>org.trimou.trimness.templateDirScanInterval</tt>
+     *
+     * @see FileSystemTemplateRepository
+     */
     TEMPLATE_DIR_SCAN_INTERVAL(60000l),
-    // org.trimou.trimness.templateDirMatch
+
+    /**
+     * <tt> org.trimou.trimness.templateDirMatch</tt>
+     *
+     * @see FileSystemTemplateRepository
+     */
     TEMPLATE_DIR_MATCH(".*"),
 
     /**
@@ -46,9 +77,11 @@ public enum TrimnessKey implements Key {
      *
      * @see ClassPathTemplateRepository
      */
-    CLASSPATH_ROOT("/META-INF/templates"),
+    CLASSPATH_ROOT("META-INF/templates/"),
 
-    // org.trimou.trimness.defaultFileEncoding
+    /**
+     * <tt>org.trimou.trimness.defaultFileEncoding</tt>
+     */
     DEFAULT_FILE_ENCODING(SecurityActions.getSystemProperty("file.encoding")),
 
     /**
