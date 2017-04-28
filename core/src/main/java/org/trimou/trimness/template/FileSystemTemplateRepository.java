@@ -15,10 +15,10 @@
  */
 package org.trimou.trimness.template;
 
-import static org.trimou.trimness.config.TrimnessConfigurationKey.DEFAULT_FILE_ENCODING;
-import static org.trimou.trimness.config.TrimnessConfigurationKey.FS_TEMPLATE_REPO_DIR;
-import static org.trimou.trimness.config.TrimnessConfigurationKey.FS_TEMPLATE_REPO_MATCH;
-import static org.trimou.trimness.config.TrimnessConfigurationKey.FS_TEMPLATE_REPO_SCAN_INTERVAL;
+import static org.trimou.trimness.config.TrimnessKey.DEFAULT_FILE_ENCODING;
+import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;
+import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR_MATCH;
+import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR_SCAN_INTERVAL;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -90,23 +90,24 @@ public class FileSystemTemplateRepository implements TemplateRepository {
 
     @PostConstruct
     public void init() {
-        templates = new HashMap<>();
 
-        String path = configuration.getStringValue(FS_TEMPLATE_REPO_DIR);
-        matchPattern = Pattern.compile(configuration.getStringValue(FS_TEMPLATE_REPO_MATCH));
+        String path = configuration.getStringValue(TEMPLATE_DIR);
 
         File dir = new File(path);
-        templateDir = dir.toPath();
         if (!dir.canRead()) {
             LOGGER.warn("Template dir does not exist or cannot be read: " + dir);
             return;
         }
 
+        templateDir = dir.toPath();
+        templates = new HashMap<>();
+        matchPattern = Pattern.compile(configuration.getStringValue(TEMPLATE_DIR_MATCH));
+
         // Scan the template dir
         scan();
 
         // If enabled, scan the template dir periodically
-        Long scanInterval = configuration.getLongValue(FS_TEMPLATE_REPO_SCAN_INTERVAL);
+        Long scanInterval = configuration.getLongValue(TEMPLATE_DIR_SCAN_INTERVAL);
         if (scanInterval > 0) {
             setScanTimer(scanInterval);
         } else {
@@ -135,10 +136,15 @@ public class FileSystemTemplateRepository implements TemplateRepository {
         return new HashSet<>(templates.values());
     }
 
+    @Override
+    public boolean isValid() {
+        return templateDir != null;
+    }
+
     /**
      * Scans the template directory.
      */
-    void scan() {
+    private void scan() {
         LOGGER.debug("Start scanning: {0}", templateDir);
         synchronized (templates) {
             templates.clear();

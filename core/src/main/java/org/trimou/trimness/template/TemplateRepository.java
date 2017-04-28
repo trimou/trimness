@@ -18,6 +18,7 @@ package org.trimou.trimness.template;
 import java.util.Set;
 
 import org.trimou.engine.priority.WithPriority;
+import org.trimou.engine.validation.Validateable;
 import org.trimou.trimness.TrimnessTemplateLocator;
 
 /**
@@ -29,13 +30,17 @@ import org.trimou.trimness.TrimnessTemplateLocator;
  * If a template is modified, the repository should fire an event of type
  * {@link Template} so that it can be invalidated properly.
  * </p>
+ * <p>
+ * An invalid repository is not considered when performing the lookup of a
+ * template.
+ * </p>
  *
  * @author Martin Kouba
  * @see CompositeTemplateRepository
  * @see TrimnessTemplateLocator
  * @see TemplateInvalidator
  */
-public interface TemplateRepository extends WithPriority {
+public interface TemplateRepository extends WithPriority, Validateable {
 
     /**
      *
@@ -45,8 +50,9 @@ public interface TemplateRepository extends WithPriority {
     Template get(String id);
 
     /**
+     * Note that the returned set does not necessarily contain all available templates.
      *
-     * @return all available templates
+     * @return all templates stored in the repository
      */
     Set<Template> getAll();
 

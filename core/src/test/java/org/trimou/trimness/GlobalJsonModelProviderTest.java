@@ -3,7 +3,7 @@ package org.trimou.trimness;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.trimou.trimness.config.TrimnessConfigurationKey.GLOBAL_JSON_DATA_FILE;
+import static org.trimou.trimness.config.TrimnessKey.GLOBAL_JSON_FILE;
 
 import java.util.Map;
 
@@ -27,11 +27,11 @@ public class GlobalJsonModelProviderTest {
     @Test
     public void testBasicOperations() {
         DummyConfiguration configuration = weld.select(DummyConfiguration.class).get();
-        configuration.put(GLOBAL_JSON_DATA_FILE, "src/test/resources/global-data.json");
+        configuration.put(GLOBAL_JSON_FILE, "src/test/resources/global-data.json");
 
         GlobalJsonModelProvider provider = weld.select(GlobalJsonModelProvider.class).get();
 
-        Map<String, Object> model = provider.getModel("whatever");
+        Map<String, Object> model = provider.getModel(null);
 
         assertNotNull(model);
         assertEquals(2, model.size());

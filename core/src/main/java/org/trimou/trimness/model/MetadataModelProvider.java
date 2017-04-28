@@ -23,7 +23,9 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.trimou.trimness.render.RenderingContext;
 import org.trimou.util.ImmutableMap;
+import org.trimou.util.Strings;
 
 /**
  *
@@ -40,8 +42,9 @@ public class MetadataModelProvider implements ModelProvider {
     }
 
     @Override
-    public Map<String, Object> getModel(String templateId) {
-        return ImmutableMap.<String, Object>builder().put(TIME, LocalDateTime.now()).put(TEMPLATE_ID, templateId)
+    public Map<String, Object> getModel(RenderingContext context) {
+        return ImmutableMap.<String, Object>builder().put(TIME, LocalDateTime.now())
+                .put(TEMPLATE_ID, context.getTemplate() != null ? context.getTemplate().getId() : Strings.NOT_AVAILABLE)
                 .build();
     }
 

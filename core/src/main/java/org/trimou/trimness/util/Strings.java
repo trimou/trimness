@@ -40,6 +40,7 @@ public final class Strings {
     public static final String CHECKS = "checks";
     public static final String TEMPLATES = "templates";
     public static final String MSG = "msg";
+    public static final String PARAMS = "params";
 
     public static final String APP_JSON = "application/json";
     public static final String APP_JAVASCRIPT = "application/javascript";

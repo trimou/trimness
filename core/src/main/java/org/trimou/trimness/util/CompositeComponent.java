@@ -20,9 +20,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.trimou.engine.validation.Validateable;
 import org.trimou.util.ImmutableList;
 
-public abstract class CompositeComponent<T> {
+public abstract class CompositeComponent<T extends Validateable> {
 
     protected final List<T> components;
 
@@ -33,7 +34,9 @@ public abstract class CompositeComponent<T> {
     protected CompositeComponent(Iterable<T> instances, Comparator<T> comparator) {
         List<T> components = new ArrayList<>();
         for (T component : instances) {
-            components.add(component);
+            if (component.isValid()) {
+                components.add(component);
+            }
         }
         Collections.sort(components, comparator);
         this.components = ImmutableList.copyOf(components);

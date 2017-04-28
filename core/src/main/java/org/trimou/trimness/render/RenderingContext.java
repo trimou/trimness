@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trimou.trimness.config;
+package org.trimou.trimness.render;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.Map;
+
+import org.trimou.trimness.template.Template;
 
 /**
- * NOTE: Configuration key source may not inject and use BasisConfiguration!
  *
  * @author Martin Kouba
  */
-public interface ConfigurationKeySource {
+public interface RenderingContext {
 
     /**
      *
-     * @return the set of configuration keys to discover
+     * @return the template or <code>null</code> if not using a persistent template
      */
-    default Set<ConfigurationKey> getConfigurationKeys() {
-        return Collections.emptySet();
-    }
+    Template getTemplate();
+
+    /**
+     *
+     * @return the map of parameters
+     */
+    Map<String, Object> getParameters();
 
 }

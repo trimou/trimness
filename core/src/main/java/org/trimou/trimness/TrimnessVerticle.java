@@ -15,7 +15,10 @@
  */
 package org.trimou.trimness;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -26,8 +29,9 @@ import org.trimou.engine.MustacheEngine;
 import org.trimou.engine.MustacheEngineBuilder;
 import org.trimou.engine.locator.MapTemplateLocator;
 import org.trimou.trimness.config.Configuration;
-import org.trimou.trimness.config.TrimnessConfigurationKey;
+import org.trimou.trimness.config.TrimnessKey;
 import org.trimou.trimness.model.ModelProvider;
+import org.trimou.util.Strings;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -77,10 +81,21 @@ public class TrimnessVerticle extends AbstractVerticle {
 
                 // Start web server
                 vertx.createHttpServer().requestHandler(weldVerticle.createRouter()::accept).listen(
-                        configuration.getIntegerValue(TrimnessConfigurationKey.PORT),
-                        configuration.getStringValue(TrimnessConfigurationKey.HOST));
+                        configuration.getIntegerValue(TrimnessKey.PORT),
+                        configuration.getStringValue(TrimnessKey.HOST));
 
-                LOGGER.info("\n=========================\nTrimness verticle started\n-------------------------\n{0}\n=========================",
+                String version = null;
+                Properties buildProperties = getBuildProperties();
+                if (buildProperties != null) {
+                    version = buildProperties.getProperty("version");
+                }
+                if (Strings.isEmpty(version)) {
+                    version = "SNAPSHOT";
+                }
+
+                LOGGER.info(
+                        "\n=========================================\nTrimness {0} verticle started:\n{1}\n=========================================",
+                        version,
                         StreamSupport.stream(configuration.spliterator(), false)
                                 .map((key) -> key.get() + "=" + configuration.getStringValue(key))
                                 .collect(Collectors.joining("\n")));
@@ -91,6 +106,24 @@ public class TrimnessVerticle extends AbstractVerticle {
             }
         });
 
+    }
+
+    private Properties getBuildProperties() {
+        try {
+            // First try to get trimou-build.properties file
+            InputStream in = TrimnessVerticle.class.getResourceAsStream("/trimness-build.properties");
+            if (in != null) {
+                try {
+                    Properties buildProperties = new Properties();
+                    buildProperties.load(in);
+                    return buildProperties;
+                } finally {
+                    in.close();
+                }
+            }
+        } catch (IOException ignored) {
+        }
+        return null;
     }
 
 }

@@ -15,33 +15,23 @@
  */
 package org.trimou.trimness.config;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
+ * Note that any source may inject {@link Configuration} but not invoke any
+ * method upon the injected reference.
  *
  * @author Martin Kouba
  */
-public interface ConfigurationKey {
+public interface KeySource {
 
     /**
      *
-     * @return the key itself
+     * @return the set of configuration keys to discover
      */
-    String get();
-
-    /**
-     *
-     * @return the key for environment variable
-     */
-    default String getEnvKey() {
-        return get();
+    default Set<Key> getKeys() {
+        return Collections.emptySet();
     }
-
-    /**
-     * The set of supported value types which can be automatically converted
-     * consist of {@link String}, {@link Boolean}, {@link Integer} and
-     * {@link Long}.
-     *
-     * @return the default value
-     */
-    Object getDefaultValue();
 
 }

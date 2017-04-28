@@ -17,6 +17,8 @@ package org.trimou.trimness.model;
 
 import java.util.Map;
 
+import org.trimou.trimness.render.RenderingContext;
+
 /**
  * Provides data model for templates.
  *
@@ -36,9 +38,9 @@ public interface ModelProvider {
 
     /**
      *
-     * @param templateId
+     * @param context
      * @return the immutable data model, may be <code>null</code>
      */
-    Map<String, Object> getModel(String templateId);
+    Map<String, Object> getModel(RenderingContext context);
 
 }

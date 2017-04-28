@@ -6,6 +6,8 @@
    <container qualifier="container-se" default="true">
       <protocol type="simple-jmx" />
       <configuration>
+         <property name="debug">${debug:false}</property>
+         <property name="waitTime">${waitTime:5}</property>
          <property name="keepDeploymentArchives">false</property>
       </configuration>
    </container>

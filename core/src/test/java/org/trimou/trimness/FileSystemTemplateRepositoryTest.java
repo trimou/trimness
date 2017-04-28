@@ -3,9 +3,9 @@ package org.trimou.trimness;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.trimou.trimness.config.TrimnessConfigurationKey.FS_TEMPLATE_REPO_DIR;
-import static org.trimou.trimness.config.TrimnessConfigurationKey.FS_TEMPLATE_REPO_MATCH;
-import static org.trimou.trimness.config.TrimnessConfigurationKey.FS_TEMPLATE_REPO_SCAN_INTERVAL;
+import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;
+import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR_MATCH;
+import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR_SCAN_INTERVAL;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,8 +32,8 @@ public class FileSystemTemplateRepositoryTest {
     @Test
     public void testBasicOperations() {
         DummyConfiguration configuration = weld.select(DummyConfiguration.class).get();
-        configuration.put(FS_TEMPLATE_REPO_DIR, "src/test/resources/templates");
-        configuration.put(FS_TEMPLATE_REPO_MATCH, ".*\\.html");
+        configuration.put(TEMPLATE_DIR, "src/test/resources/templates");
+        configuration.put(TEMPLATE_DIR_MATCH, ".*\\.html");
 
         FileSystemTemplateRepository repository = weld.select(FileSystemTemplateRepository.class).get();
         assertEquals(1, repository.getAll().size());
@@ -47,13 +47,13 @@ public class FileSystemTemplateRepositoryTest {
     @Test
     public void testScanInterval() throws IOException, InterruptedException {
         DummyConfiguration configuration = weld.select(DummyConfiguration.class).get();
-        configuration.put(FS_TEMPLATE_REPO_DIR, "src/test/resources/templates");
-        configuration.put(FS_TEMPLATE_REPO_SCAN_INTERVAL, 100l);
+        configuration.put(TEMPLATE_DIR, "src/test/resources/templates");
+        configuration.put(TEMPLATE_DIR_SCAN_INTERVAL, 100l);
 
         FileSystemTemplateRepository repository = weld.select(FileSystemTemplateRepository.class).get();
 
         String id = UUID.randomUUID().toString();
-        File tmpFile = new File(new File(configuration.getStringValue(FS_TEMPLATE_REPO_DIR)), "temp_hello.txt");
+        File tmpFile = new File(new File(configuration.getStringValue(TEMPLATE_DIR)), "temp_hello.txt");
         Files.write(tmpFile.toPath(), id.getBytes());
         Thread.sleep(200);
         Template helloTemp = repository.get("temp_hello.txt");

@@ -2,8 +2,9 @@ package org.trimou.trimness;
 
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.trimou.trimness.config.TrimnessConfigurationKey.FS_TEMPLATE_REPO_DIR;
+import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;
 import static org.trimou.trimness.util.Strings.CODE;
+import static org.trimou.trimness.util.Strings.CONTENT;
 import static org.trimou.trimness.util.Strings.SUCCESS;
 import static org.trimou.trimness.util.Strings.TEMPLATES;
 
@@ -31,7 +32,7 @@ public class TemplateResourcesTest extends TrimnessTest {
     @Deployment
     public static Archive<?> createTestArchive() {
         return TrimnessTest.createDefaultClassPath()
-                .addSystemProperty(FS_TEMPLATE_REPO_DIR.get(),
+                .addSystemProperty(TEMPLATE_DIR.get(),
                         "src/test/resources/templates")
                 .add(ShrinkWrap.create(JavaArchive.class)
                         .addClasses(TemplateResourcesTest.class))
@@ -40,13 +41,31 @@ public class TemplateResourcesTest extends TrimnessTest {
 
     @RunAsClient
     @Test
-    public void testAllTemplates() {
+    public void testTemplatesHandler() {
         Response response = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .get("/template");
         response.then().assertThat().statusCode(200)
                 .body(CODE, equalTo(SUCCESS)).body(TEMPLATES, hasItems(
                         "hello.txt", "hello.html", "hello-global-data.txt"));
+    }
+
+    @RunAsClient
+    @Test
+    public void testTemplateHandler() {
+        Response response = RestAssured.given().get("/template/hello.html");
+        response.then().assertThat().statusCode(200)
+                .body(CODE, equalTo(SUCCESS)).body(CONTENT, equalTo(
+                        "<html><body>Hello {{#model}}{{this}}{{#if iter.hasNext}}, {{/if}}{{/model}}!</body></html>"));
+
+        response = RestAssured.given().urlEncodingEnabled(false)
+                .get("/template/deep%2Finto%2Fthis.html");
+        response.then().assertThat().statusCode(200)
+                .body(CODE, equalTo(SUCCESS)).body(CONTENT, equalTo(
+                        "<html><body>Hello \"{{model}}\"!</body></html>"));
+
+        RestAssured.given().get("/neverexisted").then().assertThat()
+                .statusCode(404);
     }
 
 }

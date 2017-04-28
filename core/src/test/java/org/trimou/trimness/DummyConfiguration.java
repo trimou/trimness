@@ -10,31 +10,31 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 
 import org.trimou.trimness.config.Configuration;
-import org.trimou.trimness.config.ConfigurationKey;
+import org.trimou.trimness.config.Key;
 
 @ApplicationScoped
 @Priority(1)
 @Alternative
 public class DummyConfiguration implements Configuration {
 
-    private Map<ConfigurationKey, Object> properties;
+    private Map<Key, Object> properties;
 
     @PostConstruct
     public void init() {
         properties = new HashMap<>();
     }
 
-    void put(ConfigurationKey key, Object value) {
+    void put(Key key, Object value) {
         properties.put(key, value);
     }
 
     @Override
-    public Iterator<ConfigurationKey> iterator() {
+    public Iterator<Key> iterator() {
         return properties.keySet().iterator();
     }
 
     @Override
-    public Object getValue(ConfigurationKey key) {
+    public Object getValue(Key key) {
         return properties.getOrDefault(key, key.getDefaultValue());
     }
 

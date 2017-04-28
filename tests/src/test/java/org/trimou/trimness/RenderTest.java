@@ -1,8 +1,8 @@
 package org.trimou.trimness;
 
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.trimou.trimness.config.TrimnessConfigurationKey.FS_TEMPLATE_REPO_DIR;
-import static org.trimou.trimness.config.TrimnessConfigurationKey.GLOBAL_JSON_DATA_FILE;
+import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;
+import static org.trimou.trimness.config.TrimnessKey.GLOBAL_JSON_FILE;
 import static org.trimou.trimness.util.Strings.CODE;
 import static org.trimou.trimness.util.Strings.RESULT;
 import static org.trimou.trimness.util.Strings.SUCCESS;
@@ -34,9 +34,9 @@ public class RenderTest extends TrimnessTest {
     @Deployment
     public static Archive<?> createTestArchive() {
         return TrimnessTest.createDefaultClassPath()
-                .addSystemProperty(FS_TEMPLATE_REPO_DIR.get(),
+                .addSystemProperty(TEMPLATE_DIR.get(),
                         "src/test/resources/templates")
-                .addSystemProperty(GLOBAL_JSON_DATA_FILE.get(),
+                .addSystemProperty(GLOBAL_JSON_FILE.get(),
                         "src/test/resources/global-data.json")
                 .add(ShrinkWrap.create(JavaArchive.class)
                         .addClasses(RenderTest.class))

@@ -18,12 +18,13 @@ package org.trimou.trimness.template;
 import java.util.function.Supplier;
 
 import org.trimou.engine.priority.WithPriority;
+import org.trimou.engine.validation.Validateable;
 
 /**
  *
  * @author Martin Kouba
  */
-public interface ContentTypeExtractor extends WithPriority {
+public interface ContentTypeExtractor extends WithPriority, Validateable {
 
     /**
      *

@@ -15,8 +15,8 @@
  */
 package org.trimou.trimness.model;
 
-import static org.trimou.trimness.config.TrimnessConfigurationKey.DEFAULT_FILE_ENCODING;
-import static org.trimou.trimness.config.TrimnessConfigurationKey.GLOBAL_JSON_DATA_FILE;
+import static org.trimou.trimness.config.TrimnessKey.DEFAULT_FILE_ENCODING;
+import static org.trimou.trimness.config.TrimnessKey.GLOBAL_JSON_FILE;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,7 +32,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.trimou.trimness.config.Configuration;
-import org.trimou.trimness.config.TrimnessConfigurationKey;
+import org.trimou.trimness.config.TrimnessKey;
+import org.trimou.trimness.render.RenderingContext;
 import org.trimou.util.ImmutableMap;
 import org.trimou.util.ImmutableMap.ImmutableMapBuilder;
 
@@ -50,7 +51,7 @@ import io.vertx.core.logging.LoggerFactory;
  * templates.
  *
  * @author Martin Kouba
- * @see TrimnessConfigurationKey#GLOBAL_JSON_DATA_FILE
+ * @see TrimnessKey#GLOBAL_JSON_FILE
  */
 @ApplicationScoped
 public class GlobalJsonModelProvider implements ModelProvider {
@@ -72,7 +73,7 @@ public class GlobalJsonModelProvider implements ModelProvider {
     @PostConstruct
     public void init() {
 
-        String filePath = configuration.getStringValue(GLOBAL_JSON_DATA_FILE);
+        String filePath = configuration.getStringValue(GLOBAL_JSON_FILE);
         model = Collections.emptyMap();
         if (filePath.isEmpty()) {
             return;
@@ -105,7 +106,7 @@ public class GlobalJsonModelProvider implements ModelProvider {
     }
 
     @Override
-    public Map<String, Object> getModel(String templateId) {
+    public Map<String, Object> getModel(RenderingContext context) {
         return model;
     }
 

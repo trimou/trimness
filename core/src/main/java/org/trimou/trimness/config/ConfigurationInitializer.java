@@ -20,6 +20,7 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
@@ -28,26 +29,43 @@ import javax.inject.Inject;
  *
  * @author Martin Kouba
  */
-@ApplicationScoped
-public class ConfigurationProvider {
+@Dependent
+public class ConfigurationInitializer {
 
     private ImmutableConfiguration configuration;
 
     @Inject
-    Instance<ConfigurationKeySource> configurationSources;
+    Instance<KeySource> keySources;
 
     @PostConstruct
     void init() {
-        Set<ConfigurationKey> keys = new HashSet<>();
-        for (ConfigurationKey key : TrimnessConfigurationKey.values()) {
+        Set<Key> keys = new HashSet<>();
+        for (Key key : TrimnessKey.values()) {
             keys.add(key);
         }
-        for (ConfigurationKeySource source : configurationSources) {
-            keys.addAll(source.getConfigurationKeys());
+        for (KeySource source : keySources) {
+            for (Key key : source.getKeys()) {
+                checkConflict(keys, key);
+                keys.add(key);
+            }
         }
         this.configuration = ImmutableConfiguration.init(keys);
     }
 
+    private void checkConflict(Set<Key> keys, Key candidate) {
+        for (Key key : keys) {
+            if (key.get().equals(candidate.get())) {
+                throw new IllegalStateException(String.format("Configuration key conflict between %s and %s for %s",
+                        key, candidate, key.get()));
+            }
+            if (key.getEnvKey().equals(candidate.getEnvKey())) {
+                throw new IllegalStateException(String.format("Configuration key conflict between %s and %s for env %s",
+                        key, candidate, key.getEnvKey()));
+            }
+        }
+    }
+
+    @ApplicationScoped
     @Produces
     Configuration provideConfiguration() {
         return configuration;

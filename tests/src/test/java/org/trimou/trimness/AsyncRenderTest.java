@@ -3,7 +3,7 @@ package org.trimou.trimness;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertNotNull;
-import static org.trimou.trimness.config.TrimnessConfigurationKey.FS_TEMPLATE_REPO_DIR;
+import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;
 import static org.trimou.trimness.util.Strings.RESULT_ID;
 
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -32,7 +32,7 @@ public class AsyncRenderTest extends TrimnessTest {
     @Deployment
     public static Archive<?> createTestArchive() {
         return TrimnessTest.createDefaultClassPath()
-                .addSystemProperty(FS_TEMPLATE_REPO_DIR.get(),
+                .addSystemProperty(TEMPLATE_DIR.get(),
                         "src/test/resources/templates")
                 .add(ShrinkWrap.create(JavaArchive.class)
                         .addClasses(AsyncRenderTest.class))

@@ -15,13 +15,17 @@
  */
 package org.trimou.trimness.config;
 
-import org.trimou.util.Strings;
+import org.trimou.trimness.model.GlobalJsonModelProvider;
+import org.trimou.trimness.template.ClassPathTemplateRepository;
 
 /**
+ * Core configuration keys.
+ *
+ * TODO links
  *
  * @author Martin Kouba
  */
-public enum TrimnessConfigurationKey implements ConfigurationKey {
+public enum TrimnessKey implements Key {
 
     // org.trimou.trimness.host
     HOST("localhost"),
@@ -30,24 +34,34 @@ public enum TrimnessConfigurationKey implements ConfigurationKey {
     // org.trimou.trimness.defaultResultTimeout
     DEFAULT_RESULT_TIMEOUT(300000l),
 
-    // org.trimou.trimness.fsTemplateRepoDir
-    FS_TEMPLATE_REPO_DIR(
-            System.getProperty("user.dir") + SecurityActions.getSystemProperty("file.separator") + "templates"),
-    // org.trimou.trimness.fsTemplateRepoScanInterval
-    FS_TEMPLATE_REPO_SCAN_INTERVAL(60000l),
-    // org.trimou.trimness.fsTemplateRepoMatch
-    FS_TEMPLATE_REPO_MATCH(".*"),
+    // org.trimou.trimness.templateDir
+    TEMPLATE_DIR(System.getProperty("user.dir") + SecurityActions.getSystemProperty("file.separator") + "templates"),
+    // org.trimou.trimness.templateDirScanInterval
+    TEMPLATE_DIR_SCAN_INTERVAL(60000l),
+    // org.trimou.trimness.templateDirMatch
+    TEMPLATE_DIR_MATCH(".*"),
+
+    /**
+     * <tt>org.trimou.trimness.classpathRoot</tt>
+     *
+     * @see ClassPathTemplateRepository
+     */
+    CLASSPATH_ROOT("/META-INF/templates"),
 
     // org.trimou.trimness.defaultFileEncoding
     DEFAULT_FILE_ENCODING(SecurityActions.getSystemProperty("file.encoding")),
 
-    // org.trimou.trimness.globalJsonDataFile
-    GLOBAL_JSON_DATA_FILE(""),
+    /**
+     * <tt>org.trimou.trimness.globalJsonFile</tt>
+     *
+     * @see GlobalJsonModelProvider
+     */
+    GLOBAL_JSON_FILE(""),
 
     ;
 
-    TrimnessConfigurationKey(Object defaultValue) {
-        this.key = buildKey(this.toString());
+    TrimnessKey(Object defaultValue) {
+        this.key = Key.envToKey(name());
         this.defaultValue = defaultValue;
     }
 
@@ -61,22 +75,8 @@ public enum TrimnessConfigurationKey implements ConfigurationKey {
     }
 
     @Override
-    public String getEnvKey() {
-        return "BASIS_" + name();
-    }
-
-    @Override
     public Object getDefaultValue() {
         return defaultValue;
-    }
-
-    static String buildKey(String propertyName) {
-        StringBuilder key = new StringBuilder();
-        key.append("org.trimou.trimness");
-        key.append(Strings.DOT);
-        key.append(Strings.uncapitalize(Strings.replace(
-                Strings.capitalizeFully(propertyName, Strings.UNDERSCORE.toCharArray()[0]), Strings.UNDERSCORE, "")));
-        return key.toString();
     }
 
 }

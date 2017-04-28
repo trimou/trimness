@@ -17,7 +17,7 @@ package org.trimou.trimness.render;
 
 import static io.vertx.core.http.HttpMethod.POST;
 import static org.jboss.weld.vertx.web.WebRoute.HandlerType.BLOCKING;
-import static org.trimou.trimness.config.TrimnessConfigurationKey.DEFAULT_RESULT_TIMEOUT;
+import static org.trimou.trimness.config.TrimnessKey.DEFAULT_RESULT_TIMEOUT;
 import static org.trimou.trimness.util.Resources.asyncResult;
 import static org.trimou.trimness.util.Resources.badRequest;
 import static org.trimou.trimness.util.Resources.failure;
@@ -32,13 +32,17 @@ import static org.trimou.trimness.util.Strings.CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.HEADER_CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.ID;
 import static org.trimou.trimness.util.Strings.MODEL;
+import static org.trimou.trimness.util.Strings.PARAMS;
 import static org.trimou.trimness.util.Strings.RESULT_TYPE;
 import static org.trimou.trimness.util.Strings.TIMEOUT;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -53,7 +57,11 @@ import org.trimou.trimness.template.CompositeTemplateRepository;
 import org.trimou.trimness.template.Template;
 import org.trimou.trimness.util.Resources;
 import org.trimou.trimness.util.Resources.ResultType;
+import org.trimou.trimness.util.Strings;
+import org.trimou.util.ImmutableMap;
+import org.trimou.util.ImmutableMap.ImmutableMapBuilder;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.vertx.core.Handler;
@@ -145,7 +153,7 @@ public class RenderHandler implements Handler<RoutingContext> {
         }
 
         try {
-            String result = mustache.render(initModel(templateId, input.get(MODEL)));
+            String result = mustache.render(initModel(template, input.get(MODEL), initParams(input)));
             switch (resultType) {
             case RAW:
                 ok(ctx, result);
@@ -165,12 +173,13 @@ public class RenderHandler implements Handler<RoutingContext> {
 
         String templateId;
         String templateContent = null;
+        final Template template;
         String contentType;
 
         if (input.has(ID)) {
 
             templateId = input.get(ID).getAsString();
-            Template template = templateRepository.get(templateId);
+            template = templateRepository.get(templateId);
 
             if (template == null) {
                 templateNotFound(ctx, templateId);
@@ -178,6 +187,7 @@ public class RenderHandler implements Handler<RoutingContext> {
             }
             contentType = template.getContentType();
         } else {
+            template = null;
             templateId = getOnetimeId();
             contentType = input.has(CONTENT_TYPE) ? input.get(CONTENT_TYPE).getAsString() : null;
             templateContent = input.get(CONTENT).getAsString();
@@ -187,7 +197,7 @@ public class RenderHandler implements Handler<RoutingContext> {
 
         // Schedule one-shot timer
         vertx.setTimer(1, new AsyncRenderHandler(result, templateId, templateContent, engine,
-                (id) -> this.initModel(id, input.get(MODEL))));
+                () -> this.initModel(template, input.get(MODEL), initParams(input))));
         // Schedule result removal
         long delay = configuration.getLongValue(DEFAULT_RESULT_TIMEOUT);
         if (input.has(TIMEOUT)) {
@@ -203,11 +213,24 @@ public class RenderHandler implements Handler<RoutingContext> {
         ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON).end(asyncResult(result.getId()));
     }
 
-    private Map<String, Object> initModel(String templateId, Object requestModel) {
+    private Map<String, Object> initParams(JsonObject input) {
+        JsonElement paramsElement = input.get(PARAMS);
+        if (paramsElement == null || !paramsElement.isJsonObject()) {
+            return Collections.emptyMap();
+        }
+        ImmutableMapBuilder<String, Object> builder = ImmutableMap.builder();
+        for (Map.Entry<String, JsonElement> param : paramsElement.getAsJsonObject().entrySet()) {
+            builder.put(param.getKey(), param.getValue());
+        }
+        return builder.build();
+    }
+
+    private Map<String, Object> initModel(Template template, Object requestModel, Map<String, Object> parameters) {
+        RenderingContext context = ImmutableRenderingContext.of(template, parameters);
         Map<String, Object> model = new HashMap<>();
-        model.put(MODEL, requestModel);
+        model.put(MODEL, requestModel != null ? requestModel : Collections.emptyMap());
         for (ModelProvider provider : modelProviders) {
-            Map<String, Object> result = provider.getModel(templateId);
+            Map<String, Object> result = provider.getModel(context);
             if (result != null) {
                 model.put(provider.getNamespace(), result);
             }
@@ -229,15 +252,15 @@ public class RenderHandler implements Handler<RoutingContext> {
 
         private final MustacheEngine engine;
 
-        private final Function<String, Map<String, Object>> dataFunction;
+        private final Supplier<Map<String, Object>> modelSupplier;
 
         AsyncRenderHandler(Result result, String templateId, String templateContent, MustacheEngine engine,
-                Function<String, Map<String, Object>> dataFunction) {
+                Supplier<Map<String, Object>> modelSupplier) {
             this.result = result;
             this.templateId = templateId;
             this.templateContent = templateContent;
             this.engine = engine;
-            this.dataFunction = dataFunction;
+            this.modelSupplier = modelSupplier;
         }
 
         @Override
@@ -247,7 +270,7 @@ public class RenderHandler implements Handler<RoutingContext> {
             String output = null;
             if (mustache != null) {
                 try {
-                    output = mustache.render(dataFunction.apply(templateId));
+                    output = mustache.render(modelSupplier.get());
                 } catch (MustacheException e) {
                     result.failure(e.getMessage());
                 }
