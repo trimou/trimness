@@ -33,7 +33,6 @@ import javax.inject.Inject;
 
 import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.config.TrimnessKey;
-import org.trimou.trimness.render.RenderingContext;
 import org.trimou.util.ImmutableMap;
 import org.trimou.util.ImmutableMap.ImmutableMapBuilder;
 
@@ -106,8 +105,13 @@ public class GlobalJsonModelProvider implements ModelProvider {
     }
 
     @Override
-    public Map<String, Object> getModel(RenderingContext context) {
-        return model;
+    public void handle(ModelRequest request) {
+        request.setResult(model);
+    }
+
+    @Override
+    public boolean isValid() {
+        return model != null;
     }
 
 }

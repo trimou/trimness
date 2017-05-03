@@ -15,21 +15,22 @@
  */
 package org.trimou.trimness.model;
 
-import java.util.Map;
-
-import org.trimou.trimness.render.RenderingContext;
+import org.trimou.engine.validation.Validateable;
+import org.trimou.trimness.config.TrimnessKey;
 
 /**
- * Provides data model for templates.
+ * Provides data models for templates. A provider whose {@link #isValid()}
+ * returns <code>false</code> is not considered during data model
+ * initialization.
  *
  * @author Martin Kouba
  */
-public interface ModelProvider {
+public interface ModelProvider extends Validateable {
 
     /**
      * The namespace must be unique. Value of <tt>model</tt> is reserved for the
      * data model passed along with the render request. The namespace is used in
-     * templates - all entries returned from {@link #getModel(String)}} are put
+     * templates - all entries returned from {@link #handle(String)}} are put
      * into a map which is accessible under the namespace key.
      *
      * @return the namespace
@@ -37,10 +38,18 @@ public interface ModelProvider {
     String getNamespace();
 
     /**
+     * The provider should either use {@link ModelRequest#setResult(Object)} or
+     * {@link ModelRequest#noResult()} to signal that the given request was
+     * processed. If a request is not processed within
+     * {@link TrimnessKey#MODEL_INIT_TIMEOUT} the potential result is ignored
+     * afterwards.
+     * <p>
+     * Time-consuming and blocking actions should be performed asynchronously so
+     * that multiple providers could be processed in parallel.
+     * </p>
      *
-     * @param context
-     * @return the immutable data model, may be <code>null</code>
+     * @param request
      */
-    Map<String, Object> getModel(RenderingContext context);
+    void handle(ModelRequest request);
 
 }

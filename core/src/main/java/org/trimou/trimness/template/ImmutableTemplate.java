@@ -24,12 +24,16 @@ import java.util.function.Supplier;
  */
 public class ImmutableTemplate implements Template {
 
-    static ImmutableTemplate of(String id, String contentType) {
-        return of(id, null, contentType);
+    public static ImmutableTemplate of(String id) {
+        return new ImmutableTemplate(id, null, null);
     }
 
-    static ImmutableTemplate of(String id, Supplier<String> contentLoader, String contentType) {
+    public static ImmutableTemplate of(String id, Supplier<String> contentLoader, String contentType) {
         return new ImmutableTemplate(id, contentLoader, contentType);
+    }
+
+    public static ImmutableTemplate of(String id, String content, String contentType) {
+        return new ImmutableTemplate(id, () -> content, contentType);
     }
 
     private final String id;

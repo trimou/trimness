@@ -24,7 +24,7 @@ public class DummyConfiguration implements Configuration {
         properties = new HashMap<>();
     }
 
-    void put(Key key, Object value) {
+    public void put(Key key, Object value) {
         properties.put(key, value);
     }
 

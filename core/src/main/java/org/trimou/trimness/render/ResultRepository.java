@@ -15,6 +15,8 @@
  */
 package org.trimou.trimness.render;
 
+import org.trimou.trimness.template.Template;
+
 /**
  * Any non-default result repository must be an alternative with priority. Only
  * the repository with highest priority is taken into account.
@@ -34,11 +36,21 @@ public interface ResultRepository {
     /**
      * Initialize an incomplete result.
      *
-     * @return an id of an incomplete result
-     * @see Result#success(String)
-     * @see Result#failure(String)
+     * <p>
+     * The timeout is a hint to the repository. Value of <tt>0</tt> means as
+     * long as possible. If it's not possible to hold the result at least for
+     * the given time the repository should either log a warning message or
+     * throw a runtime exception.
+     * </p>
+     *
+     * @param template
+     * @param timeout
+     *            The timeout of the result
+     * @return an incomplete result
+     * @see Result#complete(String)
+     * @see Result#fail(String)
      */
-    Result init(String templateId, String contentType);
+    Result init(Template template, long timeout);
 
     /**
      *

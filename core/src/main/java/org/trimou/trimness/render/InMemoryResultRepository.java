@@ -21,6 +21,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.trimou.trimness.template.Template;
+
+import io.vertx.core.Vertx;
 
 /**
  *
@@ -32,6 +37,9 @@ public class InMemoryResultRepository implements ResultRepository {
     private AtomicLong idGenerator;
 
     private ConcurrentMap<String, SimpleResult> results;
+
+    @Inject
+    private Vertx vertx;
 
     @PostConstruct
     void init() {
@@ -45,9 +53,14 @@ public class InMemoryResultRepository implements ResultRepository {
     }
 
     @Override
-    public Result init(String templateId, String contentType) {
-        SimpleResult result = SimpleResult.init("" + idGenerator.incrementAndGet(), templateId, contentType);
+    public Result init(Template template, long timeout) {
+        SimpleResult result = SimpleResult.init("" + idGenerator.incrementAndGet(), template.getId(),
+                template.getContentType());
         results.put(result.getId(), result);
+        // Schedule result removal
+        vertx.setTimer(timeout, (id) -> {
+            results.remove(id);
+        });
         return result;
     }
 

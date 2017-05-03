@@ -1,0 +1,85 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+      <groupId>org.trimou</groupId>
+      <artifactId>trimness-parent</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+   </parent>
+   <artifactId>trimness-example-simple</artifactId>
+
+   <dependencies>
+
+      <dependency>
+         <groupId>org.trimou</groupId>
+         <artifactId>trimness-core</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
+   </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>2.4.3</version>
+            <executions>
+               <execution>
+                  <id>default</id>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>shade</goal>
+                  </goals>
+                  <configuration>
+                     <transformers>
+                        <transformer
+                           implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                           <manifestEntries>
+                              <Main-Class>org.trimou.trimness.TrimnessMain</Main-Class>
+                           </manifestEntries>
+                        </transformer>
+                        <transformer
+                           implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                     </transformers>
+                     <shadedArtifactAttached>true</shadedArtifactAttached>
+                     <shadedClassifierName>shaded</shadedClassifierName>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+         <!-- plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.7</version>
+            <dependencies>
+               <dependency>
+                  <groupId>org.jboss</groupId>
+                  <artifactId>jandex</artifactId>
+                  <version>${version.jandex}</version>
+               </dependency>
+            </dependencies>
+            <executions>
+               <execution>
+                  <phase>package</phase>
+                  <configuration>
+                     <target>
+                        <taskdef name="jandex"
+                           classname="org.jboss.jandex.JandexAntTask" />
+                        <echo message="Generating Jandex index to speedup Weld bootstrap..." />
+                        <jandex run="true" modify="true">
+                           <fileset dir="${project.build.directory}">
+                              <include name="*-shaded.jar" />
+                           </fileset>
+                        </jandex>
+                     </target>
+                  </configuration>
+                  <goals>
+                     <goal>run</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin-->
+      </plugins>
+   </build>
+
+</project>

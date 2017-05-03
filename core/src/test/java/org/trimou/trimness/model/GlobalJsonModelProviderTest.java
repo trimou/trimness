@@ -1,4 +1,4 @@
-package org.trimou.trimness;
+package org.trimou.trimness.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -10,7 +10,7 @@ import java.util.Map;
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
 import org.junit.Test;
-import org.trimou.trimness.model.GlobalJsonModelProvider;
+import org.trimou.trimness.DummyConfiguration;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -29,9 +29,14 @@ public class GlobalJsonModelProviderTest {
         DummyConfiguration configuration = weld.select(DummyConfiguration.class).get();
         configuration.put(GLOBAL_JSON_FILE, "src/test/resources/global-data.json");
 
+        DummyModelRequest dummyModelRequest = new DummyModelRequest();
+
         GlobalJsonModelProvider provider = weld.select(GlobalJsonModelProvider.class).get();
 
-        Map<String, Object> model = provider.getModel(null);
+        provider.handle(dummyModelRequest);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> model = (Map<String, Object>) dummyModelRequest.getResult();
 
         assertNotNull(model);
         assertEquals(2, model.size());

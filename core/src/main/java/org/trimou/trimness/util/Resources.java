@@ -138,7 +138,7 @@ public class Resources {
         ctx.response().setStatusCode(404).putHeader(HEADER_CONTENT_TYPE, APP_JSON).end(chunk);
     }
 
-    private static void internalServerError(RoutingContext ctx, String chunk) {
+    public static void internalServerError(RoutingContext ctx, String chunk) {
         ctx.response().setStatusCode(500).putHeader(HEADER_CONTENT_TYPE, APP_JSON).end(chunk);
     }
 

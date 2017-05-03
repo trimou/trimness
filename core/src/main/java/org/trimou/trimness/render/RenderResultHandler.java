@@ -66,6 +66,11 @@ public class RenderResultHandler implements Handler<RoutingContext> {
             return;
         }
 
+        if (result.isFailure()) {
+            Resources.internalServerError(ctx, Resources.failure(result.getError()).toString());
+            return;
+        }
+
         if (result.getContentType() != null) {
             ctx.response().putHeader(HEADER_CONTENT_TYPE, result.getContentType());
         }

@@ -1,4 +1,4 @@
-package org.trimou.trimness;
+package org.trimou.trimness.template;
 
 import java.io.Reader;
 import java.util.Collections;

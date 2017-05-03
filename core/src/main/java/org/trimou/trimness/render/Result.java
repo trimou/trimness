@@ -38,7 +38,7 @@ public interface Result {
      *
      * @return the error message, may be <code>null</code>
      */
-    String getErrorMessage();
+    String getError();
 
     /**
      *
@@ -64,7 +64,7 @@ public interface Result {
      *
      * @param errorMessage
      */
-    void failure(String errorMessage);
+    void fail(String errorMessage);
 
     /**
      * If the result is already complete an {@link IllegalStateException} is
@@ -72,7 +72,7 @@ public interface Result {
      *
      * @param output
      */
-    void success(String output);
+    void complete(String output);
 
     /**
      *
@@ -88,6 +88,14 @@ public interface Result {
      */
     default boolean isSucess() {
         return Code.SUCESS.equals(getCode());
+    }
+
+    /**
+     *
+     * @return
+     */
+    default boolean isFailure() {
+        return Code.FAILURE.equals(getCode());
     }
 
     public enum Code {

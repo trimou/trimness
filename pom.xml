@@ -65,6 +65,7 @@
    <modules>
       <module>core</module>
       <module>tests</module>
+      <module>examples/simple</module>
    </modules>
 
    <dependencyManagement>

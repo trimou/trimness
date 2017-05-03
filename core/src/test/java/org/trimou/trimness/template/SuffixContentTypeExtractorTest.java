@@ -1,4 +1,4 @@
-package org.trimou.trimness;
+package org.trimou.trimness.template;
 
 import org.junit.Assert;
 import org.junit.Test;

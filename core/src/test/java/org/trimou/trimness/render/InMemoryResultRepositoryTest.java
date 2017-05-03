@@ -1,4 +1,4 @@
-package org.trimou.trimness;
+package org.trimou.trimness.render;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -9,9 +9,9 @@ import static org.junit.Assert.fail;
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
 import org.junit.Test;
-import org.trimou.trimness.render.InMemoryResultRepository;
-import org.trimou.trimness.render.Result;
+import org.trimou.trimness.MockVertxProducer;
 import org.trimou.trimness.render.Result.Code;
+import org.trimou.trimness.template.ImmutableTemplate;
 
 /**
  *
@@ -20,27 +20,27 @@ import org.trimou.trimness.render.Result.Code;
 public class InMemoryResultRepositoryTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.of(InMemoryResultRepository.class);
+    public WeldInitiator weld = WeldInitiator.of(InMemoryResultRepository.class, MockVertxProducer.class);
 
     @Test
     public void testBasicOperations() {
         InMemoryResultRepository repository = weld.select(InMemoryResultRepository.class).get();
         assertEquals(0, repository.size());
-        Result result1 = repository.init("foo", null);
+        Result result1 = repository.init(ImmutableTemplate.of("foo"), 10000);
         assertEquals(1, repository.size());
         assertNotNull(result1);
         assertNotNull(result1.getId());
         assertEquals(Code.INCOMPLETE, result1.getCode());
         assertNull(result1.getContentType());
         assertEquals(result1.getId(), repository.get(result1.getId()).getId());
-        result1.success("hello");
+        result1.complete("hello");
         assertEquals(1, repository.size());
         Result result2 = repository.get(result1.getId());
         assertNotNull(result2);
         assertEquals(result1.getId(), result2.getId());
         assertEquals("hello", result2.getOutput());
         try {
-            result1.failure("foo");
+            result1.fail("foo");
             fail();
         } catch (Exception expected) {
         }

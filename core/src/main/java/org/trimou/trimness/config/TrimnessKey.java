@@ -17,14 +17,13 @@ package org.trimou.trimness.config;
 
 import org.trimou.trimness.TrimnessVerticle;
 import org.trimou.trimness.model.GlobalJsonModelProvider;
+import org.trimou.trimness.model.ModelInitializer;
 import org.trimou.trimness.render.RenderHandler;
 import org.trimou.trimness.template.ClassPathTemplateRepository;
 import org.trimou.trimness.template.FileSystemTemplateRepository;
 
 /**
  * Core configuration keys.
- *
- * TODO links
  *
  * @author Martin Kouba
  */
@@ -45,11 +44,18 @@ public enum TrimnessKey implements Key {
     PORT(8080),
 
     /**
-     * <tt>org.trimou.trimness.defaultResultTimeout</tt>
+     * <tt>org.trimou.trimness.resultTimeout</tt>
      *
      * @see RenderHandler
      */
-    DEFAULT_RESULT_TIMEOUT(300000l),
+    RESULT_TIMEOUT(300000l),
+
+    /**
+     * <tt>org.trimou.trimness.modelInitTimeout</tt>
+     *
+     * @see ModelInitializer
+     */
+    MODEL_INIT_TIMEOUT(60000l),
 
     /**
      * <tt>org.trimou.trimness.templateDir</tt>

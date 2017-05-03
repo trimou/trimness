@@ -16,7 +16,7 @@
 package org.trimou.trimness.template;
 
 /**
- * Represents a persistent template.
+ * Immutable template.
  *
  * @author Martin Kouba
  */
@@ -40,5 +40,13 @@ public interface Template {
      * @return the content type, may be <code>null</code>
      */
     String getContentType();
+
+    /**
+     *
+     * @return <code>true</code> if the content type is set
+     */
+    default boolean hasContentType() {
+        return getContentType() != null;
+    }
 
 }

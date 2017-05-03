@@ -1,0 +1,39 @@
+<html>
+<head>
+<title>Last Commits Report</title>
+<style type="text/css">
+body {
+  font-family: sans-serif;
+}
+
+td {
+  padding: 5px;
+}
+</style>
+</head>
+
+<h1>Last Commits for {{repository.id}}</h1>
+
+<p>Report generated for {{alt model.name "unknown person"}}.</p>
+
+<table>
+  <tr>
+    <th></th>
+    <th>Date</th>
+    <th>SHA</th>
+    <th>Message</th>
+    <th>Author</th>
+  </tr>
+  {{#each repository.commits}}
+  <tr>
+    <td>{{index}}.</td>
+    <td>{{commit.author.date}}</td>
+    <td><a href="{{html_url}}">{{sha}}</a></td>
+    <td>{{commit.message}}</td>
+    <td>{{author.login}}</td>
+  </tr>
+  {{/each}}
+</table>
+<hr>
+Generated: {{meta.time}}
+</html>

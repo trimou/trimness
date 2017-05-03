@@ -1,4 +1,4 @@
-package org.trimou.trimness;
+package org.trimou.trimness.template;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
 import org.junit.Test;
+import org.trimou.trimness.DummyConfiguration;
 import org.trimou.trimness.template.ClassPathTemplateRepository;
 import org.trimou.trimness.template.CompositeContentTypeExtractor;
 import org.trimou.trimness.template.Template;

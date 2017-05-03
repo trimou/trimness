@@ -13,28 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trimou.trimness.render;
+package org.trimou.trimness;
 
-import java.util.Map;
-
-import org.trimou.trimness.template.Template;
+import io.vertx.core.Vertx;
 
 /**
  *
  * @author Martin Kouba
  */
-public interface RenderingContext {
+public class TrimnessMain {
 
-    /**
-     *
-     * @return the template or <code>null</code> if not using a persistent template
-     */
-    Template getTemplate();
-
-    /**
-     *
-     * @return the map of parameters
-     */
-    Map<String, Object> getParameters();
+    public static void main(String[] args) {
+        Vertx.vertx().deployVerticle(new TrimnessVerticle());
+    }
 
 }

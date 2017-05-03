@@ -69,7 +69,7 @@ public class SimpleResult implements Result {
         return code.get();
     }
 
-    public String getErrorMessage() {
+    public String getError() {
         return errorMessage.get();
     }
 
@@ -90,7 +90,7 @@ public class SimpleResult implements Result {
     }
 
     @Override
-    public void failure(String errorMessage) {
+    public void fail(String errorMessage) {
         synchronized (this.code) {
             checkIsIncomplete();
             this.code.set(Code.FAILURE);
@@ -99,10 +99,10 @@ public class SimpleResult implements Result {
     }
 
     @Override
-    public void success(String output) {
+    public void complete(String output) {
         synchronized (this.code) {
             checkIsIncomplete();
-            this.code.set(Code.FAILURE);
+            this.code.set(Code.SUCESS);
             this.output.set(output);
         }
     }
