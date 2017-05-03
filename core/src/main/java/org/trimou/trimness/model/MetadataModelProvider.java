@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.trimou.util.ImmutableMap;
-import org.trimou.util.Strings;
 
 /**
  *
@@ -42,8 +41,7 @@ public class MetadataModelProvider implements ModelProvider {
     @Override
     public void handle(ModelRequest request) {
         request.setResult(ImmutableMap.<String, Object>builder().put(TIME, LocalDateTime.now())
-                .put(TEMPLATE_ID, request.getTemplate() != null ? request.getTemplate().getId() : Strings.NOT_AVAILABLE)
-                .build());
+                .put(TEMPLATE_ID, request.getTemplate().getId()).build());
     }
 
 }

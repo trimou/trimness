@@ -30,8 +30,7 @@ public interface ModelRequest {
 
     /**
      *
-     * @return the template or <code>null</code> if not using a persistent
-     *         template
+     * @return the template
      */
     Template getTemplate();
 
