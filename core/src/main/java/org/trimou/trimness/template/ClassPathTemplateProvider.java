@@ -20,19 +20,14 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.trimou.engine.priority.WithPriority;
 import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.config.TrimnessKey;
-import org.trimou.util.IOUtils;
 
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -43,9 +38,9 @@ import io.vertx.core.logging.LoggerFactory;
  * @author Martin Kouba
  */
 @ApplicationScoped
-public class ClassPathTemplateRepository implements TemplateRepository {
+public class ClassPathTemplateProvider implements TemplateProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassPathTemplateRepository.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassPathTemplateProvider.class.getName());
 
     @Inject
     private Configuration configuration;
@@ -55,39 +50,35 @@ public class ClassPathTemplateRepository implements TemplateRepository {
 
     private final ClassLoader classLoader;
 
-    private final ConcurrentMap<String, Optional<Template>> templates;
-
-    public ClassPathTemplateRepository() {
+    public ClassPathTemplateProvider() {
         ClassLoader classLoader = SecurityActions.getContextClassLoader();
         if (classLoader == null) {
-            classLoader = SecurityActions.getClassLoader(ClassPathTemplateRepository.class);
+            classLoader = SecurityActions.getClassLoader(ClassPathTemplateProvider.class);
         }
         this.classLoader = classLoader;
-        this.templates = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public int getPriority() {
+        // To be queried before FileSystemTemplateProvider
+        return WithPriority.DEFAULT_PRIORITY + 1;
     }
 
     @Override
     public Template get(String id) {
-        return templates.computeIfAbsent(id, templateId -> {
-
-            try (Reader reader = getReader(id)) {
-                if (reader != null) {
-                    String contents = IOUtils.toString(reader);
-                    Supplier<String> contentLoader = () -> contents;
-                    return Optional.of(ImmutableTemplate.of(id, contentLoader, extractor.extract(id, contentLoader)));
+        URL resource = find(id);
+        if (resource != null) {
+            Supplier<Reader> contentReader = () -> {
+                try {
+                    return new InputStreamReader(resource.openStream(),
+                            configuration.getStringValue(TrimnessKey.DEFAULT_FILE_ENCODING));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (IOException e) {
-                LOGGER.error("Cannot read template for {0}", e, templateId);
-            }
-            return Optional.empty();
-
-        }).orElse(null);
-    }
-
-    @Override
-    public Set<Template> getAll() {
-        return templates.values().stream().filter((optional) -> optional.isPresent()).map(optional -> optional.get())
-                .collect(Collectors.toSet());
+            };
+            return ImmutableTemplate.of(id, getId(), contentReader, extractor.extract(id, contentReader));
+        }
+        return null;
     }
 
     @Override
@@ -95,25 +86,23 @@ public class ClassPathTemplateRepository implements TemplateRepository {
         return !"".equals(configuration.getStringValue(TrimnessKey.CLASSPATH_ROOT).trim());
     }
 
-    private Reader getReader(String id) {
+    private URL find(String id) {
         final String name = configuration.getStringValue(TrimnessKey.CLASSPATH_ROOT) + id;
-        Reader reader = null;
-
+        URL found = null;
         try {
             Enumeration<URL> resources = classLoader.getResources(name);
             while (resources.hasMoreElements()) {
                 URL resource = resources.nextElement();
-                if (reader != null) {
-                    LOGGER.info("Duplicit template ignored: {0}", name);
+                if (found != null) {
+                    LOGGER.info("Duplicit template ignored: {0}", resource);
                 } else {
-                    reader = new InputStreamReader(resource.openStream(),
-                            configuration.getStringValue(TrimnessKey.DEFAULT_FILE_ENCODING));
+                    found = resource;
                 }
             }
         } catch (IOException e) {
             LOGGER.error("Error while reading {}", e, name);
         }
-        return reader;
+        return found;
     }
 
 }

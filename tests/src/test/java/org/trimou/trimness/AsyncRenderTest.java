@@ -89,7 +89,7 @@ public class AsyncRenderTest extends TrimnessTest {
     public void testOnetimeAsyncFailure(TestContext context) {
         Response response = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .body("{\"async\" : true, content : \"{{#each}}\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
+                .body("{\"async\" : true, \"content\" : \"{{#each}}\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
                 .post("/render");
 
         response.then().assertThat().statusCode(200);

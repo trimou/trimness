@@ -1,12 +1,10 @@
 package org.trimou.trimness;
 
-import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;
 import static org.trimou.trimness.util.Strings.CODE;
 import static org.trimou.trimness.util.Strings.CONTENT;
 import static org.trimou.trimness.util.Strings.SUCCESS;
-import static org.trimou.trimness.util.Strings.TEMPLATES;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -16,7 +14,6 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.trimou.trimness.util.Strings;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -37,17 +34,6 @@ public class TemplateResourcesTest extends TrimnessTest {
                 .add(ShrinkWrap.create(JavaArchive.class)
                         .addClasses(TemplateResourcesTest.class))
                 .build();
-    }
-
-    @RunAsClient
-    @Test
-    public void testTemplatesHandler() {
-        Response response = RestAssured.given()
-                .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .get("/template");
-        response.then().assertThat().statusCode(200)
-                .body(CODE, equalTo(SUCCESS)).body(TEMPLATES, hasItems(
-                        "hello.txt", "hello.html", "hello-global-data.txt"));
     }
 
     @RunAsClient

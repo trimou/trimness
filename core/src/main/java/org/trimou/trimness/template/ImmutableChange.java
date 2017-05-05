@@ -15,24 +15,27 @@
  */
 package org.trimou.trimness.template;
 
-import java.io.Reader;
-import java.util.function.Supplier;
+import org.trimou.trimness.template.TemplateProvider.Change;
 
-import org.trimou.engine.priority.WithPriority;
-import org.trimou.engine.validation.Validateable;
+public class ImmutableChange implements Change {
 
-/**
- *
- * @author Martin Kouba
- */
-public interface ContentTypeExtractor extends WithPriority, Validateable {
+    private final String providerId;
 
-    /**
-     *
-     * @param id
-     * @param contentReader
-     * @return the content type or <code>null</code>
-     */
-    String extract(String id, Supplier<Reader> content);
+    private final String templateId;
+
+    public ImmutableChange(String providerId, String templateId) {
+        this.providerId = providerId;
+        this.templateId = templateId;
+    }
+
+    @Override
+    public String getProviderId() {
+        return providerId;
+    }
+
+    @Override
+    public String getTemplateId() {
+        return templateId;
+    }
 
 }

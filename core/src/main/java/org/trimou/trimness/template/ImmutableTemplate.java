@@ -15,6 +15,8 @@
  */
 package org.trimou.trimness.template;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.function.Supplier;
 
 /**
@@ -25,32 +27,42 @@ import java.util.function.Supplier;
 public class ImmutableTemplate implements Template {
 
     public static ImmutableTemplate of(String id) {
-        return new ImmutableTemplate(id, null, null);
+        return new ImmutableTemplate(id, null, null, null, null);
     }
 
-    public static ImmutableTemplate of(String id, Supplier<String> contentLoader, String contentType) {
-        return new ImmutableTemplate(id, contentLoader, contentType);
+    public static ImmutableTemplate of(String id, String repositoryId, Supplier<Reader> contentReader,
+            String contentType) {
+        return new ImmutableTemplate(id, repositoryId, contentReader, null, contentType);
     }
 
     public static ImmutableTemplate of(String id, String content, String contentType) {
-        return new ImmutableTemplate(id, () -> content, contentType);
+        return new ImmutableTemplate(id, null, null, content, contentType);
     }
 
     private final String id;
 
-    private final Supplier<String> contentLoader;
+    private final String providerId;
+
+    private final Supplier<Reader> contentReader;
+
+    private final String content;
 
     private final String contentType;
 
     /**
      *
      * @param id
-     * @param contentLoader
+     * @param providerId
+     * @param contentReader
+     * @param content
      * @param contentType
      */
-    ImmutableTemplate(String id, Supplier<String> contentLoader, String contentType) {
+    ImmutableTemplate(String id, String providerId, Supplier<Reader> contentReader, String content,
+            String contentType) {
         this.id = id;
-        this.contentLoader = contentLoader;
+        this.providerId = providerId;
+        this.contentReader = contentReader;
+        this.content = content;
         this.contentType = contentType;
     }
 
@@ -58,11 +70,23 @@ public class ImmutableTemplate implements Template {
         return id;
     }
 
-    public String getContent() {
-        if (contentLoader == null) {
+    public String getProviderId() {
+        return providerId;
+    }
+
+    public Reader getContentReader() {
+        if (contentReader == null) {
+            if (content != null) {
+                return new StringReader(content);
+            }
             throw new UnsupportedOperationException();
         }
-        return contentLoader.get();
+        return contentReader.get();
+    }
+
+    @Override
+    public String getContent() {
+        return content != null ? content : Template.super.getContent();
     }
 
     public String getContentType() {
@@ -101,7 +125,7 @@ public class ImmutableTemplate implements Template {
 
     @Override
     public String toString() {
-        return "Template [id=" + id + ", contentType=" + contentType + "]";
+        return "ImmutableTemplate [id=" + id + ", repositoryId=" + providerId + ", contentType=" + contentType + "]";
     }
 
 }

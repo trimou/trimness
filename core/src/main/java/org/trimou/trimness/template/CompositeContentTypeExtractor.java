@@ -15,6 +15,7 @@
  */
 package org.trimou.trimness.template;
 
+import java.io.Reader;
 import java.util.function.Supplier;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -44,10 +45,10 @@ public class CompositeContentTypeExtractor extends CompositeComponent<ContentTyp
     }
 
     @Override
-    public String extract(String id, Supplier<String> contentLoader) {
+    public String extract(String id, Supplier<Reader> contentReader) {
         String contentType = null;
         for (ContentTypeExtractor contentTypeExtractor : components) {
-            contentType = contentTypeExtractor.extract(id, contentLoader);
+            contentType = contentTypeExtractor.extract(id, contentReader);
             if (contentType != null) {
                 break;
             }

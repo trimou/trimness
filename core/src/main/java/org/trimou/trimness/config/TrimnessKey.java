@@ -19,8 +19,8 @@ import org.trimou.trimness.TrimnessVerticle;
 import org.trimou.trimness.model.GlobalJsonModelProvider;
 import org.trimou.trimness.model.ModelInitializer;
 import org.trimou.trimness.render.RenderHandler;
-import org.trimou.trimness.template.ClassPathTemplateRepository;
-import org.trimou.trimness.template.FileSystemTemplateRepository;
+import org.trimou.trimness.template.ClassPathTemplateProvider;
+import org.trimou.trimness.template.FileSystemTemplateProvider;
 
 /**
  * Core configuration keys.
@@ -60,28 +60,28 @@ public enum TrimnessKey implements Key {
     /**
      * <tt>org.trimou.trimness.templateDir</tt>
      *
-     * @see FileSystemTemplateRepository
+     * @see FileSystemTemplateProvider
      */
     TEMPLATE_DIR(System.getProperty("user.dir") + SecurityActions.getSystemProperty("file.separator") + "templates"),
 
     /**
      * <tt>org.trimou.trimness.templateDirScanInterval</tt>
      *
-     * @see FileSystemTemplateRepository
+     * @see FileSystemTemplateProvider
      */
     TEMPLATE_DIR_SCAN_INTERVAL(60000l),
 
     /**
      * <tt> org.trimou.trimness.templateDirMatch</tt>
      *
-     * @see FileSystemTemplateRepository
+     * @see FileSystemTemplateProvider
      */
     TEMPLATE_DIR_MATCH(".*"),
 
     /**
      * <tt>org.trimou.trimness.classpathRoot</tt>
      *
-     * @see ClassPathTemplateRepository
+     * @see ClassPathTemplateProvider
      */
     CLASSPATH_ROOT("META-INF/templates/"),
 

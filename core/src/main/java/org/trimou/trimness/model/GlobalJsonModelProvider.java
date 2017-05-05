@@ -20,9 +20,7 @@ import static org.trimou.trimness.config.TrimnessKey.GLOBAL_JSON_FILE;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,17 +28,17 @@ import java.util.Map.Entry;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonStructure;
+import javax.json.JsonValue;
+import javax.json.JsonValue.ValueType;
 
 import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.config.TrimnessKey;
 import org.trimou.util.ImmutableMap;
 import org.trimou.util.ImmutableMap.ImmutableMapBuilder;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -86,27 +84,29 @@ public class GlobalJsonModelProvider implements ModelProvider {
 
         try {
 
-            JsonElement globalDataElement = new JsonParser().parse(new InputStreamReader(new FileInputStream(file),
+            JsonReader reader = Json.createReader(new InputStreamReader(new FileInputStream(file),
                     configuration.getStringValue(DEFAULT_FILE_ENCODING)));
-            if (globalDataElement.isJsonObject()) {
+            JsonStructure global = reader.read();
+
+            if (ValueType.OBJECT.equals(global.getValueType())) {
 
                 ImmutableMapBuilder<String, Object> builder = ImmutableMap.<String, Object>builder();
-                JsonObject globalDataObject = globalDataElement.getAsJsonObject();
+                JsonObject globalDataObject = (JsonObject) global;
 
-                for (Entry<String, JsonElement> entry : globalDataObject.entrySet()) {
+                for (Entry<String, JsonValue> entry : globalDataObject.entrySet()) {
                     builder.put(entry.getKey(), entry.getValue());
                 }
                 model = builder.build();
             }
 
-        } catch (JsonIOException | JsonSyntaxException | UnsupportedEncodingException | FileNotFoundException e) {
+        } catch (Exception e) {
             LOGGER.warn("Error reading global JSON data file: " + file, e);
         }
     }
 
     @Override
     public void handle(ModelRequest request) {
-        request.setResult(model);
+        request.complete(model);
     }
 
     @Override

@@ -18,30 +18,29 @@ package org.trimou.trimness.template;
 import java.util.Collections;
 import java.util.Set;
 
+import org.trimou.engine.locator.TemplateLocator;
 import org.trimou.engine.priority.WithPriority;
 import org.trimou.engine.validation.Validateable;
-import org.trimou.trimness.TrimnessTemplateLocator;
+import org.trimou.trimness.util.WithId;
 
 /**
- * The template repository is primarily responsible for identifying the
- * templates and loading the contents. There might be several template
- * repositories deployed. The repositories with higher priority are queried
- * first.
- * <p>
- * If a template is modified, the repository should fire an event of type
- * {@link Template} so that it can be invalidated properly.
- * </p>
+ * The template provider is responsible for looking up the templates and
+ * loading the contents. There might be several template providers installed.
+ * Providers with higher priority are queried first.
  * <p>
  * An invalid repository is not considered when performing the lookup of a
  * template.
  * </p>
+ * <p>
+ * If a template managed by this provider is modified/removed, an event of
+ * type {@link Change} should be fired so that
+ * {@link TemplateCache} is able to invalidate the cached entries properly.
  *
  * @author Martin Kouba
- * @see CompositeTemplateRepository
- * @see TrimnessTemplateLocator
- * @see TemplateInvalidator
+ * @see Template
+ * @see TemplateCache
  */
-public interface TemplateRepository extends WithPriority, Validateable {
+public interface TemplateProvider extends WithId, WithPriority, Validateable {
 
     /**
      *
@@ -51,13 +50,31 @@ public interface TemplateRepository extends WithPriority, Validateable {
     Template get(String id);
 
     /**
-     * Note that the returned set does not necessarily contain all available
-     * templates.
      *
-     * @return all templates stored in the repository
+     * @return the set of all available template identifiers
+     * @see TemplateLocator#getAllIdentifiers()
      */
-    default Set<Template> getAll() {
+    default Set<String> getAvailableTemplateIds() {
         return Collections.emptySet();
+    }
+
+    /**
+     * Modification or removal.
+     */
+    interface Change {
+
+        /**
+         *
+         * @return the repository id
+         */
+        String getProviderId();
+
+        /**
+         *
+         * @return the template id
+         */
+        String getTemplateId();
+
     }
 
 }

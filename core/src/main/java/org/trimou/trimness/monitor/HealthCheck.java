@@ -15,17 +15,13 @@
  */
 package org.trimou.trimness.monitor;
 
+import org.trimou.trimness.util.WithId;
+
 /**
  *
  * @author Martin Kouba
  */
-public interface HealthCheck {
-
-    /**
-     *
-     * @return a unique identifier
-     */
-    String getId();
+public interface HealthCheck extends WithId {
 
     /**
      * Performs the check.

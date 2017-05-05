@@ -26,13 +26,13 @@ import static org.trimou.trimness.util.Strings.SUCCESS;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 
 import org.jboss.weld.vertx.web.WebRoute;
 import org.jboss.weld.vertx.web.WebRoute.HandlerType;
 import org.trimou.trimness.monitor.HealthCheck.Result;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
@@ -56,25 +56,25 @@ public class MonitorResources {
         @Override
         public void handle(RoutingContext ctx) {
             boolean isOk = true;
-            JsonObject response = new JsonObject();
-            JsonArray checks = new JsonArray();
+            JsonObjectBuilder builder = Json.createObjectBuilder();
+            JsonArrayBuilder checks = Json.createArrayBuilder();
             for (HealthCheck healthCheck : healthChecks) {
                 Result result = healthCheck.perform();
                 if (!result.isOk()) {
                     isOk = false;
                 }
-                JsonObject check = new JsonObject();
-                check.addProperty(ID, healthCheck.getId());
-                check.addProperty(RESULT, result.isOk() ? SUCCESS : FAILURE);
+                JsonObjectBuilder check = Json.createObjectBuilder();
+                check.add(ID, healthCheck.getId());
+                check.add(RESULT, result.isOk() ? SUCCESS : FAILURE);
                 if (result.hasDetails()) {
-                    check.addProperty(DESCRIPTION, result.getDetails());
+                    check.add(DESCRIPTION, result.getDetails());
                 }
                 checks.add(check);
             }
-            response.add(CHECKS, checks);
-            response.addProperty(RESULT, isOk ? SUCCESS : FAILURE);
+            builder.add(CHECKS, checks);
+            builder.add(RESULT, isOk ? SUCCESS : FAILURE);
             ctx.response().putHeader(HEADER_CONTENT_TYPE, APP_JSON).setStatusCode(isOk ? 200 : 503)
-                    .end(response.toString());
+                    .end(builder.build().toString());
         }
 
     }

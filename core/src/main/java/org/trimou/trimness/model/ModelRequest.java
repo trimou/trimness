@@ -47,18 +47,18 @@ public interface ModelRequest {
      *
      * @param result
      * @throws IllegalStateException
-     *             If result already set
+     *             If already completed
      */
-    void setResult(Object value);
+    void complete(Object value);
 
     /**
      * Signal that the request was processed and no result can be found.
      *
      * @throws IllegalStateException
-     *             If result already set
+     *             If already completed
      */
-    default void noResult() {
-        setResult(null);
+    default void complete() {
+        complete(null);
     }
 
 }

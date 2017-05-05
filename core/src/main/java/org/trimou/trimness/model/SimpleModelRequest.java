@@ -64,7 +64,7 @@ class SimpleModelRequest implements ModelRequest {
     }
 
     @Override
-    public void setResult(Object value) {
+    public void complete(Object value) {
         if (result.compareAndSet(null, value)) {
             latch.countDown();
         } else {

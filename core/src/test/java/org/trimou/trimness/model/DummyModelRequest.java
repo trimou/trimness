@@ -19,7 +19,7 @@ class DummyModelRequest implements ModelRequest {
     }
 
     @Override
-    public void setResult(Object result) {
+    public void complete(Object result) {
         this.result = result;
     }
 

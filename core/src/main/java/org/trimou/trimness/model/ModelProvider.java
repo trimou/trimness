@@ -17,6 +17,7 @@ package org.trimou.trimness.model;
 
 import org.trimou.engine.validation.Validateable;
 import org.trimou.trimness.config.TrimnessKey;
+import org.trimou.trimness.util.WithId;
 
 /**
  * Provides data models for templates. A provider whose {@link #isValid()}
@@ -25,7 +26,7 @@ import org.trimou.trimness.config.TrimnessKey;
  *
  * @author Martin Kouba
  */
-public interface ModelProvider extends Validateable {
+public interface ModelProvider extends Validateable, WithId {
 
     /**
      * The namespace must be unique. Value of <tt>model</tt> is reserved for the
@@ -38,8 +39,8 @@ public interface ModelProvider extends Validateable {
     String getNamespace();
 
     /**
-     * The provider should either use {@link ModelRequest#setResult(Object)} or
-     * {@link ModelRequest#noResult()} to signal that the given request was
+     * The provider should either use {@link ModelRequest#complete(Object)} or
+     * {@link ModelRequest#complete()} to signal that the given request was
      * processed. If a request is not processed within
      * {@link TrimnessKey#MODEL_INIT_TIMEOUT} the potential result is ignored
      * afterwards.

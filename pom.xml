@@ -60,6 +60,7 @@
       <version.slf4j>1.7.21</version.slf4j>
       <version.shrinkwrap.resolver>2.2.4</version.shrinkwrap.resolver>
       <version.json-path>2.2.0</version.json-path>
+      <version.glassfish.javax.json>1.0.4</version.glassfish.javax.json>
    </properties>
 
    <modules>
@@ -79,7 +80,7 @@
 
          <dependency>
             <groupId>org.trimou</groupId>
-            <artifactId>trimou-extension-gson</artifactId>
+            <artifactId>trimou-extension-json-p</artifactId>
             <version>${version.trimou}</version>
          </dependency>
 
@@ -113,6 +114,12 @@
             <artifactId>vertx-unit</artifactId>
             <version>${version.vertx}</version>
             <scope>test</scope>
+         </dependency>
+
+         <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.json</artifactId>
+            <version>${version.glassfish.javax.json}</version>
          </dependency>
 
          <dependency>

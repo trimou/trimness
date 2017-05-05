@@ -49,9 +49,9 @@ public class ModelInitializerTest {
 
         @Override
         public void handle(ModelRequest request) {
-            request.setResult("1");
+            request.complete("1");
             try {
-                request.setResult("2");
+                request.complete("2");
                 fail();
             } catch (IllegalStateException expected) {
             }
@@ -106,7 +106,7 @@ public class ModelInitializerTest {
                     Thread.currentThread().interrupt();
                     throw new RuntimeException(e);
                 }
-                request.setResult("baz!");
+                request.complete("baz!");
             });
         }
 

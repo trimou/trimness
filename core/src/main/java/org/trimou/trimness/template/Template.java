@@ -15,6 +15,11 @@
  */
 package org.trimou.trimness.template;
 
+import java.io.IOException;
+import java.io.Reader;
+
+import org.trimou.util.IOUtils;
+
 /**
  * Immutable template.
  *
@@ -31,22 +36,33 @@ public interface Template {
 
     /**
      *
-     * @return the contents
+     * @return the id of the provider, may be null
+     * @see TemplateProvider
      */
-    String getContent();
+    String getProviderId();
+
+    /**
+     * The reader must be closed right after the content is read.
+     *
+     * @return the content reader
+     */
+    Reader getContentReader();
+
+    /**
+     * @return the content string
+     */
+    default String getContent() {
+        try (Reader reader = getContentReader()) {
+            return IOUtils.toString(reader);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot read template content of " + getId(), e);
+        }
+    }
 
     /**
      *
      * @return the content type, may be <code>null</code>
      */
     String getContentType();
-
-    /**
-     *
-     * @return <code>true</code> if the content type is set
-     */
-    default boolean hasContentType() {
-        return getContentType() != null;
-    }
 
 }

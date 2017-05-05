@@ -12,7 +12,12 @@
 
       <dependency>
          <groupId>org.trimou</groupId>
-         <artifactId>trimou-extension-gson</artifactId>
+         <artifactId>trimou-extension-json-p</artifactId>
+      </dependency>
+
+      <dependency>
+         <groupId>org.glassfish</groupId>
+         <artifactId>javax.json</artifactId>
       </dependency>
 
       <dependency>

@@ -28,8 +28,6 @@ import org.jboss.weld.vertx.web.WebRoute;
 import org.trimou.trimness.util.Resources;
 import org.trimou.trimness.util.Resources.ResultType;
 
-import com.google.gson.Gson;
-
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
 
@@ -42,9 +40,6 @@ public class RenderResultHandler implements Handler<RoutingContext> {
     @Inject
     private ResultRepository resultRepository;
 
-    @Inject
-    private Gson gson;
-
     @Override
     public void handle(RoutingContext ctx) {
 
@@ -56,18 +51,15 @@ public class RenderResultHandler implements Handler<RoutingContext> {
         }
 
         Result result = resultRepository.get(id);
-
         if (result == null) {
             Resources.notFound(ctx, Resources.failure("Result not found for id: %s", id).toString());
         }
-
         if (!result.isComplete()) {
             Resources.ok(ctx, Resources.success("Result %s not complete yet", id).toString());
             return;
         }
-
         if (result.isFailure()) {
-            Resources.internalServerError(ctx, Resources.failure(result.getError()).toString());
+            Resources.internalServerError(ctx, Resources.failure(result.getError()).build().toString());
             return;
         }
 
@@ -82,7 +74,7 @@ public class RenderResultHandler implements Handler<RoutingContext> {
             Resources.ok(ctx, result.getOutput());
             break;
         case METADATA:
-            Resources.ok(ctx, Resources.metadataResult(result, gson));
+            Resources.ok(ctx, Resources.metadataResult(result));
         default:
             throw new IllegalStateException("Unsupported result type: " + resultType);
         }

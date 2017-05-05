@@ -22,7 +22,7 @@ import io.restassured.response.Response;
  *
  */
 @RunWith(Arquillian.class)
-public class TemplateRepositoriesTest extends TrimnessTest {
+public class TemplateProvidersTest extends TrimnessTest {
 
     @Deployment
     public static Archive<?> createTestArchive() {
@@ -32,7 +32,7 @@ public class TemplateRepositoriesTest extends TrimnessTest {
                                 new StringAsset(
                                         "{{#each model}}{{.}}{{/each}}"),
                                 "templates/hello.html")
-                        .addClasses(TemplateRepositoriesTest.class))
+                        .addClasses(TemplateProvidersTest.class))
                 .build();
     }
 

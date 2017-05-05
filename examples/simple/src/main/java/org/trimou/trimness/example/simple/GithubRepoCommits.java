@@ -15,16 +15,21 @@
  */
 package org.trimou.trimness.example.simple;
 
+import static org.trimou.trimness.util.Strings.ID;
+
+import java.io.StringReader;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonException;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 
 import org.trimou.trimness.model.ModelProvider;
 import org.trimou.trimness.model.ModelRequest;
 import org.trimou.util.ImmutableMap;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
@@ -52,6 +57,8 @@ public class GithubRepoCommits implements ModelProvider {
 
     private static final String DEFAULT_REPO = "trimou/trimness";
 
+    private static final String COMMITS = "commits";
+
     @Inject
     private Vertx vertx;
 
@@ -70,13 +77,14 @@ public class GithubRepoCommits implements ModelProvider {
     @Override
     public void handle(ModelRequest request) {
 
-        String repository = request.getParameter(REPOSITORY).map((r) -> {
-            // Currently, trimness is using gson to parse the request payload
-            if (r instanceof JsonElement) {
-                return ((JsonElement) r).getAsString();
-            } else {
-                return r.toString();
-            }
+        if (!request.getTemplate().getId().contains(COMMITS)) {
+            request.complete();
+            return;
+        }
+
+        String repository = request.getParameter(REPOSITORY).map((repo) -> {
+            // Trimness is currently using javax.json when parsing JSON requests
+            return (repo instanceof JsonString) ? ((JsonString) repo).getString() : repo.toString();
         }).orElse(DEFAULT_REPO).toString();
 
         LOGGER.info("Handle model request for {0} using thread {1}", repository, Thread.currentThread().getName());
@@ -86,11 +94,18 @@ public class GithubRepoCommits implements ModelProvider {
             LOGGER.info("Fetching last commits from {0} using thread {1}", uri, Thread.currentThread().getName());
             if (response.statusCode() == 200) {
                 response.bodyHandler((buffer) -> {
-                    request.setResult(ImmutableMap.builder().put("id", repository).put("commits", new JsonParser().parse(buffer.toString())).build());
+                    JsonValue json;
+                    try {
+                        json = Json.createReader(new StringReader(buffer.toString())).read();
+                    } catch (JsonException e) {
+                        LOGGER.warn("Unable to parse the response from {0}", uri);
+                        json = JsonValue.NULL;
+                    }
+                    request.complete(ImmutableMap.builder().put(ID, repository).put(COMMITS, json).build());
                 });
             } else {
                 LOGGER.warn("Invalid HTTP response: " + response.statusCode() + " " + response.statusMessage());
-                request.noResult();
+                request.complete();
             }
         })
                 // Use v3 version of the API

@@ -8,7 +8,7 @@ import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.trimou.trimness.DummyConfiguration;
-import org.trimou.trimness.template.ClassPathTemplateRepository;
+import org.trimou.trimness.template.ClassPathTemplateProvider;
 import org.trimou.trimness.template.CompositeContentTypeExtractor;
 import org.trimou.trimness.template.Template;
 
@@ -16,18 +16,18 @@ import org.trimou.trimness.template.Template;
  *
  * @author Martin Kouba
  */
-public class ClassPathTemplateRepositoryTest {
+public class ClassPathTemplateProviderTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.of(ClassPathTemplateRepository.class, DummyConfiguration.class,
+    public WeldInitiator weld = WeldInitiator.of(ClassPathTemplateProvider.class, DummyConfiguration.class,
             CompositeContentTypeExtractor.class);
 
     @Test
     public void testBasicOperations() {
-        ClassPathTemplateRepository repository = weld.select(ClassPathTemplateRepository.class).get();
-        Template helloTemplate = repository.get("hello.html");
-        assertEquals(1, repository.getAll().size());
-        assertNull(repository.get("hello.txt"));
+        ClassPathTemplateProvider provider = weld.select(ClassPathTemplateProvider.class).get();
+        Template helloTemplate = provider.get("hello.html");
+        assertEquals(0, provider.getAvailableTemplateIds().size());
+        assertNull(provider.get("hello.txt"));
         assertNotNull(helloTemplate);
         assertEquals("hello.html", helloTemplate.getId());
         assertEquals("<html><body>Hello {{name}}!</body></html>", helloTemplate.getContent());

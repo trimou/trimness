@@ -15,6 +15,7 @@
  */
 package org.trimou.trimness.template;
 
+import java.io.Reader;
 import java.util.function.Supplier;
 
 import javax.enterprise.context.Dependent;
@@ -29,7 +30,7 @@ import org.trimou.trimness.util.Strings;
 public class SuffixContentTypeExtractor implements ContentTypeExtractor {
 
     @Override
-    public String extract(String id, Supplier<String> contentLoader) {
+    public String extract(String id, Supplier<Reader> contentLoader) {
         if (id.endsWith(Strings.SUFFIX_HTML) || id.endsWith(Strings.SUFFIX_HTM)) {
             return Strings.TEXT_HTML;
         } else if (id.endsWith(Strings.SUFFIX_JSON)) {

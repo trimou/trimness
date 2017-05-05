@@ -27,16 +27,21 @@ import static org.trimou.trimness.util.Strings.SUCCESS;
 import static org.trimou.trimness.util.Strings.TEMPLATE_ID;
 import static org.trimou.trimness.util.Strings.TIME;
 
+import java.io.StringReader;
 import java.time.LocalDateTime;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonReader;
+import javax.json.JsonString;
+import javax.json.JsonStructure;
+import javax.json.JsonValue;
+import javax.json.JsonValue.ValueType;
+import javax.json.stream.JsonParsingException;
 
 import org.trimou.trimness.render.Result;
 import org.trimou.trimness.template.Template;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.logging.Logger;
@@ -47,75 +52,83 @@ import io.vertx.ext.web.RoutingContext;
  *
  * @author Martin Kouba
  */
-public class Resources {
+public final class Resources {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Resources.class.getName());
 
-    public static String metadataResult(Template template, String result) {
-        JsonObject metadata = success();
-        metadata.addProperty(RESULT, result);
-        if (template != null) {
-            metadata.addProperty(TEMPLATE_ID, template.getId());
-            if (template.getContentType() != null) {
-                metadata.addProperty(CONTENT_TYPE, template.getContentType());
-            }
-        }
-        return metadata.toString();
+    private Resources() {
     }
 
-    public static String metadataResult(Result result, Gson gson) {
-        JsonObject metadata = success();
-        metadata.add(RESULT, gson.toJsonTree(result));
-        return metadata.toString();
+    public static String metadataResult(Template template, String result) {
+        JsonObjectBuilder metadata = success();
+        metadata.add(RESULT, result);
+        if (template != null) {
+            metadata.add(TEMPLATE_ID, template.getId());
+            if (template.getContentType() != null) {
+                metadata.add(CONTENT_TYPE, template.getContentType());
+            }
+        }
+        return metadata.build().toString();
+    }
+
+    public static String metadataResult(Result result) {
+        JsonObjectBuilder metadata = success();
+        metadata.add(RESULT,
+                Json.createObjectBuilder().add(Strings.ID, result.getId())
+                        .add(Strings.CONTENT_TYPE, result.getContentType()).add(Strings.ERROR, result.getError())
+                        .add(Strings.OUTPUT, result.getOutput()).add(Strings.TEMPLATE_ID, result.getTemplateId())
+                        .add(Strings.CODE, result.getCode().toString()));
+        return metadata.build().toString();
     }
 
     public static JsonObject getBodyAsJsonObject(RoutingContext ctx) {
-        JsonElement input = getBodyAsJson(ctx);
-        if (input != null && input.isJsonObject()) {
-            return input.getAsJsonObject();
+        JsonStructure input = getBodyAsJson(ctx);
+        if (input != null && ValueType.OBJECT.equals(input.getValueType())) {
+            return (JsonObject) input;
         }
         return null;
     }
 
-    public static JsonElement getBodyAsJson(RoutingContext ctx) {
+    public static JsonStructure getBodyAsJson(RoutingContext ctx) {
         try {
-            return new JsonParser().parse(ctx.getBodyAsString());
-        } catch (JsonSyntaxException e) {
+            JsonReader reader = Json.createReader(new StringReader(ctx.getBodyAsString()));
+            return reader.read();
+        } catch (JsonParsingException e) {
             LOGGER.warn("Malformed JSON input", e);
             return null;
         }
     }
 
-    public static JsonObject success() {
+    public static JsonObjectBuilder success() {
         return success(null);
     }
 
-    public static JsonObject success(String msg, Object... params) {
-        JsonObject success = response(msg, params);
-        success.addProperty(CODE, SUCCESS);
+    public static JsonObjectBuilder success(String msg, Object... params) {
+        JsonObjectBuilder success = response(msg, params);
+        success.add(CODE, SUCCESS);
         return success;
     }
 
-    public static JsonObject failure(String msg, Object... params) {
-        JsonObject failure = response(msg, params);
-        failure.addProperty(CODE, FAILURE);
+    public static JsonObjectBuilder failure(String msg, Object... params) {
+        JsonObjectBuilder failure = response(msg, params);
+        failure.add(CODE, FAILURE);
         return failure;
     }
 
-    public static JsonObject response(String msg, Object... params) {
-        JsonObject response = new JsonObject();
+    public static JsonObjectBuilder response(String msg, Object... params) {
+        JsonObjectBuilder response = Json.createObjectBuilder();
         // Server time
-        response.addProperty(TIME, LocalDateTime.now().toString());
+        response.add(TIME, LocalDateTime.now().toString());
         if (msg != null) {
-            response.addProperty(MSG, params.length > 0 ? String.format(msg, params) : msg);
+            response.add(MSG, params.length > 0 ? String.format(msg, params) : msg);
         }
         return response;
     }
 
     public static String asyncResult(String resultId) {
-        JsonObject metadata = success();
-        metadata.addProperty(RESULT_ID, resultId);
-        return metadata.toString();
+        JsonObjectBuilder metadata = success();
+        metadata.add(RESULT_ID, resultId);
+        return metadata.build().toString();
     }
 
     public static void ok(RoutingContext ctx, String chunk) {
@@ -131,7 +144,7 @@ public class Resources {
     }
 
     public static void templateNotFound(RoutingContext ctx, String id) {
-        notFound(ctx, failure("Template not found for id: %s", id).toString());
+        notFound(ctx, failure("Template not found for id: %s", id).build().toString());
     }
 
     public static void notFound(RoutingContext ctx, String chunk) {
@@ -150,8 +163,8 @@ public class Resources {
 
         RAW, METADATA;
 
-        public static ResultType of(JsonElement element) {
-            return element != null ? of(element.getAsString()) : RAW;
+        public static ResultType of(JsonValue element) {
+            return element != null && element instanceof JsonString ? of(((JsonString) element).getString()) : RAW;
         }
 
         public static ResultType of(String value) {

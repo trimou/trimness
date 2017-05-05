@@ -19,22 +19,14 @@ import static org.trimou.trimness.util.Resources.badRequest;
 import static org.trimou.trimness.util.Strings.APP_JSON;
 import static org.trimou.trimness.util.Strings.HEADER_CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.ID;
-import static org.trimou.trimness.util.Strings.TEMPLATES;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.json.JsonObjectBuilder;
 
 import org.jboss.weld.vertx.web.WebRoute;
 import org.jboss.weld.vertx.web.WebRoute.HandlerType;
 import org.trimou.trimness.util.Resources;
 import org.trimou.trimness.util.Strings;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
@@ -46,31 +38,11 @@ import io.vertx.ext.web.RoutingContext;
  */
 public class TemplateResources {
 
-    @WebRoute(value = "/template", methods = HttpMethod.GET, type = HandlerType.BLOCKING, produces = APP_JSON)
-    public static class TemplatesHandler implements Handler<RoutingContext> {
-
-        @Inject
-        private CompositeTemplateRepository templateRepository;
-
-        @Override
-        public void handle(RoutingContext ctx) {
-            JsonObject response = Resources.success();
-            JsonArray templates = new JsonArray();
-            List<String> ids = new ArrayList<>(
-                    templateRepository.getAll().stream().map((e) -> e.getId()).collect(Collectors.toList()));
-            Collections.sort(ids);
-            ids.forEach((id) -> templates.add(id));
-            response.add(TEMPLATES, templates);
-            ctx.response().putHeader(HEADER_CONTENT_TYPE, APP_JSON).setStatusCode(200).end(response.toString());
-        }
-
-    }
-
     @WebRoute(value = "/template/:id", methods = HttpMethod.GET, type = HandlerType.BLOCKING, produces = APP_JSON)
     public static class TemplateHandler implements Handler<RoutingContext> {
 
         @Inject
-        private CompositeTemplateRepository templateRepository;
+        private TemplateCache templateCache;
 
         @Override
         public void handle(RoutingContext ctx) {
@@ -82,20 +54,20 @@ public class TemplateResources {
                 return;
             }
 
-            Template template = templateRepository.get(id);
+            Template template = templateCache.get(id);
 
             if (template == null) {
                 Resources.templateNotFound(ctx, id);
                 return;
             }
 
-            JsonObject response = Resources.success();
-            response.addProperty(ID, id);
-            response.addProperty(Strings.CONTENT, template.getContent());
+            JsonObjectBuilder response = Resources.success();
+            response.add(ID, id);
+            response.add(Strings.CONTENT, template.getContent());
             if (template.getContentType() != null) {
-                response.addProperty(Strings.CONTENT_TYPE, template.getContentType());
+                response.add(Strings.CONTENT_TYPE, template.getContentType());
             }
-            ctx.response().putHeader(HEADER_CONTENT_TYPE, APP_JSON).setStatusCode(200).end(response.toString());
+            ctx.response().putHeader(HEADER_CONTENT_TYPE, APP_JSON).setStatusCode(200).end(response.build().toString());
         }
 
     }

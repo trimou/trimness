@@ -58,7 +58,7 @@ public class TrimnessVerticle extends AbstractVerticle {
             if (r.succeeded()) {
 
                 WeldContainer container = weldVerticle.container();
-                TrimnessTemplateLocator basisTemplateLocator = container.select(TrimnessTemplateLocator.class).get();
+                TrimnessTemplateLocator templateLocator = container.select(TrimnessTemplateLocator.class).get();
 
                 Configuration configuration = container.select(Configuration.class).get();
 
@@ -74,12 +74,12 @@ public class TrimnessVerticle extends AbstractVerticle {
 
                 // Build template engine
                 MustacheEngineBuilder builder = MustacheEngineBuilder.newBuilder();
-                builder.addTemplateLocator(basisTemplateLocator);
+                builder.addTemplateLocator(templateLocator);
                 builder.addTemplateLocator(
-                        MapTemplateLocator.builder().put(MustacheEngineProvider.TEST_TEMPLATE, "{{this}}").build());
+                        MapTemplateLocator.builder().put(TrimouEngine.TEST_TEMPLATE, "{{this}}").build());
                 builder.registerHelpers(HelpersBuilder.extra().build());
                 MustacheEngine engine = builder.build();
-                container.select(MustacheEngineProvider.class).get().setMustacheEngine(engine);
+                container.select(TrimouEngine.class).get().setMustacheEngine(engine);
 
                 // Start web server
                 vertx.createHttpServer().requestHandler(weldVerticle.createRouter()::accept).listen(

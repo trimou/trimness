@@ -56,7 +56,7 @@ public class MonitorResourcesTest extends TrimnessTest {
 
         ReadContext ctx = JsonPath.parse(response.asString());
         List<Map<String, Object>> checks = ctx.read(
-                "$.checks[?(@.id == 'org.trimou.engine.MustacheEngine')]");
+                "$.checks[?(@.id == 'org.trimou.trimness.TrimouEngine')]");
         assertEquals(1, checks.size());
         assertEquals(Strings.SUCCESS, checks.get(0).get("result"));
     }

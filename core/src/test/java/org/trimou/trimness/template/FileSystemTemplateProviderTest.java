@@ -18,17 +18,17 @@ import org.junit.Test;
 import org.trimou.trimness.DummyConfiguration;
 import org.trimou.trimness.MockVertxProducer;
 import org.trimou.trimness.template.CompositeContentTypeExtractor;
-import org.trimou.trimness.template.FileSystemTemplateRepository;
+import org.trimou.trimness.template.FileSystemTemplateProvider;
 import org.trimou.trimness.template.Template;
 
 /**
  *
  * @author Martin Kouba
  */
-public class FileSystemTemplateRepositoryTest {
+public class FileSystemTemplateProviderTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.of(FileSystemTemplateRepository.class, MockVertxProducer.class, DummyConfiguration.class,
+    public WeldInitiator weld = WeldInitiator.of(FileSystemTemplateProvider.class, MockVertxProducer.class, DummyConfiguration.class,
             CompositeContentTypeExtractor.class);
 
     @Test
@@ -37,10 +37,10 @@ public class FileSystemTemplateRepositoryTest {
         configuration.put(TEMPLATE_DIR, "src/test/resources/templates");
         configuration.put(TEMPLATE_DIR_MATCH, ".*\\.html");
 
-        FileSystemTemplateRepository repository = weld.select(FileSystemTemplateRepository.class).get();
-        assertEquals(1, repository.getAll().size());
-        assertNull(repository.get("hello.txt"));
-        Template helloTemplate = repository.get("hello.html");
+        FileSystemTemplateProvider provider = weld.select(FileSystemTemplateProvider.class).get();
+        assertEquals(1, provider.getAvailableTemplateIds().size());
+        assertNull(provider.get("hello.txt"));
+        Template helloTemplate = provider.get("hello.html");
         assertNotNull(helloTemplate);
         assertEquals("hello.html", helloTemplate.getId());
         assertEquals("<html><body>Hello {{name}}!</body></html>", helloTemplate.getContent());
@@ -52,13 +52,13 @@ public class FileSystemTemplateRepositoryTest {
         configuration.put(TEMPLATE_DIR, "src/test/resources/templates");
         configuration.put(TEMPLATE_DIR_SCAN_INTERVAL, 100l);
 
-        FileSystemTemplateRepository repository = weld.select(FileSystemTemplateRepository.class).get();
+        FileSystemTemplateProvider provider = weld.select(FileSystemTemplateProvider.class).get();
 
         String id = UUID.randomUUID().toString();
         File tmpFile = new File(new File(configuration.getStringValue(TEMPLATE_DIR)), "temp_hello.txt");
         Files.write(tmpFile.toPath(), id.getBytes());
         Thread.sleep(200);
-        Template helloTemp = repository.get("temp_hello.txt");
+        Template helloTemp = provider.get("temp_hello.txt");
         assertNotNull(helloTemp);
         assertEquals(id, helloTemp.getContent());
 
@@ -66,7 +66,7 @@ public class FileSystemTemplateRepositoryTest {
         id = UUID.randomUUID().toString();
         Files.write(tmpFile.toPath(), id.getBytes());
         Thread.sleep(200);
-        helloTemp = repository.get("temp_hello.txt");
+        helloTemp = provider.get("temp_hello.txt");
         assertNotNull(helloTemp);
         assertEquals(id, helloTemp.getContent());
 

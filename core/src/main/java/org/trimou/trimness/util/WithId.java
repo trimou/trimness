@@ -13,26 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trimou.trimness.template;
-
-import java.io.Reader;
-import java.util.function.Supplier;
-
-import org.trimou.engine.priority.WithPriority;
-import org.trimou.engine.validation.Validateable;
+package org.trimou.trimness.util;
 
 /**
  *
  * @author Martin Kouba
  */
-public interface ContentTypeExtractor extends WithPriority, Validateable {
+public interface WithId {
 
     /**
      *
-     * @param id
-     * @param contentReader
-     * @return the content type or <code>null</code>
+     * @return the id, class name by default
      */
-    String extract(String id, Supplier<Reader> content);
+    default String getId() {
+        return this.getClass().getName();
+    }
 
 }

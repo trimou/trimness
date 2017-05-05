@@ -23,7 +23,6 @@ import javax.enterprise.inject.Produces;
 
 import org.trimou.Mustache;
 import org.trimou.engine.MustacheEngine;
-import org.trimou.engine.config.Configuration;
 import org.trimou.trimness.monitor.HealthCheck;
 
 /**
@@ -31,13 +30,13 @@ import org.trimou.trimness.monitor.HealthCheck;
  * @author Martin Kouba
  */
 @ApplicationScoped
-public class MustacheEngineProvider implements HealthCheck {
+public class TrimouEngine implements HealthCheck {
 
-    static final String TEST_TEMPLATE = MustacheEngineProvider.class.getName() + "_test";
+    static final String TEST_TEMPLATE = TrimouEngine.class.getName() + "_test";
 
     private final AtomicReference<MustacheEngine> reference;
 
-    public MustacheEngineProvider() {
+    public TrimouEngine() {
         reference = new AtomicReference<>();
     }
 
@@ -47,35 +46,24 @@ public class MustacheEngineProvider implements HealthCheck {
 
     @Dependent
     @Produces
-    public MustacheEngine provideEngine() {
+    public MustacheEngine produceEngine() {
         return reference.get();
-    }
-
-    @Dependent
-    @Produces
-    public Configuration provideConfiguration() {
-        return reference.get().getConfiguration();
-    }
-
-    @Override
-    public String getId() {
-        return MustacheEngine.class.getName();
     }
 
     @Override
     public Result perform() {
+        Result result;
         MustacheEngine engine = reference.get();
         if (engine == null) {
-            Result.failure("Engine not available");
+            result = Result.failure("Engine not available");
         }
         Mustache mustache = engine.getMustache(TEST_TEMPLATE);
         if (mustache == null) {
-            Result.failure("Test template not available");
+            result = Result.failure("Test template not available");
         }
-        if (Boolean.valueOf(mustache.render(true))) {
-            return Result.SUCCESS;
-        }
-        return Result.failure("Test template not evaluated correctly");
+        result = Boolean.valueOf(mustache.render(true)) ? Result.SUCCESS
+                : Result.failure("Test template not evaluated correctly");
+        return result;
     }
 
 }

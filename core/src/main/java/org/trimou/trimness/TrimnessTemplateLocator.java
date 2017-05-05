@@ -16,16 +16,17 @@
 package org.trimou.trimness;
 
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.trimou.engine.locator.TemplateLocator;
-import org.trimou.trimness.template.CompositeTemplateRepository;
 import org.trimou.trimness.template.Template;
+import org.trimou.trimness.template.TemplateCache;
+
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 /**
  *
@@ -34,21 +35,27 @@ import org.trimou.trimness.template.Template;
 @Dependent
 public class TrimnessTemplateLocator implements TemplateLocator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TrimnessTemplateLocator.class.getName());
+
     @Inject
-    private CompositeTemplateRepository repository;
+    private TemplateCache templateCache;
 
     @Override
     public Reader locate(String name) {
-        Template template = repository.get(name);
+        Template template = templateCache.get(name);
         if (template != null) {
-            return new StringReader(template.getContent());
+            try {
+                return template.getContentReader();
+            } catch (RuntimeException e) {
+                LOGGER.error("Cannot get content reader for {0}", e, template.getId());
+            }
         }
         return null;
     }
 
     @Override
     public Set<String> getAllIdentifiers() {
-        return repository.getAll().stream().map((template) -> template.getId()).collect(Collectors.toSet());
+        return templateCache.getAvailableTemplateIds();
     }
 
 }

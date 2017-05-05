@@ -16,6 +16,7 @@
 package org.trimou.trimness.render;
 
 import org.trimou.trimness.template.Template;
+import org.trimou.trimness.util.WithId;
 
 /**
  * Any non-default result repository must be an alternative with priority. Only
@@ -23,7 +24,7 @@ import org.trimou.trimness.template.Template;
  *
  * @author Martin Kouba
  */
-public interface ResultRepository {
+public interface ResultRepository extends WithId {
 
     /**
      *

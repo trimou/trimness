@@ -40,7 +40,7 @@ public class MetadataModelProvider implements ModelProvider {
 
     @Override
     public void handle(ModelRequest request) {
-        request.setResult(ImmutableMap.<String, Object>builder().put(TIME, LocalDateTime.now())
+        request.complete(ImmutableMap.<String, Object>builder().put(TIME, LocalDateTime.now())
                 .put(TEMPLATE_ID, request.getTemplate().getId()).build());
     }
 
