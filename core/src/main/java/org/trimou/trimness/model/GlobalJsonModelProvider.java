@@ -21,24 +21,16 @@ import static org.trimou.trimness.config.TrimnessKey.GLOBAL_JSON_FILE;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonStructure;
-import javax.json.JsonValue;
-import javax.json.JsonValue.ValueType;
 
 import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.config.TrimnessKey;
-import org.trimou.util.ImmutableMap;
-import org.trimou.util.ImmutableMap.ImmutableMapBuilder;
 
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -60,7 +52,7 @@ public class GlobalJsonModelProvider implements ModelProvider {
     @Inject
     private Configuration configuration;
 
-    private Map<String, Object> model;
+    private JsonStructure model;
 
     @Override
     public String getNamespace() {
@@ -71,7 +63,7 @@ public class GlobalJsonModelProvider implements ModelProvider {
     public void init() {
 
         String filePath = configuration.getStringValue(GLOBAL_JSON_FILE);
-        model = Collections.emptyMap();
+        model = null;
         if (filePath.isEmpty()) {
             return;
         }
@@ -83,22 +75,9 @@ public class GlobalJsonModelProvider implements ModelProvider {
         }
 
         try {
-
             JsonReader reader = Json.createReader(new InputStreamReader(new FileInputStream(file),
                     configuration.getStringValue(DEFAULT_FILE_ENCODING)));
-            JsonStructure global = reader.read();
-
-            if (ValueType.OBJECT.equals(global.getValueType())) {
-
-                ImmutableMapBuilder<String, Object> builder = ImmutableMap.<String, Object>builder();
-                JsonObject globalDataObject = (JsonObject) global;
-
-                for (Entry<String, JsonValue> entry : globalDataObject.entrySet()) {
-                    builder.put(entry.getKey(), entry.getValue());
-                }
-                model = builder.build();
-            }
-
+            model = reader.read();
         } catch (Exception e) {
             LOGGER.warn("Error reading global JSON data file: " + file, e);
         }
