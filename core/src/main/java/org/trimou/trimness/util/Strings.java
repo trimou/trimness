@@ -43,6 +43,7 @@ public final class Strings {
     public static final String PARAMS = "params";
     public static final String ERROR = "error";
     public static final String OUTPUT = "output";
+    public static final String CONFIG = "config";
 
     public static final String APP_JSON = "application/json";
     public static final String APP_JAVASCRIPT = "application/javascript";

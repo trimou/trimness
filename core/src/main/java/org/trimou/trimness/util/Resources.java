@@ -21,6 +21,7 @@ import static org.trimou.trimness.util.Strings.CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.FAILURE;
 import static org.trimou.trimness.util.Strings.HEADER_CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.MSG;
+import static org.trimou.trimness.util.Strings.PARAMS;
 import static org.trimou.trimness.util.Strings.RESULT;
 import static org.trimou.trimness.util.Strings.RESULT_ID;
 import static org.trimou.trimness.util.Strings.SUCCESS;
@@ -29,6 +30,8 @@ import static org.trimou.trimness.util.Strings.TIME;
 
 import java.io.StringReader;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Map;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -42,6 +45,8 @@ import javax.json.stream.JsonParsingException;
 
 import org.trimou.trimness.render.Result;
 import org.trimou.trimness.template.Template;
+import org.trimou.util.ImmutableMap;
+import org.trimou.util.ImmutableMap.ImmutableMapBuilder;
 
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.logging.Logger;
@@ -81,17 +86,17 @@ public final class Resources {
         return metadata.build().toString();
     }
 
-    public static JsonObject getBodyAsJsonObject(RoutingContext ctx) {
-        JsonStructure input = getBodyAsJson(ctx);
+    public static JsonObject getBodyAsJsonObject(String body) {
+        JsonStructure input = getBodyAsJson(body);
         if (input != null && ValueType.OBJECT.equals(input.getValueType())) {
             return (JsonObject) input;
         }
         return null;
     }
 
-    public static JsonStructure getBodyAsJson(RoutingContext ctx) {
+    public static JsonStructure getBodyAsJson(String body) {
         try {
-            JsonReader reader = Json.createReader(new StringReader(ctx.getBodyAsString()));
+            JsonReader reader = Json.createReader(new StringReader(body));
             return reader.read();
         } catch (JsonParsingException e) {
             LOGGER.warn("Malformed JSON input", e);
@@ -157,6 +162,18 @@ public final class Resources {
 
     public static void renderingError(RoutingContext ctx, String id) {
         internalServerError(ctx, failure("Error rendering template with id: %s", id).toString());
+    }
+
+    public static Map<String, Object> initParams(JsonObject input) {
+        JsonValue params = input.get(PARAMS);
+        if (params == null || !ValueType.OBJECT.equals(params.getValueType())) {
+            return Collections.emptyMap();
+        }
+        ImmutableMapBuilder<String, Object> builder = ImmutableMap.builder();
+        for (Map.Entry<String, JsonValue> param : ((JsonObject) params).entrySet()) {
+            builder.put(param.getKey(), param.getValue());
+        }
+        return builder.build();
     }
 
     public enum ResultType {

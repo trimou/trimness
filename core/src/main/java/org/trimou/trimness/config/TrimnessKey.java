@@ -79,11 +79,11 @@ public enum TrimnessKey implements Key {
     TEMPLATE_DIR_MATCH(".*"),
 
     /**
-     * <tt>org.trimou.trimness.classpathRoot</tt>
+     * <tt>org.trimou.trimness.classPathTemplatesRoot</tt>
      *
      * @see ClassPathTemplateProvider
      */
-    CLASSPATH_ROOT("META-INF/templates/"),
+    CLASS_PATH_TEMPLATES_ROOT("META-INF/templates/"),
 
     /**
      * <tt>org.trimou.trimness.defaultFileEncoding</tt>

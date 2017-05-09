@@ -29,7 +29,7 @@ import org.trimou.util.ImmutableMap;
  *
  * @author Martin Kouba
  */
-public class ImmutableConfiguration implements Configuration, Iterable<Key> {
+public class ImmutableConfiguration implements Configuration {
 
     private static final String RESOURCE_FILE = "/trimness.properties";
 
@@ -38,9 +38,10 @@ public class ImmutableConfiguration implements Configuration, Iterable<Key> {
     private ImmutableConfiguration(Map<Key, Object> properties) {
         this.properties = ImmutableMap.copyOf(properties);
     }
+
     @Override
     public Object getValue(Key key) {
-        return properties.getOrDefault(key, key.getDefaultValue());
+        return properties.get(key);
     }
 
     @Override

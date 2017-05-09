@@ -83,11 +83,11 @@ public class ClassPathTemplateProvider implements TemplateProvider {
 
     @Override
     public boolean isValid() {
-        return !"".equals(configuration.getStringValue(TrimnessKey.CLASSPATH_ROOT).trim());
+        return !"".equals(configuration.getStringValue(TrimnessKey.CLASS_PATH_TEMPLATES_ROOT).trim());
     }
 
     private URL find(String id) {
-        final String name = configuration.getStringValue(TrimnessKey.CLASSPATH_ROOT) + id;
+        final String name = configuration.getStringValue(TrimnessKey.CLASS_PATH_TEMPLATES_ROOT) + id;
         URL found = null;
         try {
             Enumeration<URL> resources = classLoader.getResources(name);

@@ -37,7 +37,6 @@ import static org.trimou.trimness.util.Strings.TIMEOUT;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
@@ -79,8 +78,6 @@ public class RenderHandler implements Handler<RoutingContext> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RenderHandler.class.getName());
 
-    private final AtomicLong idGenerator = new AtomicLong(System.currentTimeMillis());
-
     @Inject
     private TemplateCache templateCache;
 
@@ -99,10 +96,13 @@ public class RenderHandler implements Handler<RoutingContext> {
     @Inject
     private Vertx vertx;
 
+    @Inject
+    private IdGenerator idGenerator;
+
     @Override
     public void handle(RoutingContext ctx) {
 
-        JsonObject input = Resources.getBodyAsJsonObject(ctx);
+        JsonObject input = Resources.getBodyAsJsonObject(ctx.getBodyAsString());
 
         if (input == null) {
             badRequest(ctx, "Invalid request body format");
@@ -149,7 +149,7 @@ public class RenderHandler implements Handler<RoutingContext> {
         } else {
             // Onetime rendering - we can be sure the content is set
             String content = input.getString(CONTENT, "");
-            template = ImmutableTemplate.of(getOnetimeId(), content, input.getString(CONTENT_TYPE, null));
+            template = ImmutableTemplate.of(idGenerator.getOneoffTemplateId(), content, input.getString(CONTENT_TYPE, null));
             mustache = engine.compileMustache(template.getId(), content);
 
         }
@@ -187,7 +187,7 @@ public class RenderHandler implements Handler<RoutingContext> {
                 return;
             }
         } else {
-            template = ImmutableTemplate.of(getOnetimeId(), input.getString(CONTENT, ""),
+            template = ImmutableTemplate.of(idGenerator.getOneoffTemplateId(), input.getString(CONTENT, ""),
                     input.getString(CONTENT_TYPE, null));
         }
 
@@ -218,10 +218,6 @@ public class RenderHandler implements Handler<RoutingContext> {
             builder.put(param.getKey(), param.getValue());
         }
         return builder.build();
-    }
-
-    private String getOnetimeId() {
-        return "onetime_" + idGenerator.incrementAndGet();
     }
 
     static class AsyncRenderHandler implements Handler<Long> {

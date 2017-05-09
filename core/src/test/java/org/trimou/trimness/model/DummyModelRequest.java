@@ -2,6 +2,7 @@ package org.trimou.trimness.model;
 
 import java.util.Optional;
 
+import org.trimou.trimness.template.ImmutableTemplate;
 import org.trimou.trimness.template.Template;
 
 class DummyModelRequest implements ModelRequest {
@@ -10,7 +11,7 @@ class DummyModelRequest implements ModelRequest {
 
     @Override
     public Template getTemplate() {
-        return null;
+        return ImmutableTemplate.of("foo");
     }
 
     @Override

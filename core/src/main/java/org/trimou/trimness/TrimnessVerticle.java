@@ -78,6 +78,8 @@ public class TrimnessVerticle extends AbstractVerticle {
                 builder.addTemplateLocator(
                         MapTemplateLocator.builder().put(TrimouEngine.TEST_TEMPLATE, "{{this}}").build());
                 builder.registerHelpers(HelpersBuilder.extra().build());
+                // Make it possible to configure the builder
+                container.event().select(MustacheEngineBuilder.class).fire(builder);
                 MustacheEngine engine = builder.build();
                 container.select(TrimouEngine.class).get().setMustacheEngine(engine);
 

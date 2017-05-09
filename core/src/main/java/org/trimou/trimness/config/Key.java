@@ -49,6 +49,9 @@ public interface Key {
      * The set of supported value types which can be automatically converted
      * consist of {@link String}, {@link Boolean}, {@link Integer} and
      * {@link Long}.
+     * <p>
+     * The default value is only obtained during initialization.
+     * </p>
      *
      * @return the default value
      */

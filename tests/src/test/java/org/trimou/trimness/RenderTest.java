@@ -101,4 +101,15 @@ public class RenderTest extends TrimnessTest {
                 .body(equalTo("##hello-global-data.txt## Hello 1 and bar!"));
     }
 
+    @RunAsClient
+    @Test
+    public void testMetadata() {
+        Response response = RestAssured.given()
+                .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
+                .body("{\"content\" : \"{{meta.config.host}}:{{meta.config.port}}\" }")
+                .post("/render");
+        response.then().assertThat().statusCode(200)
+                .body(equalTo("localhost:8080"));
+    }
+
 }

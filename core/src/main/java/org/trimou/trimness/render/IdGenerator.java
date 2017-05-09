@@ -13,36 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trimou.trimness.config;
+package org.trimou.trimness.render;
+
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.enterprise.context.ApplicationScoped;
 
 /**
- * Represents an immutable configuration.
  *
  * @author Martin Kouba
  */
-public interface Configuration extends Iterable<Key> {
+@ApplicationScoped
+class IdGenerator {
 
-    default Long getLongValue(Key key) {
-        return (Long) getValue(key);
-    }
+    public static final String ONEOFF_PREFIX = "oneoff_";
 
-    default Integer getIntegerValue(Key key) {
-        return (Integer) getValue(key);
-    }
-
-    default String getStringValue(Key key) {
-        return getValue(key).toString();
-    }
-
-    default Boolean getBooleanValue(Key key) {
-        return (Boolean) getValue(key);
-    }
+    private final AtomicLong idGenerator = new AtomicLong(System.currentTimeMillis());
 
     /**
      *
-     * @param key
-     * @return the value or <code>null</code>
+     * @return a unique one-off template id
      */
-    Object getValue(Key key);
+    String getOneoffTemplateId() {
+        return ONEOFF_PREFIX + idGenerator.incrementAndGet();
+    }
 
 }

@@ -27,7 +27,7 @@ public class TrimnessLaunchServices extends LaunchServices {
         try {
             Object result = synchronizer.poll(3, TimeUnit.SECONDS);
             if (result == null) {
-                throw new IllegalStateException();
+                throw new IllegalStateException("");
             }
             if (result instanceof Throwable) {
                 throw new IllegalStateException((Throwable) result);
