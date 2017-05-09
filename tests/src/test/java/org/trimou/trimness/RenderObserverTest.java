@@ -101,7 +101,7 @@ public class RenderObserverTest {
         assertNotNull(reply);
         assertTrue(reply instanceof ReplyException);
         ReplyException exception = (ReplyException) reply;
-        assertEquals(RenderObserver.CODE_INVALID_JSON, exception.failureCode());
+        assertEquals(RenderObserver.CODE_INVALID_INPUT, exception.failureCode());
         assertEquals(ReplyFailure.RECIPIENT_FAILURE, exception.failureType());
     }
 

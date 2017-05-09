@@ -48,9 +48,8 @@ public class RenderObserver {
 
     public static final String ADDR_RENDER = "org.trimou.trimness.render";
 
-    public static final int CODE_INVALID_JSON = 1;
-    public static final int CODE_ID_OR_CONTENT_MUST_BE_SET = 2;
-    public static final int CODE_TEMPLATE_NOT_FOUND = 3;
+    public static final int CODE_INVALID_INPUT = 1;
+    public static final int CODE_TEMPLATE_NOT_FOUND = 2;
     public static final int CODE_COMPILATION_ERROR = 4;
     public static final int CODE_RENDER_ERROR = 5;
 
@@ -73,13 +72,17 @@ public class RenderObserver {
      */
     void handleRenderEvent(@Observes @VertxConsumer(ADDR_RENDER) VertxEvent event) {
 
-        JsonObject input = Resources.getBodyAsJsonObject(event.getMessageBody().toString());
-
+        JsonObject input = null;
+        try {
+            input = Resources.getBodyAsJsonObject(event.getMessageBody().toString());
+        } catch (Exception e) {
+            event.fail(CODE_INVALID_INPUT, "Malformed JSON input:" + e.getMessage());
+        }
         if (input == null) {
-            event.fail(CODE_INVALID_JSON, "Invalid request body format");
+            event.fail(CODE_INVALID_INPUT, "Input must be JSON object");
         }
         if (!input.containsKey(ID) && !input.containsKey(CONTENT)) {
-            event.fail(CODE_ID_OR_CONTENT_MUST_BE_SET, "Template id or content must be set");
+            event.fail(CODE_INVALID_INPUT, "Template id or content must be set");
         }
 
         Mustache mustache = null;

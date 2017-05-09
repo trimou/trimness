@@ -36,7 +36,6 @@ import java.util.Map;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
-import javax.json.JsonReader;
 import javax.json.JsonString;
 import javax.json.JsonStructure;
 import javax.json.JsonValue;
@@ -49,8 +48,6 @@ import org.trimou.util.ImmutableMap;
 import org.trimou.util.ImmutableMap.ImmutableMapBuilder;
 
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.RoutingContext;
 
 /**
@@ -58,8 +55,6 @@ import io.vertx.ext.web.RoutingContext;
  * @author Martin Kouba
  */
 public final class Resources {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Resources.class.getName());
 
     private Resources() {
     }
@@ -94,14 +89,14 @@ public final class Resources {
         return null;
     }
 
+    /**
+     *
+     * @param body
+     * @return the parsed JSON
+     * @throws JsonParsingException
+     */
     public static JsonStructure getBodyAsJson(String body) {
-        try {
-            JsonReader reader = Json.createReader(new StringReader(body));
-            return reader.read();
-        } catch (JsonParsingException e) {
-            LOGGER.warn("Malformed JSON input", e);
-            return null;
-        }
+        return Json.createReader(new StringReader(body)).read();
     }
 
     public static JsonObjectBuilder success() {

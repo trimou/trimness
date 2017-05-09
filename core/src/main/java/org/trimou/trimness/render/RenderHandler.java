@@ -44,6 +44,7 @@ import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
+import javax.json.stream.JsonParsingException;
 
 import org.jboss.weld.vertx.web.WebRoute;
 import org.trimou.Mustache;
@@ -101,11 +102,15 @@ public class RenderHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext ctx) {
-
-        JsonObject input = Resources.getBodyAsJsonObject(ctx.getBodyAsString());
-
+        JsonObject input;
+        try {
+            input = Resources.getBodyAsJsonObject(ctx.getBodyAsString());
+        } catch (JsonParsingException e) {
+            badRequest(ctx, "Malformed JSON input:" + e.getMessage());
+            return;
+        }
         if (input == null) {
-            badRequest(ctx, "Invalid request body format");
+            badRequest(ctx, "Input must be JSON object");
             return;
         }
         if (!input.containsKey(ID) && !input.containsKey(CONTENT)) {
