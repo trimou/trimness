@@ -47,7 +47,7 @@ public class GithubRepoCommits implements ModelProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GithubRepoCommits.class.getName());
 
-    private static final String REPOSITORY = "repository";
+    private static final String REPOSITORY = "repo";
 
     private static final String HOST = "api.github.com";
 

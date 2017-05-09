@@ -12,7 +12,7 @@ td {
 </style>
 </head>
 
-<h1>Last Commits for {{repository.id}}</h1>
+<h1>Last Commits for {{repo.id}}</h1>
 
 <p>Report generated for {{alt model.name "unknown person"}}.</p>
 
@@ -24,7 +24,7 @@ td {
     <th>Message</th>
     <th>Author</th>
   </tr>
-  {{#each repository.commits}}
+  {{#each repo.commits}}
   <tr>
     <td>{{index}}.</td>
     <td>{{commit.author.date}}</td>
