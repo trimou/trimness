@@ -88,24 +88,6 @@
                </systemProperties>
             </configuration>
          </plugin>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>2.4.2</version>
-            <executions>
-               <execution>
-                  <id>default</id>
-                  <phase>package</phase>
-                  <goals>
-                     <goal>shade</goal>
-                  </goals>
-                  <configuration>
-                     <shadedArtifactAttached>true</shadedArtifactAttached>
-                     <shadedClassifierName>shaded</shadedClassifierName>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
       </plugins>
    </build>
 
