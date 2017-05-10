@@ -20,7 +20,11 @@ import static org.trimou.trimness.config.TrimnessKey.GLOBAL_JSON_FILE;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -31,13 +35,14 @@ import javax.json.JsonStructure;
 
 import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.config.TrimnessKey;
+import org.trimou.trimness.util.Resources;
 
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
 /**
- * Read a JSON data file (if exists) and provides all the data found to all
- * templates.
+ * Attempts to read a JSON file from the class path or the filesystem and if it
+ * exists and can be read, then provide all the data found to all templates.
  *
  * @author Martin Kouba
  * @see TrimnessKey#GLOBAL_JSON_FILE
@@ -64,22 +69,46 @@ public class GlobalJsonModelProvider implements ModelProvider {
 
         String filePath = configuration.getStringValue(GLOBAL_JSON_FILE);
         model = null;
+
         if (filePath.isEmpty()) {
+            // Not used
             return;
         }
 
-        File file = new File(filePath);
-        if (!file.canRead()) {
-            LOGGER.debug("Global JSON data file does not exist or cannot be read: " + file);
-            return;
+        ClassLoader classLoader = SecurityActions.getContextClassLoader();
+        if (classLoader == null) {
+            classLoader = SecurityActions.getClassLoader(GlobalJsonModelProvider.class);
         }
 
-        try {
-            JsonReader reader = Json.createReader(new InputStreamReader(new FileInputStream(file),
-                    configuration.getStringValue(DEFAULT_FILE_ENCODING)));
-            model = reader.read();
-        } catch (Exception e) {
-            LOGGER.warn("Error reading global JSON data file: " + file, e);
+        URL url = Resources.find(filePath, classLoader, "global JSON file");
+        File file = null;
+        InputStream in = null;
+
+        if (url != null) {
+            try {
+                in = url.openStream();
+            } catch (IOException e) {
+                LOGGER.warn("Cannot open global JSON from URL: " + url);
+            }
+        } else {
+            file = new File(filePath);
+            if (!file.canRead()) {
+                LOGGER.warn("Cannot read global JSON from file: " + file);
+            }
+            try {
+                in = new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                LOGGER.warn("Cannot open global JSON file: " + file);
+            }
+        }
+
+        if (in != null) {
+            try (JsonReader reader = Json
+                    .createReader(new InputStreamReader(in, configuration.getStringValue(DEFAULT_FILE_ENCODING)))) {
+                model = reader.read();
+            } catch (Exception e) {
+                LOGGER.warn("Error reading global JSON from: " + url != null ? url : file, e);
+            }
         }
     }
 

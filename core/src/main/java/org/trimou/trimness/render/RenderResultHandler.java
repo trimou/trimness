@@ -25,8 +25,8 @@ import static org.trimou.trimness.util.Strings.RESULT_TYPE;
 import javax.inject.Inject;
 
 import org.jboss.weld.vertx.web.WebRoute;
-import org.trimou.trimness.util.Resources;
-import org.trimou.trimness.util.Resources.ResultType;
+import org.trimou.trimness.util.Requests;
+import org.trimou.trimness.util.Requests.ResultType;
 
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
@@ -45,21 +45,21 @@ public class RenderResultHandler implements Handler<RoutingContext> {
 
         String id = ctx.request().getParam(ID);
         if (id == null) {
-            Resources.badRequest(ctx,
-                    Resources.failure("Invalid result id: %s", ctx.request().getParam(ID)).toString());
+            Requests.badRequest(ctx,
+                    Requests.failure("Invalid result id: %s", ctx.request().getParam(ID)).toString());
             return;
         }
 
         Result result = resultRepository.get(id);
         if (result == null) {
-            Resources.notFound(ctx, Resources.failure("Result not found for id: %s", id).toString());
+            Requests.notFound(ctx, Requests.failure("Result not found for id: %s", id).toString());
         }
         if (!result.isComplete()) {
-            Resources.ok(ctx, Resources.success("Result %s not complete yet", id).toString());
+            Requests.ok(ctx, Requests.success("Result %s not complete yet", id).toString());
             return;
         }
         if (result.isFailure()) {
-            Resources.internalServerError(ctx, Resources.failure(result.getError()).build().toString());
+            Requests.internalServerError(ctx, Requests.failure(result.getError()).build().toString());
             return;
         }
 
@@ -71,10 +71,10 @@ public class RenderResultHandler implements Handler<RoutingContext> {
 
         switch (resultType) {
         case RAW:
-            Resources.ok(ctx, result.getOutput());
+            Requests.ok(ctx, result.getOutput());
             break;
         case METADATA:
-            Resources.ok(ctx, Resources.metadataResult(result));
+            Requests.ok(ctx, Requests.metadataResult(result));
         default:
             throw new IllegalStateException("Unsupported result type: " + resultType);
         }

@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.function.Supplier;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -28,9 +27,7 @@ import javax.inject.Inject;
 import org.trimou.engine.priority.WithPriority;
 import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.config.TrimnessKey;
-
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import org.trimou.trimness.util.Resources;
 
 /**
  * Loads templates from the class path.
@@ -39,8 +36,6 @@ import io.vertx.core.logging.LoggerFactory;
  */
 @ApplicationScoped
 public class ClassPathTemplateProvider implements TemplateProvider {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClassPathTemplateProvider.class.getName());
 
     @Inject
     private Configuration configuration;
@@ -66,7 +61,8 @@ public class ClassPathTemplateProvider implements TemplateProvider {
 
     @Override
     public Template get(String id) {
-        URL resource = find(id);
+        URL resource = Resources.find(configuration.getStringValue(TrimnessKey.CLASS_PATH_TEMPLATES_ROOT) + id,
+                classLoader, "template");
         if (resource != null) {
             Supplier<Reader> contentReader = () -> {
                 try {
@@ -84,25 +80,6 @@ public class ClassPathTemplateProvider implements TemplateProvider {
     @Override
     public boolean isValid() {
         return !"".equals(configuration.getStringValue(TrimnessKey.CLASS_PATH_TEMPLATES_ROOT).trim());
-    }
-
-    private URL find(String id) {
-        final String name = configuration.getStringValue(TrimnessKey.CLASS_PATH_TEMPLATES_ROOT) + id;
-        URL found = null;
-        try {
-            Enumeration<URL> resources = classLoader.getResources(name);
-            while (resources.hasMoreElements()) {
-                URL resource = resources.nextElement();
-                if (found != null) {
-                    LOGGER.info("Duplicit template ignored: {0}", resource);
-                } else {
-                    found = resource;
-                }
-            }
-        } catch (IOException e) {
-            LOGGER.error("Error while reading {}", e, name);
-        }
-        return found;
     }
 
 }

@@ -18,12 +18,12 @@ package org.trimou.trimness.render;
 import static io.vertx.core.http.HttpMethod.POST;
 import static org.jboss.weld.vertx.web.WebRoute.HandlerType.BLOCKING;
 import static org.trimou.trimness.config.TrimnessKey.RESULT_TIMEOUT;
-import static org.trimou.trimness.util.Resources.badRequest;
-import static org.trimou.trimness.util.Resources.failure;
-import static org.trimou.trimness.util.Resources.notFound;
-import static org.trimou.trimness.util.Resources.ok;
-import static org.trimou.trimness.util.Resources.renderingError;
-import static org.trimou.trimness.util.Resources.templateNotFound;
+import static org.trimou.trimness.util.Requests.badRequest;
+import static org.trimou.trimness.util.Requests.failure;
+import static org.trimou.trimness.util.Requests.notFound;
+import static org.trimou.trimness.util.Requests.ok;
+import static org.trimou.trimness.util.Requests.renderingError;
+import static org.trimou.trimness.util.Requests.templateNotFound;
 import static org.trimou.trimness.util.Strings.APP_JSON;
 import static org.trimou.trimness.util.Strings.ASYNC;
 import static org.trimou.trimness.util.Strings.CONTENT;
@@ -56,8 +56,8 @@ import org.trimou.trimness.template.ImmutableTemplate;
 import org.trimou.trimness.template.Template;
 import org.trimou.trimness.template.TemplateCache;
 import org.trimou.trimness.util.AsyncHandlers;
-import org.trimou.trimness.util.Resources;
-import org.trimou.trimness.util.Resources.ResultType;
+import org.trimou.trimness.util.Requests;
+import org.trimou.trimness.util.Requests.ResultType;
 import org.trimou.util.ImmutableMap;
 import org.trimou.util.ImmutableMap.ImmutableMapBuilder;
 
@@ -104,7 +104,7 @@ public class RenderHandler implements Handler<RoutingContext> {
     public void handle(RoutingContext ctx) {
         JsonObject input;
         try {
-            input = Resources.getBodyAsJsonObject(ctx.getBodyAsString());
+            input = Requests.getBodyAsJsonObject(ctx.getBodyAsString());
         } catch (JsonParsingException e) {
             badRequest(ctx, "Malformed JSON input:" + e.getMessage());
             return;
@@ -169,7 +169,7 @@ public class RenderHandler implements Handler<RoutingContext> {
                 ok(ctx, result);
                 break;
             case METADATA:
-                ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON).end(Resources.metadataResult(template, result));
+                ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON).end(Requests.metadataResult(template, result));
                 break;
             default:
                 throw new IllegalStateException("Unsupported result type: " + resultType);
@@ -202,7 +202,7 @@ public class RenderHandler implements Handler<RoutingContext> {
         vertx.setTimer(1, new AsyncRenderHandler(vertx, result, template, engine,
                 () -> modelInitializer.initModel(template, input.get(MODEL), initParams(input))));
 
-        Resources.ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON).end(Resources.asyncResult(result.getId()));
+        Requests.ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON).end(Requests.asyncResult(result.getId()));
     }
 
     private long initTimeout(JsonObject input) {

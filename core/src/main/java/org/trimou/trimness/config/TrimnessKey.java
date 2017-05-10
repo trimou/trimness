@@ -93,6 +93,8 @@ public enum TrimnessKey implements Key {
     /**
      * <tt>org.trimou.trimness.globalJsonFile</tt>
      *
+     * Filesystem path or class path resource name.
+     *
      * @see GlobalJsonModelProvider
      */
     GLOBAL_JSON_FILE(""),

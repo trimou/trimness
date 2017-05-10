@@ -16,6 +16,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,10 +38,14 @@ public class RenderObserverTest {
     @Deployment
     public static Archive<?> createTestArchive() {
         return TrimnessTest.createDefaultClassPath()
+                .add(ShrinkWrap.create(JavaArchive.class).addAsManifestResource(
+                        new StringAsset(
+                                "{\"foo\":\"bar\"}"),
+                        "global-data.json"))
                 .addSystemProperty(TEMPLATE_DIR.get(),
                         "src/test/resources/templates")
                 .addSystemProperty(GLOBAL_JSON_FILE.get(),
-                        "src/test/resources/global-data.json")
+                        "META-INF/global-data.json")
                 .add(ShrinkWrap.create(JavaArchive.class)
                         .addClasses(RenderObserverTest.class))
                 .build();
@@ -85,6 +90,26 @@ public class RenderObserverTest {
     }
 
     @Test
+    public void testHelloGlobalData() throws InterruptedException {
+        Vertx vertx = CDI.current().select(Vertx.class).get();
+        BlockingQueue<Object> synchronizer = new LinkedBlockingQueue<>();
+        vertx.eventBus().send(RenderObserver.ADDR_RENDER,
+                "{\"id\" : \"hello-global-data.txt\", \"model\" : { \"name\":1 }}",
+                (result) -> {
+                    if (result.succeeded()) {
+                        synchronizer.add(result.result().body());
+                    } else {
+                        synchronizer.add(result.cause());
+                    }
+                });
+        Object reply = synchronizer.poll(DEFAULT_TIMEOUT,
+                TimeUnit.MILLISECONDS);
+        assertNotNull(reply);
+        assertEquals("##hello-global-data.txt## Hello 1 and bar!",
+                reply.toString());
+    }
+
+    @Test
     public void testInvalidInput() throws InterruptedException {
         Vertx vertx = CDI.current().select(Vertx.class).get();
         BlockingQueue<Object> synchronizer = new LinkedBlockingQueue<>();
@@ -101,7 +126,8 @@ public class RenderObserverTest {
         assertNotNull(reply);
         assertTrue(reply instanceof ReplyException);
         ReplyException exception = (ReplyException) reply;
-        assertEquals(RenderObserver.CODE_INVALID_INPUT, exception.failureCode());
+        assertEquals(RenderObserver.CODE_INVALID_INPUT,
+                exception.failureCode());
         assertEquals(ReplyFailure.RECIPIENT_FAILURE, exception.failureType());
     }
 
