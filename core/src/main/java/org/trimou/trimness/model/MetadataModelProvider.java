@@ -68,8 +68,13 @@ public class MetadataModelProvider implements ModelProvider {
 
     @Override
     public void handle(ModelRequest request) {
-        request.complete(ImmutableMap.<String, Object>builder().put(TIME, LocalDateTime.now())
-                .put(TEMPLATE_ID, request.getTemplate().getId()).put(CONFIG, configMapper).build());
+        request.complete(ImmutableMap.<String, Object>builder()
+                // System time
+                .put(TIME, LocalDateTime.now())
+                // Template id
+                .put(TEMPLATE_ID, request.getTemplate().getId())
+                // Trimness configuration
+                .put(CONFIG, configMapper).build());
     }
 
 }

@@ -17,7 +17,6 @@ package org.trimou.trimness.render;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -26,6 +25,8 @@ import javax.inject.Inject;
 import org.trimou.trimness.template.Template;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 /**
  *
@@ -34,16 +35,18 @@ import io.vertx.core.Vertx;
 @ApplicationScoped
 public class InMemoryResultRepository implements ResultRepository {
 
-    private AtomicLong idGenerator;
-
-    private ConcurrentMap<String, SimpleResult> results;
+    private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryResultRepository.class);
 
     @Inject
     private Vertx vertx;
 
+    @Inject
+    private IdGenerator idGenerator;
+
+    private ConcurrentMap<String, SimpleResult> results;
+
     @PostConstruct
     void init() {
-        idGenerator = new AtomicLong(System.currentTimeMillis());
         results = new ConcurrentHashMap<>();
     }
 
@@ -54,19 +57,28 @@ public class InMemoryResultRepository implements ResultRepository {
 
     @Override
     public Result init(Template template, long timeout) {
-        SimpleResult result = SimpleResult.init("" + idGenerator.incrementAndGet(), template.getId(),
-                template.getContentType());
+        SimpleResult result = SimpleResult.init("" + idGenerator.nextId(), template.getId(), template.getContentType());
         results.put(result.getId(), result);
-        // Schedule result removal
-        vertx.setTimer(timeout, (id) -> {
-            results.remove(id);
-        });
+        if (timeout != 0) {
+            // Schedule result removal
+            vertx.setTimer(timeout, (id) -> {
+                if (results.remove(result.getId()) != null) {
+                    LOGGER.info("Result timed out [id: {0}]", result.getId());
+                }
+            });
+        }
+        LOGGER.info("Result initialized [id: {0}, template: {1}, timeout: {2}]", result.getId(), template.getId(),
+                timeout);
         return result;
     }
 
     @Override
     public boolean remove(String id) {
-        return results.remove(id) != null;
+        if (results.remove(id) != null) {
+            LOGGER.info("Result removed [id: {0}]", id);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -77,6 +89,7 @@ public class InMemoryResultRepository implements ResultRepository {
     @Override
     public void clear() {
         results.clear();
+        LOGGER.info("All results removed");
     }
 
 }

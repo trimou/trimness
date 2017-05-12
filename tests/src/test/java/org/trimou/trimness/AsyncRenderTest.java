@@ -58,7 +58,7 @@ public class AsyncRenderTest extends TrimnessTest {
 
         response = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .get("/render/" + resultId + "?resultType=raw");
+                .get("/result/" + resultId + "?resultType=raw");
         response.then().assertThat().statusCode(200)
                 .body(equalTo("Hello me, Lu, foo!"));
     }
@@ -68,7 +68,7 @@ public class AsyncRenderTest extends TrimnessTest {
     public void testAsync(TestContext context) {
         Response response = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .body("{\"async\" : true, \"id\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
+                .body("{\"async\" : true, \"id\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"timeout\" : 0}")
                 .post("/render");
 
         response.then().assertThat().statusCode(200)
@@ -77,11 +77,17 @@ public class AsyncRenderTest extends TrimnessTest {
         assertNotNull(resultId);
 
         response = RestAssured.given()
-                .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .get("/render/" + resultId + "?resultType=raw");
+                .get("/result/" + resultId + "?resultType=raw");
         response.then().assertThat().statusCode(200)
                 .header(Strings.HEADER_CONTENT_TYPE, is(Strings.TEXT_PLAIN))
                 .body(equalTo("Hello me, Lu, foo!"));
+
+        response = RestAssured.given().delete("/result/" + resultId);
+        response.then().assertThat().statusCode(200);
+
+        response = RestAssured.given()
+                .get("/result/" + resultId + "?resultType=raw");
+        response.then().assertThat().statusCode(404);
     }
 
     @RunAsClient
@@ -98,7 +104,7 @@ public class AsyncRenderTest extends TrimnessTest {
 
         response = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .get("/render/" + resultId + "?resultType=raw");
+                .get("/result/" + resultId + "?resultType=raw");
         response.then().assertThat().statusCode(500)
                 .header(Strings.HEADER_CONTENT_TYPE, is(Strings.APP_JSON))
                 .body(StringContains.containsString(

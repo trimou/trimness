@@ -20,7 +20,8 @@ import org.trimou.trimness.template.ImmutableTemplate;
 public class InMemoryResultRepositoryTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.of(InMemoryResultRepository.class, MockVertxProducer.class);
+    public WeldInitiator weld = WeldInitiator.of(InMemoryResultRepository.class, IdGenerator.class,
+            MockVertxProducer.class);
 
     @Test
     public void testBasicOperations() {
@@ -47,6 +48,14 @@ public class InMemoryResultRepositoryTest {
         assertTrue(repository.remove(result1.getId()));
         assertNull(repository.get(result1.getId()));
         assertEquals(0, repository.size());
+    }
+
+    @Test
+    public void testTimeout() throws InterruptedException {
+        InMemoryResultRepository repository = weld.select(InMemoryResultRepository.class).get();
+        Result result1 = repository.init(ImmutableTemplate.of("foo"), 100);
+        Thread.sleep(200);
+        assertNull(repository.get(result1.getId()));
     }
 
 }

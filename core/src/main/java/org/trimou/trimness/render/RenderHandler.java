@@ -70,9 +70,6 @@ import io.vertx.ext.web.RoutingContext;
 
 /**
  * Handles route for rendering templates.
- *
- * TODO better input validation
- *
  */
 @WebRoute(value = "/render", methods = POST, type = BLOCKING, consumes = APP_JSON)
 public class RenderHandler implements Handler<RoutingContext> {
@@ -154,7 +151,8 @@ public class RenderHandler implements Handler<RoutingContext> {
         } else {
             // Onetime rendering - we can be sure the content is set
             String content = input.getString(CONTENT, "");
-            template = ImmutableTemplate.of(idGenerator.getOneoffTemplateId(), content, input.getString(CONTENT_TYPE, null));
+            template = ImmutableTemplate.of(idGenerator.nextOneoffTemplateId(), content,
+                    input.getString(CONTENT_TYPE, null));
             mustache = engine.compileMustache(template.getId(), content);
 
         }
@@ -192,7 +190,7 @@ public class RenderHandler implements Handler<RoutingContext> {
                 return;
             }
         } else {
-            template = ImmutableTemplate.of(idGenerator.getOneoffTemplateId(), input.getString(CONTENT, ""),
+            template = ImmutableTemplate.of(idGenerator.nextOneoffTemplateId(), input.getString(CONTENT, ""),
                     input.getString(CONTENT_TYPE, null));
         }
 

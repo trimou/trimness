@@ -34,8 +34,12 @@ class IdGenerator {
      *
      * @return a unique one-off template id
      */
-    String getOneoffTemplateId() {
-        return ONEOFF_PREFIX + idGenerator.incrementAndGet();
+    String nextOneoffTemplateId() {
+        return ONEOFF_PREFIX + nextId();
+    }
+
+    Long nextId() {
+        return idGenerator.incrementAndGet();
     }
 
 }

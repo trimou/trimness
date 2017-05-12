@@ -18,15 +18,23 @@ package org.trimou.trimness.example.simple;
 import static org.trimou.trimness.util.Strings.ID;
 
 import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonException;
+import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.json.JsonValue;
+import javax.json.JsonValue.ValueType;
 
+import org.trimou.engine.MustacheEngineBuilder;
+import org.trimou.lambda.Lambda;
 import org.trimou.trimness.model.ModelProvider;
 import org.trimou.trimness.model.ModelRequest;
 import org.trimou.util.ImmutableMap;
@@ -90,6 +98,7 @@ public class GithubRepoCommits implements ModelProvider {
         LOGGER.info("Handle model request for {0} using thread {1}", repository, Thread.currentThread().getName());
 
         String uri = COMMITS_RESOURCE_PREFIX + repository + COMMITS_RESOURCE_SUFFIX;
+        long start = System.currentTimeMillis();
         client.get(uri, (response) -> {
             LOGGER.info("Fetching last commits from {0} using thread {1}", uri, Thread.currentThread().getName());
             if (response.statusCode() == 200) {
@@ -101,7 +110,13 @@ public class GithubRepoCommits implements ModelProvider {
                         LOGGER.warn("Unable to parse the response from {0}", uri);
                         json = JsonValue.NULL;
                     }
-                    request.complete(ImmutableMap.builder().put(ID, repository).put(COMMITS, json).build());
+                    LOGGER.info("Last commits fetched successfully from {0} in {1} ms", uri, (System.currentTimeMillis() - start));
+                    if (request.getTemplate().getId().contains("charts")) {
+                        // Prepare chart data
+                        request.complete(ImmutableMap.builder().put(ID, repository).put("chart", prepareChartData(json)).build());
+                    } else {
+                        request.complete(ImmutableMap.builder().put(ID, repository).put(COMMITS, json).build());
+                    }
                 });
             } else {
                 LOGGER.warn("Invalid HTTP response: " + response.statusCode() + " " + response.statusMessage());
@@ -112,6 +127,31 @@ public class GithubRepoCommits implements ModelProvider {
                 .putHeader("Accept", "application/vnd.github.v3+json")
                 // User-Agent header is required
                 .putHeader("User-Agent", "Trimness-Simple-Example").end();
+    }
+
+    void configureTrimou(@Observes MustacheEngineBuilder builder) {
+        Lambda putInQuotes = (text) -> "\"" + text + "\"";
+        builder.addGlobalData("putInQuotes", putInQuotes);
+    }
+
+    private Object prepareChartData(JsonValue json) {
+        Map<String, Integer> chartData = new HashMap<>();
+        if (ValueType.ARRAY.equals(json.getValueType())) {
+            JsonArray commits = (JsonArray) json;
+            for (JsonValue commit : commits) {
+                if (ValueType.OBJECT.equals(commit.getValueType())) {
+                    JsonObject commitObject = (JsonObject) commit;
+                    chartData.compute(commitObject.getJsonObject("author").getJsonString("login").getString(), (user, value) -> {
+                        if (value != null) {
+                            return value + 1;
+                        } else {
+                            return 1;
+                        }
+                    });
+                }
+            }
+        }
+        return chartData;
     }
 
 }

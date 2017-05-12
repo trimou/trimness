@@ -42,13 +42,13 @@ import io.vertx.ext.web.RoutingContext;
  *
  * @author Martin Kouba
  */
-public class MonitorResources {
+public class MonitorHandlers {
 
     /**
      * A simple health-check resource.
      */
     @WebRoute(value = "/monitor/health", methods = HttpMethod.GET, type = HandlerType.BLOCKING, produces = APP_JSON)
-    public static class HealthCheckResource implements Handler<RoutingContext> {
+    public static class HealthCheckHandler implements Handler<RoutingContext> {
 
         @Inject
         private Instance<HealthCheck> healthChecks;
@@ -83,7 +83,7 @@ public class MonitorResources {
      * A simple ping resource.
      */
     @WebRoute(value = "/monitor/ping", methods = HttpMethod.HEAD)
-    public static class PingResource implements Handler<RoutingContext> {
+    public static class PingHandler implements Handler<RoutingContext> {
 
         @Override
         public void handle(RoutingContext ctx) {

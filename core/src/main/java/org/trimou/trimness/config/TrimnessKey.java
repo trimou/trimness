@@ -45,6 +45,9 @@ public enum TrimnessKey implements Key {
 
     /**
      * <tt>org.trimou.trimness.resultTimeout</tt>
+     * <p>
+     * <tt>0</tt> is a special value with meaning: as long as possible.
+     * </p>
      *
      * @see RenderHandler
      */

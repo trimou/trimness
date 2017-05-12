@@ -31,20 +31,31 @@ public class MockVertxProducer {
     public Vertx produceVertx() {
         executor = Executors.newScheduledThreadPool(1);
         Vertx vertx = Mockito.mock(Vertx.class);
-        Mockito.when(vertx.setPeriodic(ArgumentMatchers.anyLong(),
-                ArgumentMatchers.any())).thenAnswer(new Answer<Long>() {
+        Mockito.when(vertx.setPeriodic(ArgumentMatchers.anyLong(), ArgumentMatchers.any()))
+                .thenAnswer(new Answer<Long>() {
                     @SuppressWarnings("unchecked")
                     @Override
-                    public Long answer(InvocationOnMock invocation)
-                            throws Throwable {
+                    public Long answer(InvocationOnMock invocation) throws Throwable {
                         Object[] args = invocation.getArguments();
-                        executor.schedule(() -> {
+                        executor.scheduleAtFixedRate(() -> {
                             Handler<Long> handler = (Handler<Long>) args[1];
                             handler.handle(1l);
-                        }, (Long) args[0], TimeUnit.MILLISECONDS);
+                        }, 0, (Long) args[0], TimeUnit.MILLISECONDS);
                         return 1l;
                     }
                 });
+        Mockito.when(vertx.setTimer(ArgumentMatchers.anyLong(), ArgumentMatchers.any())).thenAnswer(new Answer<Long>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public Long answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                executor.schedule(() -> {
+                    Handler<Long> handler = (Handler<Long>) args[1];
+                    handler.handle(1l);
+                }, (Long) args[0], TimeUnit.MILLISECONDS);
+                return 1l;
+            }
+        });
         return vertx;
     }
 

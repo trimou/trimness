@@ -36,7 +36,6 @@ public interface ResultRepository extends WithId {
 
     /**
      * Initialize an incomplete result.
-     *
      * <p>
      * The timeout is a hint to the repository. Value of <tt>0</tt> means as
      * long as possible. If it's not possible to hold the result at least for

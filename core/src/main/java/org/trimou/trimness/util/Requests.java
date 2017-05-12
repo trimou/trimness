@@ -72,13 +72,18 @@ public final class Requests {
     }
 
     public static String metadataResult(Result result) {
-        JsonObjectBuilder metadata = success();
-        metadata.add(RESULT,
-                Json.createObjectBuilder().add(Strings.ID, result.getId())
-                        .add(Strings.CONTENT_TYPE, result.getContentType()).add(Strings.ERROR, result.getError())
-                        .add(Strings.OUTPUT, result.getOutput()).add(Strings.TEMPLATE_ID, result.getTemplateId())
-                        .add(Strings.CODE, result.getCode().toString()));
-        return metadata.build().toString();
+        JsonObjectBuilder builder = Json.createObjectBuilder();
+        builder.add(Strings.TEMPLATE_ID, result.getTemplateId());
+        builder.add(Strings.CODE, result.getCode().toString());
+        if (result.isFailure()) {
+            builder.add(Strings.ERROR, result.getError());
+        } else {
+            builder.add(Strings.OUTPUT, result.getOutput());
+            if (result.getContentType() != null) {
+                builder.add(Strings.CONTENT_TYPE, result.getContentType());
+            }
+        }
+        return success().add(RESULT, builder).build().toString();
     }
 
     public static JsonObject getBodyAsJsonObject(String body) {

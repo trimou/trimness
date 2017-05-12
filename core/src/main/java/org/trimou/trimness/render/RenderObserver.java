@@ -105,7 +105,7 @@ public class RenderObserver {
         } else {
             // Onetime rendering - we can be sure the content is set
             String content = input.getString(CONTENT, "");
-            template = ImmutableTemplate.of(idGenerator.getOneoffTemplateId(), content,
+            template = ImmutableTemplate.of(idGenerator.nextOneoffTemplateId(), content,
                     input.getString(CONTENT_TYPE, null));
             try {
                 mustache = engine.compileMustache(template.getId(), content);
