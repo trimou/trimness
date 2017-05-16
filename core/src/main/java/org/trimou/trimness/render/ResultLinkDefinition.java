@@ -13,27 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trimou.trimness.template;
+package org.trimou.trimness.render;
 
-import java.io.Reader;
-import java.util.function.Supplier;
-
-import org.trimou.engine.priority.WithPriority;
 import org.trimou.engine.validation.Validateable;
 import org.trimou.trimness.util.WithId;
 
 /**
+ * {@link Result} link definition.
+ * <p>
+ * {@link #getId()} represents the link name and must be unique, otherwise the
+ * application will fail to bootstrap. {@link #getId()} must also match the
+ * <code>^[a-zA-Z_0-9-]{1,50}</code> pattern, otherwise the component is not
+ * valid and ignored.
+ * </p>
  *
  * @author Martin Kouba
  */
-public interface ContentTypeExtractor extends WithPriority, WithId, Validateable {
+public interface ResultLinkDefinition extends WithId, Validateable {
 
     /**
      *
-     * @param id
-     * @param contentReader
-     * @return the content type or <code>null</code>
+     * @param renderRequest
+     * @return <code>true</code> if the result link should be updated,
+     *         <code>false</code> otherwise
      */
-    String extract(String id, Supplier<Reader> content);
+    boolean canUpdate(RenderRequest renderRequest);
 
 }

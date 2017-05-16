@@ -14,6 +14,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.trimou.trimness.DummyConfiguration;
 import org.trimou.trimness.config.TrimnessKey;
+import org.trimou.trimness.render.SimpleRenderRequest;
 import org.trimou.trimness.template.ImmutableTemplate;
 
 /**
@@ -34,7 +35,7 @@ public class ModelInitializerTest {
         configuration.put(TrimnessKey.MODEL_INIT_TIMEOUT, TIMEOUT);
 
         ModelInitializer initializer = weld.select(ModelInitializer.class).get();
-        Map<String, Object> model = initializer.initModel(ImmutableTemplate.of("test"), null, Collections.emptyMap());
+        Map<String, Object> model = initializer.initModel(new SimpleRenderRequest(ImmutableTemplate.of("test"), null, Collections.emptyMap()), null);
         assertEquals(2, model.size());
         assertEquals(Collections.emptyMap(), model.get("model"));
         assertEquals("1", model.get("simple"));
@@ -68,8 +69,8 @@ public class ModelInitializerTest {
 
         @Override
         public void handle(ModelRequest request) {
-            assertEquals("test", request.getTemplate().getId());
-            assertNull(request.getTemplate().getContentType());
+            assertEquals("test", request.getRenderRequest().getTemplate().getId());
+            assertNull(request.getRenderRequest().getTemplate().getContentType());
             // Intentionally do not call setResult()
         }
 
@@ -84,7 +85,7 @@ public class ModelInitializerTest {
 
         @Override
         public void handle(ModelRequest request) {
-            assertFalse(request.getParameter("foo").isPresent());
+            assertFalse(request.getRenderRequest().getParameter("foo").isPresent());
             throw new IllegalStateException();
         }
 

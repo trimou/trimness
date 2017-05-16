@@ -5,11 +5,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.jboss.arquillian.container.se.api.LaunchServices;
-import org.trimou.trimness.TrimnessVerticle;
 
 import io.vertx.core.Vertx;
 
 public class TrimnessLaunchServices extends LaunchServices {
+
+    private static final int TIMEOUT = 5;
 
     private Vertx vertx;
 
@@ -25,9 +26,11 @@ public class TrimnessLaunchServices extends LaunchServices {
             }
         });
         try {
-            Object result = synchronizer.poll(3, TimeUnit.SECONDS);
+            Object result = synchronizer.poll(TIMEOUT, TimeUnit.SECONDS);
             if (result == null) {
-                throw new IllegalStateException("");
+                throw new IllegalStateException(
+                        "Trimness verticle not started within " + TIMEOUT
+                                + " seconds");
             }
             if (result instanceof Throwable) {
                 throw new IllegalStateException((Throwable) result);

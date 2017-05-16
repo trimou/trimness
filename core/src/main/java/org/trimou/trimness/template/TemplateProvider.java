@@ -35,6 +35,7 @@ import org.trimou.trimness.util.WithId;
  * If a template managed by this provider is modified/removed, an event of
  * type {@link Change} should be fired so that
  * {@link TemplateCache} is able to invalidate the cached entries properly.
+ * </p>
  *
  * @author Martin Kouba
  * @see Template
@@ -65,7 +66,7 @@ public interface TemplateProvider extends WithId, WithPriority, Validateable {
 
         /**
          *
-         * @return the repository id
+         * @return the provider id
          */
         String getProviderId();
 

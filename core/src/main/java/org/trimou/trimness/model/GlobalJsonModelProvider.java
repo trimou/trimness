@@ -29,12 +29,12 @@ import java.net.URL;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.json.Json;
 import javax.json.JsonReader;
 import javax.json.JsonStructure;
 
 import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.config.TrimnessKey;
+import org.trimou.trimness.util.Jsons;
 import org.trimou.trimness.util.Resources;
 
 import io.vertx.core.logging.Logger;
@@ -103,7 +103,7 @@ public class GlobalJsonModelProvider implements ModelProvider {
         }
 
         if (in != null) {
-            try (JsonReader reader = Json
+            try (JsonReader reader = Jsons.INSTANCE
                     .createReader(new InputStreamReader(in, configuration.getStringValue(DEFAULT_FILE_ENCODING)))) {
                 model = reader.read();
             } catch (Exception e) {

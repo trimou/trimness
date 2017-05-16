@@ -13,27 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trimou.trimness.template;
+package org.trimou.trimness.render;
 
-import java.io.Reader;
-import java.util.function.Supplier;
+import java.util.Optional;
 
-import org.trimou.engine.priority.WithPriority;
-import org.trimou.engine.validation.Validateable;
-import org.trimou.trimness.util.WithId;
+import org.trimou.trimness.template.Template;
 
 /**
+ * Render request.
  *
  * @author Martin Kouba
  */
-public interface ContentTypeExtractor extends WithPriority, WithId, Validateable {
+public interface RenderRequest {
 
     /**
      *
-     * @param id
-     * @param contentReader
-     * @return the content type or <code>null</code>
+     * @return the template
      */
-    String extract(String id, Supplier<Reader> content);
+    Template getTemplate();
+
+    /**
+     *
+     * @return the timeout
+     */
+    Optional<Long> getTimeout();
+
+    /**
+     * Parameters are passed along with a render request.
+     *
+     * @param name
+     * @return the parameter
+     */
+    Optional<Object> getParameter(String name);
 
 }

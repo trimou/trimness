@@ -29,6 +29,8 @@ import org.trimou.trimness.util.Requests;
 import org.trimou.trimness.util.Requests.ResultType;
 
 import io.vertx.core.Handler;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.RoutingContext;
 
 /**
@@ -48,8 +50,7 @@ public class ResultHandlers {
 
             String id = ctx.request().getParam(ID);
             if (id == null) {
-                Requests.badRequest(ctx,
-                        Requests.failure("Invalid result id: %s", ctx.request().getParam(ID)).build().toString());
+                Requests.badRequest(ctx, Requests.failure("Result id must be set").build().toString());
                 return;
             }
 
@@ -93,12 +94,41 @@ public class ResultHandlers {
 
             String id = ctx.request().getParam(ID);
             if (id == null) {
-                Requests.badRequest(ctx,
-                        Requests.failure("Invalid result id: %s", ctx.request().getParam(ID)).build().toString());
+                Requests.badRequest(ctx, Requests.failure("Result id must be set").build().toString());
             } else if (resultRepository.remove(id)) {
                 Requests.ok(ctx, Requests.success("Result %s removed", id).build().toString());
             } else {
                 Requests.notFound(ctx, Requests.failure("Result not found for id: %s", id).build().toString());
+            }
+        }
+
+    }
+
+    @WebRoute(value = "/result/link/:id", type = BLOCKING, methods = GET)
+    public static class GetLinkHandler implements Handler<RoutingContext> {
+
+        private static final Logger LOGGER = LoggerFactory.getLogger(GetLinkHandler.class);
+
+        @Inject
+        private ResultRepository resultRepository;
+
+        @Override
+        public void handle(RoutingContext ctx) {
+
+            String linkId = ctx.request().getParam(ID);
+            if (linkId == null) {
+                Requests.badRequest(ctx, Requests.failure("Result link id must be set").build().toString());
+                return;
+            }
+
+            ResultLink link = resultRepository.getLink(linkId);
+
+            if (link != null) {
+                String path = "/result/" + link.getResultId();
+                LOGGER.info("Result link {0} found reroute to {1}", link, path);
+                ctx.reroute(path);
+            } else {
+                Requests.notFound(ctx, Requests.failure("Result link does not exits: %s", link).build().toString());
             }
         }
 

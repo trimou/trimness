@@ -161,7 +161,8 @@ public class RenderHandler implements Handler<RoutingContext> {
         }
 
         try {
-            String result = mustache.render(modelInitializer.initModel(template, input.get(MODEL), initParams(input)));
+            RenderRequest renderRequest = new SimpleRenderRequest(template, null, initParams(input));
+            String result = mustache.render(modelInitializer.initModel(renderRequest, input.get(MODEL)));
             switch (resultType) {
             case RAW:
                 ok(ctx, result);
@@ -194,11 +195,12 @@ public class RenderHandler implements Handler<RoutingContext> {
                     input.getString(CONTENT_TYPE, null));
         }
 
-        Result result = resultRepository.init(template, initTimeout(input));
+        RenderRequest renderRequest = new SimpleRenderRequest(template, initTimeout(input), initParams(input));
+        Result result = resultRepository.init(renderRequest);
 
         // Schedule one-shot timer
         vertx.setTimer(1, new AsyncRenderHandler(vertx, result, template, engine,
-                () -> modelInitializer.initModel(template, input.get(MODEL), initParams(input))));
+                () -> modelInitializer.initModel(renderRequest, input.get(MODEL))));
 
         Requests.ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON).end(Requests.asyncResult(result.getId()));
     }

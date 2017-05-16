@@ -23,9 +23,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonException;
 import javax.json.JsonObject;
@@ -33,10 +31,9 @@ import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 
-import org.trimou.engine.MustacheEngineBuilder;
-import org.trimou.lambda.Lambda;
 import org.trimou.trimness.model.ModelProvider;
 import org.trimou.trimness.model.ModelRequest;
+import org.trimou.trimness.util.Jsons;
 import org.trimou.util.ImmutableMap;
 
 import io.vertx.core.Vertx;
@@ -51,21 +48,21 @@ import io.vertx.core.logging.LoggerFactory;
  * @author Martin Kouba
  */
 @ApplicationScoped
-public class GithubRepoCommits implements ModelProvider {
+public class GithubModelProvider implements ModelProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GithubRepoCommits.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(GithubModelProvider.class.getName());
 
-    private static final String REPOSITORY = "repo";
+    static final String REPOSITORY = "repo";
 
-    private static final String HOST = "api.github.com";
+    static final String HOST = "api.github.com";
 
-    private static final String COMMITS_RESOURCE_PREFIX = "/repos/";
+    static final String COMMITS_RESOURCE_PREFIX = "/repos/";
 
-    private static final String COMMITS_RESOURCE_SUFFIX = "/commits";
+    static final String COMMITS_RESOURCE_SUFFIX = "/commits";
 
-    private static final String DEFAULT_REPO = "trimou/trimness";
+    static final String DEFAULT_REPO = "trimou/trimness";
 
-    private static final String COMMITS = "commits";
+    static final String COMMITS = "commits";
 
     @Inject
     private Vertx vertx;
@@ -85,15 +82,14 @@ public class GithubRepoCommits implements ModelProvider {
     @Override
     public void handle(ModelRequest request) {
 
-        if (!request.getTemplate().getId().contains(COMMITS)) {
+        if (!request.getRenderRequest().getTemplate().getId().contains(COMMITS)) {
             request.complete();
             return;
         }
 
-        String repository = request.getParameter(REPOSITORY).map((repo) -> {
-            // Trimness is currently using javax.json when parsing JSON requests
-            return (repo instanceof JsonString) ? ((JsonString) repo).getString() : repo.toString();
-        }).orElse(DEFAULT_REPO).toString();
+        String repository = request.getRenderRequest().getParameter(REPOSITORY).map((repo) ->
+        // Trimness is currently using javax.json when parsing JSON requests
+        (repo instanceof JsonString) ? ((JsonString) repo).getString() : repo.toString()).orElse(DEFAULT_REPO).toString();
 
         LOGGER.info("Handle model request for {0} using thread {1}", repository, Thread.currentThread().getName());
 
@@ -105,13 +101,13 @@ public class GithubRepoCommits implements ModelProvider {
                 response.bodyHandler((buffer) -> {
                     JsonValue json;
                     try {
-                        json = Json.createReader(new StringReader(buffer.toString())).read();
+                        json = Jsons.reader(new StringReader(buffer.toString())).read();
                     } catch (JsonException e) {
                         LOGGER.warn("Unable to parse the response from {0}", uri);
                         json = JsonValue.NULL;
                     }
                     LOGGER.info("Last commits fetched successfully from {0} in {1} ms", uri, (System.currentTimeMillis() - start));
-                    if (request.getTemplate().getId().contains("charts")) {
+                    if (request.getRenderRequest().getTemplate().getId().contains("charts")) {
                         // Prepare chart data
                         request.complete(ImmutableMap.builder().put(ID, repository).put("chart", prepareChartData(json)).build());
                     } else {
@@ -127,11 +123,6 @@ public class GithubRepoCommits implements ModelProvider {
                 .putHeader("Accept", "application/vnd.github.v3+json")
                 // User-Agent header is required
                 .putHeader("User-Agent", "Trimness-Simple-Example").end();
-    }
-
-    void configureTrimou(@Observes MustacheEngineBuilder builder) {
-        Lambda putInQuotes = (text) -> "\"" + text + "\"";
-        builder.addGlobalData("putInQuotes", putInQuotes);
     }
 
     private Object prepareChartData(JsonValue json) {

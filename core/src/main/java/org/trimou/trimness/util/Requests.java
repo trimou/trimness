@@ -33,7 +33,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonString;
@@ -72,7 +71,7 @@ public final class Requests {
     }
 
     public static String metadataResult(Result result) {
-        JsonObjectBuilder builder = Json.createObjectBuilder();
+        JsonObjectBuilder builder = Jsons.objectBuilder();
         builder.add(Strings.TEMPLATE_ID, result.getTemplateId());
         builder.add(Strings.CODE, result.getCode().toString());
         if (result.isFailure()) {
@@ -101,7 +100,7 @@ public final class Requests {
      * @throws JsonParsingException
      */
     public static JsonStructure getBodyAsJson(String body) {
-        return Json.createReader(new StringReader(body)).read();
+        return Jsons.reader(new StringReader(body)).read();
     }
 
     public static JsonObjectBuilder success() {
@@ -121,7 +120,7 @@ public final class Requests {
     }
 
     public static JsonObjectBuilder response(String msg, Object... params) {
-        JsonObjectBuilder response = Json.createObjectBuilder();
+        JsonObjectBuilder response = Jsons.objectBuilder();
         // Server time
         response.add(TIME, LocalDateTime.now().toString());
         if (msg != null) {

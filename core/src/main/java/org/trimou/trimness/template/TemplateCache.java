@@ -100,6 +100,11 @@ public class TemplateCache extends CompositeComponent<TemplateProvider> implemen
         }
     }
 
+    @Override
+    protected boolean checkUniqueIds() {
+        return true;
+    }
+
     private Optional<Template> find(String id) {
         Template template = null;
         for (TemplateProvider repository : components) {

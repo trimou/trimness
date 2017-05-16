@@ -23,7 +23,7 @@ import java.util.List;
 import org.trimou.engine.validation.Validateable;
 import org.trimou.util.ImmutableList;
 
-public abstract class CompositeComponent<T extends Validateable> {
+public abstract class CompositeComponent<T extends Validateable & WithId> {
 
     protected final List<T> components;
 
@@ -34,12 +34,35 @@ public abstract class CompositeComponent<T extends Validateable> {
     protected CompositeComponent(Iterable<T> instances, Comparator<T> comparator) {
         List<T> components = new ArrayList<>();
         for (T component : instances) {
-            if (component.isValid()) {
+            if (isComponentValid(component)) {
                 components.add(component);
             }
         }
-        Collections.sort(components, comparator);
+        if (!components.isEmpty()) {
+            if (checkUniqueIds() && components.stream().map((e) -> e.getId()).distinct().count() < components.size()) {
+                throw new IllegalStateException("Non-unique components found: " + components);
+            }
+            if (comparator != null) {
+                Collections.sort(components, comparator);
+            }
+        }
         this.components = ImmutableList.copyOf(components);
+    }
+
+    public List<T> getComponents() {
+        return components;
+    }
+
+    public boolean isEmpty() {
+        return components.isEmpty();
+    }
+
+    protected boolean checkUniqueIds() {
+        return false;
+    }
+
+    protected boolean isComponentValid(T component) {
+        return component.isValid();
     }
 
 }

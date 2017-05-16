@@ -16,6 +16,7 @@
 package org.trimou.trimness.util;
 
 /**
+ * Identified component.
  *
  * @author Martin Kouba
  */

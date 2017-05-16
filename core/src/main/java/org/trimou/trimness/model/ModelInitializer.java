@@ -31,7 +31,7 @@ import javax.inject.Inject;
 
 import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.config.TrimnessKey;
-import org.trimou.trimness.template.Template;
+import org.trimou.trimness.render.RenderRequest;
 import org.trimou.util.ImmutableList;
 
 import io.vertx.core.logging.Logger;
@@ -70,12 +70,11 @@ public class ModelInitializer {
 
     /**
      *
-     * @param template
+     * @param renderRequest
      * @param requestModel
-     * @param parameters
      * @return the initialized model
      */
-    public Map<String, Object> initModel(Template template, Object requestModel, Map<String, Object> parameters) {
+    public Map<String, Object> initModel(RenderRequest renderRequest, Object requestModel) {
 
         Map<String, Object> model = new HashMap<>();
         model.put(MODEL, requestModel != null ? requestModel : Collections.emptyMap());
@@ -88,13 +87,13 @@ public class ModelInitializer {
         CountDownLatch latch = new CountDownLatch(providers.size());
 
         for (ModelProvider provider : providers) {
-            SimpleModelRequest request = new SimpleModelRequest(provider.getNamespace(), template, parameters, latch);
+            SimpleModelRequest request = new SimpleModelRequest(provider.getNamespace(), renderRequest, latch);
             requests.add(request);
             try {
                 provider.handle(request);
             } catch (RuntimeException e) {
                 LOGGER.warn("Provider [{0}] failed to handle model request for template [{1}]", provider.getNamespace(),
-                        template.getId());
+                        renderRequest.getTemplate().getId());
                 LOGGER.debug("ModelProvider failure: ", e);
             }
         }
@@ -103,7 +102,8 @@ public class ModelInitializer {
             if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
                 LOGGER.warn(
                         "Timeout expired - model not initialized completely for {0}: {1} from {2} providers completed within {3} ms ",
-                        template.getId(), providers.size() - latch.getCount(), providers.size(), timeout);
+                        renderRequest.getTemplate().getId(), providers.size() - latch.getCount(), providers.size(),
+                        timeout);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

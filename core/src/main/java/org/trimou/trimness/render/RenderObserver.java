@@ -118,8 +118,8 @@ public class RenderObserver {
         ResultType resultType = ResultType.of(input.get(RESULT_TYPE));
 
         try {
-            String result = mustache
-                    .render(modelInitializer.initModel(template, input.get(MODEL), Requests.initParams(input)));
+            RenderRequest renderRequest = new SimpleRenderRequest(template, null, Requests.initParams(input));
+            String result = mustache.render(modelInitializer.initModel(renderRequest, input.get(MODEL)));
             switch (resultType) {
             case RAW:
                 event.setReply(result);

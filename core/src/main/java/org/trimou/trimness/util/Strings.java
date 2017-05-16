@@ -15,6 +15,8 @@
  */
 package org.trimou.trimness.util;
 
+import java.util.regex.Pattern;
+
 public final class Strings {
 
     private Strings() {
@@ -44,6 +46,7 @@ public final class Strings {
     public static final String ERROR = "error";
     public static final String OUTPUT = "output";
     public static final String CONFIG = "config";
+    public static final String LINK = "link";
 
     public static final String APP_JSON = "application/json";
     public static final String APP_JAVASCRIPT = "application/javascript";
@@ -59,5 +62,11 @@ public final class Strings {
     public static final String SUFFIX_JS = "js";
     public static final String SUFFIX_JSON = "json";
     public static final String SUFFIX_TXT = "txt";
+
+    private static final Pattern LINK_PATTERN = Pattern.compile("^[a-zA-Z_0-9-]{1,50}");
+
+    public static boolean matchesLinkPattern(String input) {
+        return LINK_PATTERN.matcher(input).matches();
+    }
 
 }

@@ -32,6 +32,7 @@ import org.trimou.handlebars.HelpersBuilder;
 import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.config.TrimnessKey;
 import org.trimou.trimness.model.ModelProvider;
+import org.trimou.trimness.render.ResultLinkDefinitions;
 import org.trimou.util.Strings;
 
 import io.vertx.core.AbstractVerticle;
@@ -62,15 +63,18 @@ public class TrimnessVerticle extends AbstractVerticle {
 
                 Configuration configuration = container.select(Configuration.class).get();
 
-                // Self check
+                // Self checks
                 Set<String> namespaces = new HashSet<>();
                 namespaces.add("data");
                 for (ModelProvider provider : container.select(ModelProvider.class)) {
                     if (namespaces.contains(provider.getNamespace())) {
-                        throw new IllegalStateException("Non-unique namespace detected: " + provider.getNamespace());
+                        throw new IllegalStateException(
+                                "Non-unique model provider namespace detected: " + provider.getNamespace());
                     }
                     namespaces.add(provider.getNamespace());
                 }
+                // Make sure result link ids are unique
+                container.select(ResultLinkDefinitions.class).get().getComponents();
 
                 // Build template engine
                 MustacheEngineBuilder builder = MustacheEngineBuilder.newBuilder();

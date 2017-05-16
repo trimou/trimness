@@ -1,33 +1,15 @@
-<html>
-<head>
-<title>Last Commits for {{repo.id}} - Charts</title>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js"></script>
-<style type="text/css">
-body {
-  font-family: sans-serif;
-}
+{{< base.html}}
 
-td {
-  padding: 5px;
-}
-</style>
-</head>
+{{$content}}
+<h2>Chart 1 - Last 30 Commits Contributors</h2>
 
-<h1>Last Commits for {{repo.id}} - Charts</h1>
-
-<p>Report generated for {{alt model.name "unknown person"}}.</p>
-
-<h2>Chart 1 - Contributions</h2>
-
-<div id="bar-chart-container" style="width:50%;">
-  <canvas id="barChart" width="400" height="400" style="padding: 25px;"></canvas>
+<div id="bar-chart-container" style="width: 50%;">
+  <canvas id="barChart"></canvas>
 </div>
 
 <script type="text/javascript">
 
-/*
- * This function is used to generate background color for each bar
- */
+ // This function is used to generate background color for each bar
 function generateColors(total) {
    var colors = new Array();
    var x = 360 / (total);
@@ -51,21 +33,13 @@ var data = {
   ]
 };
 var barChart = new Chart(ctx, {
-    type: 'bar',
+    type: 'doughnut',
     data: data,
     options: {
-        legend: { display : false },
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
-            }]
-        }
+        legend: { display : true }
     }
 });
 </script>
+{{/content}}
 
-<hr>
-Generated: {{meta.time}}
-</html>
+{{/base.html}}

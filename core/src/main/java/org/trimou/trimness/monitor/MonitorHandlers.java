@@ -26,13 +26,13 @@ import static org.trimou.trimness.util.Strings.SUCCESS;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 
 import org.jboss.weld.vertx.web.WebRoute;
 import org.jboss.weld.vertx.web.WebRoute.HandlerType;
 import org.trimou.trimness.monitor.HealthCheck.Result;
+import org.trimou.trimness.util.Jsons;
 
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
@@ -56,14 +56,14 @@ public class MonitorHandlers {
         @Override
         public void handle(RoutingContext ctx) {
             boolean isOk = true;
-            JsonObjectBuilder builder = Json.createObjectBuilder();
-            JsonArrayBuilder checks = Json.createArrayBuilder();
+            JsonObjectBuilder builder = Jsons.objectBuilder();
+            JsonArrayBuilder checks = Jsons.arrayBuilder();
             for (HealthCheck healthCheck : healthChecks) {
                 Result result = healthCheck.perform();
                 if (!result.isOk()) {
                     isOk = false;
                 }
-                JsonObjectBuilder check = Json.createObjectBuilder();
+                JsonObjectBuilder check = Jsons.objectBuilder();
                 check.add(ID, healthCheck.getId());
                 check.add(RESULT, result.isOk() ? SUCCESS : FAILURE);
                 if (result.hasDetails()) {

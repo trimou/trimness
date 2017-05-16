@@ -17,6 +17,7 @@ package org.trimou.trimness.render;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
  *
@@ -24,8 +25,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class SimpleResult implements Result {
 
-    static SimpleResult init(String id, String templateId, String contentType) {
-        return new SimpleResult(id, templateId, Code.INCOMPLETE, null, null, contentType);
+    static SimpleResult init(String id, String templateId, String contentType, Consumer<Result> onComplete) {
+        return new SimpleResult(id, templateId, Code.INCOMPLETE, null, null, contentType, onComplete);
     }
 
     private final String id;
@@ -42,6 +43,8 @@ public class SimpleResult implements Result {
 
     private final AtomicReference<String> output;
 
+    private final Consumer<Result> onComplete;
+
     /**
      *
      * @param id
@@ -50,8 +53,10 @@ public class SimpleResult implements Result {
      * @param output
      * @param templateId
      * @param contentType
+     * @param onComplete
      */
-    SimpleResult(String id, String templateId, Code code, String errorMessage, String output, String contentType) {
+    SimpleResult(String id, String templateId, Code code, String errorMessage, String output, String contentType,
+            Consumer<Result> onComplete) {
         this.id = id;
         this.code = new AtomicReference<>(code);
         this.errorMessage = new AtomicReference<>();
@@ -59,6 +64,7 @@ public class SimpleResult implements Result {
         this.templateId = templateId;
         this.contentType = contentType;
         this.createdAt = LocalDateTime.now();
+        this.onComplete = onComplete;
     }
 
     public String getId() {
@@ -95,6 +101,7 @@ public class SimpleResult implements Result {
             checkIsIncomplete();
             this.code.set(Code.FAILURE);
             this.errorMessage.set(errorMessage);
+            onComplete();
         }
     }
 
@@ -104,12 +111,19 @@ public class SimpleResult implements Result {
             checkIsIncomplete();
             this.code.set(Code.SUCESS);
             this.output.set(output);
+            onComplete();
         }
     }
 
     private void checkIsIncomplete() {
         if (isComplete()) {
             throw new IllegalStateException("Result " + getId() + " already completed!");
+        }
+    }
+
+    private void onComplete() {
+        if (onComplete != null) {
+            onComplete.accept(this);
         }
     }
 

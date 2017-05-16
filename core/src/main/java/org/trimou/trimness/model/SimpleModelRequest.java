@@ -15,12 +15,10 @@
  */
 package org.trimou.trimness.model;
 
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.trimou.trimness.template.Template;
+import org.trimou.trimness.render.RenderRequest;
 
 /**
  *
@@ -30,9 +28,7 @@ class SimpleModelRequest implements ModelRequest {
 
     private final String namespace;
 
-    private final Template template;
-
-    private final Map<String, Object> parameters;
+    private final RenderRequest renderRequest;
 
     private final AtomicReference<Object> result;
 
@@ -41,26 +37,19 @@ class SimpleModelRequest implements ModelRequest {
     /**
      *
      * @param namespace
-     * @param template
-     * @param parameters
+     * @param renderRequest
      * @param latch
      */
-    SimpleModelRequest(String namespace, Template template, Map<String, Object> parameters, CountDownLatch latch) {
+    SimpleModelRequest(String namespace, RenderRequest renderRequest, CountDownLatch latch) {
         this.namespace = namespace;
-        this.template = template;
-        this.parameters = parameters;
+        this.renderRequest = renderRequest;
         this.result = new AtomicReference<Object>();
         this.latch = latch;
     }
 
     @Override
-    public Template getTemplate() {
-        return template;
-    }
-
-    @Override
-    public Optional<Object> getParameter(String name) {
-        return Optional.ofNullable(parameters.get(name));
+    public RenderRequest getRenderRequest() {
+        return renderRequest;
     }
 
     @Override

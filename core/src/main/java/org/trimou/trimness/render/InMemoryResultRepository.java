@@ -22,8 +22,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.trimou.trimness.template.Template;
-
 import io.vertx.core.Vertx;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -43,32 +41,51 @@ public class InMemoryResultRepository implements ResultRepository {
     @Inject
     private IdGenerator idGenerator;
 
-    private ConcurrentMap<String, SimpleResult> results;
+    @Inject
+    private ResultLinkDefinitions resultLinks;
+
+    private ConcurrentMap<String, Result> results;
+
+    private ConcurrentMap<String, ResultLink> links;
 
     @PostConstruct
     void init() {
         results = new ConcurrentHashMap<>();
+        links = new ConcurrentHashMap<>();
     }
 
     @Override
-    public SimpleResult get(String id) {
+    public Result get(String id) {
         return results.get(id);
     }
 
     @Override
-    public Result init(Template template, long timeout) {
-        SimpleResult result = SimpleResult.init("" + idGenerator.nextId(), template.getId(), template.getContentType());
+    public ResultLink getLink(String linkId) {
+        return links.get(linkId);
+    }
+
+    @Override
+    public Result init(RenderRequest renderRequest) {
+        SimpleResult result = SimpleResult.init("" + idGenerator.nextId(), renderRequest.getTemplate().getId(),
+                renderRequest.getTemplate().getContentType(), resultLinks.isEmpty() ? null : (r) -> {
+                    for (ResultLinkDefinition definition : resultLinks.getComponents()) {
+                        if (r.isSucess() && definition.canUpdate(renderRequest)) {
+                            links.put(definition.getId(), new SimpleResultLink(definition.getId(), r.getId()));
+                            LOGGER.info("Result link {0} updated to: {1}", definition.getId(), r.getId());
+                        }
+                    }
+                });
         results.put(result.getId(), result);
-        if (timeout != 0) {
+        if (renderRequest.getTimeout().orElse(0l) > 0) {
             // Schedule result removal
-            vertx.setTimer(timeout, (id) -> {
+            vertx.setTimer(renderRequest.getTimeout().get(), (id) -> {
                 if (results.remove(result.getId()) != null) {
                     LOGGER.info("Result timed out [id: {0}]", result.getId());
                 }
             });
         }
-        LOGGER.info("Result initialized [id: {0}, template: {1}, timeout: {2}]", result.getId(), template.getId(),
-                timeout);
+        LOGGER.info("Result initialized [id: {0}, template: {1}, timeout: {2}]", result.getId(),
+                renderRequest.getTemplate().getId(), renderRequest.getTimeout());
         return result;
     }
 

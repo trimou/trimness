@@ -13,27 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trimou.trimness.template;
+package org.trimou.trimness.example.simple;
 
-import java.io.Reader;
-import java.util.function.Supplier;
+import javax.enterprise.context.Dependent;
+import javax.enterprise.event.Observes;
 
-import org.trimou.engine.priority.WithPriority;
-import org.trimou.engine.validation.Validateable;
-import org.trimou.trimness.util.WithId;
+import org.trimou.engine.MustacheEngineBuilder;
+import org.trimou.lambda.Lambda;
 
 /**
  *
  * @author Martin Kouba
  */
-public interface ContentTypeExtractor extends WithPriority, WithId, Validateable {
+@Dependent
+public class AdditionalTrimoutConfiguration {
 
     /**
      *
-     * @param id
-     * @param contentReader
-     * @return the content type or <code>null</code>
+     *
+     * @param builder
      */
-    String extract(String id, Supplier<Reader> content);
+    void configureTrimou(@Observes MustacheEngineBuilder builder) {
+        Lambda putInQuotes = (text) -> "\"" + text + "\"";
+        builder.addGlobalData("putInQuotes", putInQuotes);
+    }
 
 }

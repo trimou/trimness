@@ -72,7 +72,7 @@ public class MetadataModelProvider implements ModelProvider {
                 // System time
                 .put(TIME, LocalDateTime.now())
                 // Template id
-                .put(TEMPLATE_ID, request.getTemplate().getId())
+                .put(TEMPLATE_ID, request.getRenderRequest().getTemplate().getId())
                 // Trimness configuration
                 .put(CONFIG, configMapper).build());
     }

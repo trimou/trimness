@@ -15,9 +15,7 @@
  */
 package org.trimou.trimness.model;
 
-import java.util.Optional;
-
-import org.trimou.trimness.template.Template;
+import org.trimou.trimness.render.RenderRequest;
 
 /**
  * Request for a data model. A new request is created for each provider when a
@@ -30,17 +28,9 @@ public interface ModelRequest {
 
     /**
      *
-     * @return the template
+     * @return the render request
      */
-    Template getTemplate();
-
-    /**
-     * Parameters are passed along with a render request.
-     *
-     * @param name
-     * @return the parameter container
-     */
-    Optional<Object> getParameter(String name);
+    RenderRequest getRenderRequest();
 
     /**
      * Signal that the request was processed and the given result was found.

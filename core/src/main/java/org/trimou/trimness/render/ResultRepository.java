@@ -15,12 +15,14 @@
  */
 package org.trimou.trimness.render;
 
-import org.trimou.trimness.template.Template;
 import org.trimou.trimness.util.WithId;
 
 /**
+ * This component is used to store the results of asynchronous render requests.
+ * <p>
  * Any non-default result repository must be an alternative with priority. Only
  * the repository with highest priority is taken into account.
+ * </p>
  *
  * @author Martin Kouba
  */
@@ -35,22 +37,36 @@ public interface ResultRepository extends WithId {
     Result get(String resultId);
 
     /**
-     * Initialize an incomplete result.
+     * The repository may optionally support result links.
+     *
+     * @param linkId
+     * @return the result link or <code>null</code> if no such link exists
+     */
+    default ResultLink getLink(String linkId) {
+        return null;
+    }
+
+    /**
+     * Initialize an incomplete result. The client must call
+     * {@link Result#complete(String)} or {@link Result#fail(String)} to
+     * complete the result.
      * <p>
      * The timeout is a hint to the repository. Value of <tt>0</tt> means as
      * long as possible. If it's not possible to hold the result at least for
      * the given time the repository should either log a warning message or
      * throw a runtime exception.
      * </p>
+     * <p>
+     * If the returned result is completed successfully the repository should
+     * update any result link for which a {@link ResultLinkDefinition} exists,
+     * such that {@link ResultLinkDefinition#canUpdate(RenderRequest)} returns
+     * <code>true</code>.
+     * </p>
      *
-     * @param template
-     * @param timeout
-     *            The timeout of the result
+     * @param renderRequest
      * @return an incomplete result
-     * @see Result#complete(String)
-     * @see Result#fail(String)
      */
-    Result init(Template template, long timeout);
+    Result init(RenderRequest renderRequest);
 
     /**
      *

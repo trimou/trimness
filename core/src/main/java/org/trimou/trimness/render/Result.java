@@ -15,18 +15,14 @@
  */
 package org.trimou.trimness.render;
 
+import org.trimou.trimness.util.WithId;
+
 /**
  * Represents a result of an async template rendering.
  *
  * @author Martin Kouba
  */
-public interface Result {
-
-    /**
-     *
-     * @return the id, must be unique
-     */
-    String getId();
+public interface Result extends WithId {
 
     /**
      *
