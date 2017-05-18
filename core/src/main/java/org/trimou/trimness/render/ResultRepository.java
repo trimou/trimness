@@ -15,18 +15,22 @@
  */
 package org.trimou.trimness.render;
 
+import javax.enterprise.context.Dependent;
+
+import org.trimou.engine.priority.WithPriority;
+import org.trimou.engine.validation.Validateable;
 import org.trimou.trimness.util.WithId;
 
 /**
  * This component is used to store the results of asynchronous render requests.
  * <p>
- * Any non-default result repository must be an alternative with priority. Only
- * the repository with highest priority is taken into account.
+ * A valid repository with the highest priority is used. It's recommended to use
+ * {@link Dependent} scope - see also {@link DelegateResultRepository}.
  * </p>
  *
  * @author Martin Kouba
  */
-public interface ResultRepository extends WithId {
+public interface ResultRepository extends WithId, WithPriority, Validateable {
 
     /**
      *

@@ -31,11 +31,9 @@ import static org.trimou.trimness.util.Strings.CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.HEADER_CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.ID;
 import static org.trimou.trimness.util.Strings.MODEL;
-import static org.trimou.trimness.util.Strings.PARAMS;
 import static org.trimou.trimness.util.Strings.RESULT_TYPE;
 import static org.trimou.trimness.util.Strings.TIMEOUT;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -58,8 +56,6 @@ import org.trimou.trimness.template.TemplateCache;
 import org.trimou.trimness.util.AsyncHandlers;
 import org.trimou.trimness.util.Requests;
 import org.trimou.trimness.util.Requests.ResultType;
-import org.trimou.util.ImmutableMap;
-import org.trimou.util.ImmutableMap.ImmutableMapBuilder;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -80,7 +76,7 @@ public class RenderHandler implements Handler<RoutingContext> {
     private TemplateCache templateCache;
 
     @Inject
-    private ResultRepository resultRepository;
+    private DelegateResultRepository resultRepository;
 
     @Inject
     private ModelInitializer modelInitializer;
@@ -161,7 +157,7 @@ public class RenderHandler implements Handler<RoutingContext> {
         }
 
         try {
-            RenderRequest renderRequest = new SimpleRenderRequest(template, null, initParams(input));
+            RenderRequest renderRequest = new SimpleRenderRequest(template, null, Requests.initParams(input));
             String result = mustache.render(modelInitializer.initModel(renderRequest, input.get(MODEL)));
             switch (resultType) {
             case RAW:
@@ -195,7 +191,7 @@ public class RenderHandler implements Handler<RoutingContext> {
                     input.getString(CONTENT_TYPE, null));
         }
 
-        RenderRequest renderRequest = new SimpleRenderRequest(template, initTimeout(input), initParams(input));
+        RenderRequest renderRequest = new SimpleRenderRequest(template, initTimeout(input), Requests.initParams(input));
         Result result = resultRepository.init(renderRequest);
 
         // Schedule one-shot timer
@@ -211,18 +207,6 @@ public class RenderHandler implements Handler<RoutingContext> {
             return ((JsonNumber) timeout).longValue();
         }
         return configuration.getLongValue(RESULT_TIMEOUT);
-    }
-
-    private Map<String, Object> initParams(JsonObject input) {
-        JsonValue params = input.get(PARAMS);
-        if (params == null || !ValueType.OBJECT.equals(params.getValueType())) {
-            return Collections.emptyMap();
-        }
-        ImmutableMapBuilder<String, Object> builder = ImmutableMap.builder();
-        for (Map.Entry<String, JsonValue> param : ((JsonObject) params).entrySet()) {
-            builder.put(param.getKey(), param.getValue());
-        }
-        return builder.build();
     }
 
     static class AsyncRenderHandler implements Handler<Long> {

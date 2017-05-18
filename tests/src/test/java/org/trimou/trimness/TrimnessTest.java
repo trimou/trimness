@@ -21,7 +21,7 @@ public abstract class TrimnessTest {
                         LaunchServices.SYSTEM_PROPERTY_LAUNCH_SERVICES_CLASS,
                         TrimnessLaunchServices.class.getName())
                 .add(Maven.resolver().loadPomFromFile("pom.xml")
-                        .resolve("org.trimou:trimness-core")
+                        .resolve("org.trimou:trimness-core", "org.slf4j:slf4j-simple")
                         .withTransitivity().asFile());
     }
 

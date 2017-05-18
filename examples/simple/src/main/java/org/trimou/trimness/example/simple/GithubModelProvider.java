@@ -27,7 +27,6 @@ import javax.inject.Inject;
 import javax.json.JsonArray;
 import javax.json.JsonException;
 import javax.json.JsonObject;
-import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 
@@ -87,9 +86,7 @@ public class GithubModelProvider implements ModelProvider {
             return;
         }
 
-        String repository = request.getRenderRequest().getParameter(REPOSITORY).map((repo) ->
-        // Trimness is currently using javax.json when parsing JSON requests
-        (repo instanceof JsonString) ? ((JsonString) repo).getString() : repo.toString()).orElse(DEFAULT_REPO).toString();
+        String repository = request.getRenderRequest().getParameters().getString(REPOSITORY, DEFAULT_REPO);
 
         LOGGER.info("Handle model request for {0} using thread {1}", repository, Thread.currentThread().getName());
 

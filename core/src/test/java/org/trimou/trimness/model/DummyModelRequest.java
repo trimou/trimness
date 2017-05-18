@@ -7,6 +7,7 @@ import org.trimou.trimness.render.RenderRequest;
 import org.trimou.trimness.render.SimpleRenderRequest;
 import org.trimou.trimness.template.ImmutableTemplate;
 import org.trimou.trimness.template.Template;
+import org.trimou.trimness.util.Jsons;
 
 class DummyModelRequest implements ModelRequest {
 
@@ -14,19 +15,16 @@ class DummyModelRequest implements ModelRequest {
 
     private final Template template;
 
-    private final Map<String, Object> params;
-
     public DummyModelRequest() {
         this(ImmutableTemplate.of("foo"), Collections.emptyMap());
     }
 
     public DummyModelRequest(Template template, Map<String, Object> params) {
         this.template = template;
-        this.params = params;
     }
 
     public RenderRequest getRenderRequest() {
-        return new SimpleRenderRequest(template, null, params);
+        return new SimpleRenderRequest(template, null, Jsons.EMPTY_OBJECT);
     }
 
     @Override

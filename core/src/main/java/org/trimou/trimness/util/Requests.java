@@ -30,8 +30,6 @@ import static org.trimou.trimness.util.Strings.TIME;
 
 import java.io.StringReader;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Map;
 
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -43,8 +41,6 @@ import javax.json.stream.JsonParsingException;
 
 import org.trimou.trimness.render.Result;
 import org.trimou.trimness.template.Template;
-import org.trimou.util.ImmutableMap;
-import org.trimou.util.ImmutableMap.ImmutableMapBuilder;
 
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.RoutingContext;
@@ -163,16 +159,12 @@ public final class Requests {
         internalServerError(ctx, failure("Error rendering template with id: %s", id).toString());
     }
 
-    public static Map<String, Object> initParams(JsonObject input) {
+    public static JsonObject initParams(JsonObject input) {
         JsonValue params = input.get(PARAMS);
-        if (params == null || !ValueType.OBJECT.equals(params.getValueType())) {
-            return Collections.emptyMap();
+        if (params != null && ValueType.OBJECT.equals(params.getValueType())) {
+            return (JsonObject) params;
         }
-        ImmutableMapBuilder<String, Object> builder = ImmutableMap.builder();
-        for (Map.Entry<String, JsonValue> param : ((JsonObject) params).entrySet()) {
-            builder.put(param.getKey(), param.getValue());
-        }
-        return builder.build();
+        return Jsons.EMPTY_OBJECT;
     }
 
     public enum ResultType {

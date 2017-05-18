@@ -6,8 +6,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Collections;
-
 import org.jboss.weld.junit4.MockBean;
 import org.jboss.weld.junit4.WeldInitiator;
 import org.junit.Rule;
@@ -15,6 +13,7 @@ import org.junit.Test;
 import org.trimou.trimness.MockVertxProducer;
 import org.trimou.trimness.render.Result.Code;
 import org.trimou.trimness.template.ImmutableTemplate;
+import org.trimou.trimness.util.Jsons;
 
 /**
  *
@@ -36,7 +35,7 @@ public class InMemoryResultRepositoryTest {
         repository.clear();
         assertEquals(0, repository.size());
         Result result = repository
-                .init(new SimpleRenderRequest(ImmutableTemplate.of("foo"), 10000l, Collections.emptyMap()));
+                .init(new SimpleRenderRequest(ImmutableTemplate.of("foo"), 10000l, Jsons.EMPTY_OBJECT));
         assertEquals(1, repository.size());
         assertNotNull(result);
         assertNotNull(result.getId());
@@ -63,8 +62,7 @@ public class InMemoryResultRepositoryTest {
     public void testTimeout() throws InterruptedException {
         InMemoryResultRepository repository = weld.select(InMemoryResultRepository.class).get();
         repository.clear();
-        Result result = repository
-                .init(new SimpleRenderRequest(ImmutableTemplate.of("foo"), 100l, Collections.emptyMap()));
+        Result result = repository.init(new SimpleRenderRequest(ImmutableTemplate.of("foo"), 100l, Jsons.EMPTY_OBJECT));
         Thread.sleep(200);
         assertNull(repository.get(result.getId()));
     }
@@ -74,8 +72,7 @@ public class InMemoryResultRepositoryTest {
         InMemoryResultRepository repository = weld.select(InMemoryResultRepository.class).get();
         repository.clear();
         assertNull(repository.getLink("test"));
-        Result result = repository
-                .init(new SimpleRenderRequest(ImmutableTemplate.of("bang"), 0l, Collections.emptyMap()));
+        Result result = repository.init(new SimpleRenderRequest(ImmutableTemplate.of("bang"), 0l, Jsons.EMPTY_OBJECT));
         result.complete("hello");
         ResultLink link = repository.getLink("test");
         assertNotNull(link);

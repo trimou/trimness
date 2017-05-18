@@ -1,8 +1,8 @@
 package org.trimou.trimness;
 
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;
 import static org.trimou.trimness.config.TrimnessKey.GLOBAL_JSON_FILE;
+import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;
 import static org.trimou.trimness.util.Strings.CODE;
 import static org.trimou.trimness.util.Strings.RESULT;
 import static org.trimou.trimness.util.Strings.SUCCESS;
@@ -22,7 +22,6 @@ import org.junit.runner.RunWith;
 import org.trimou.trimness.util.Strings;
 
 import io.restassured.RestAssured;
-import io.restassured.response.Response;
 
 /**
  *
@@ -49,11 +48,10 @@ public class RenderTest extends TrimnessTest {
     @RunAsClient
     @Test
     public void testOnetimeHello() {
-        Response response = RestAssured.given()
+        RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"content\" : \"Hello {{#each model}}{{this}}{{#hasNext}}, {{/hasNext}}{{/each}}!\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
-                .post("/render");
-        response.then().assertThat().statusCode(200)
+                .post("/render").then().assertThat().statusCode(200)
                 .body(equalTo("Hello me, Lu, foo!"));
     }
 
@@ -69,22 +67,20 @@ public class RenderTest extends TrimnessTest {
     @RunAsClient
     @Test
     public void testHello() {
-        Response response = RestAssured.given()
+        RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"id\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"contentType\":\"text/plain\"}")
-                .post("/render");
-        response.then().assertThat().statusCode(200)
+                .post("/render").then().assertThat().statusCode(200)
                 .body(equalTo("Hello me, Lu, foo!"));
     }
 
     @RunAsClient
     @Test
     public void testHelloMetadata() {
-        Response response = RestAssured.given()
+        RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"id\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"contentType\":\"text/plain\", \"resultType\":\"metadata\"}")
-                .post("/render");
-        response.then().assertThat().statusCode(200)
+                .post("/render").then().assertThat().statusCode(200)
                 .body(CODE, equalTo(SUCCESS))
                 .body(RESULT, equalTo("Hello me, Lu, foo!"))
                 .body(TEMPLATE_ID, equalTo("hello.txt"));
@@ -93,22 +89,20 @@ public class RenderTest extends TrimnessTest {
     @RunAsClient
     @Test
     public void testHelloGlobalData() {
-        Response response = RestAssured.given()
+        RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"id\" : \"hello-global-data.txt\", \"model\" : {\"name\":1}, \"contentType\":\"text/plain\"}")
-                .post("/render");
-        response.then().assertThat().statusCode(200)
+                .post("/render").then().assertThat().statusCode(200)
                 .body(equalTo("##hello-global-data.txt## Hello 1 and bar!"));
     }
 
     @RunAsClient
     @Test
     public void testMetadata() {
-        Response response = RestAssured.given()
+        RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"content\" : \"{{meta.config.host}}:{{meta.config.port}}\" }")
-                .post("/render");
-        response.then().assertThat().statusCode(200)
+                .post("/render").then().assertThat().statusCode(200)
                 .body(equalTo("localhost:8080"));
     }
 

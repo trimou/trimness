@@ -17,7 +17,6 @@ package org.trimou.trimness.example.simple;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
-import javax.json.JsonString;
 
 import org.trimou.trimness.render.ResultLinkDefinition;
 import org.trimou.trimness.render.SimpleResultLinkDefinition;
@@ -33,8 +32,7 @@ public class AdditionalResultLinks {
     ResultLinkDefinition configureWeldResultLink() {
         return new SimpleResultLinkDefinition("weld-core", (r) -> {
             // Update the link for charts template if repo is weld/core
-            return r.getTemplate().getId().contains("charts") && r.getParameter(GithubModelProvider.REPOSITORY)
-                    .map((repo) -> (repo instanceof JsonString) ? ((JsonString) repo).getString().equals("weld/core") : false).get();
+            return r.getTemplate().getId().contains("charts") && r.getParameters().getString(GithubModelProvider.REPOSITORY, "").equals("weld/core");
         });
     }
 

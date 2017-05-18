@@ -33,6 +33,7 @@ import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.config.TrimnessKey;
 import org.trimou.trimness.model.ModelProvider;
 import org.trimou.trimness.render.ResultLinkDefinitions;
+import org.trimou.trimness.render.DelegateResultRepository;
 import org.trimou.util.Strings;
 
 import io.vertx.core.AbstractVerticle;
@@ -75,6 +76,8 @@ public class TrimnessVerticle extends AbstractVerticle {
                 }
                 // Make sure result link ids are unique
                 container.select(ResultLinkDefinitions.class).get().getComponents();
+                // Make sure a result repository is available
+                container.select(DelegateResultRepository.class).get();
 
                 // Build template engine
                 MustacheEngineBuilder builder = MustacheEngineBuilder.newBuilder();
@@ -105,6 +108,7 @@ public class TrimnessVerticle extends AbstractVerticle {
                         "\n=========================================\nTrimness {0} verticle started:\n{1}\n=========================================",
                         version,
                         StreamSupport.stream(configuration.spliterator(), false)
+                                .sorted((o1, o2) -> o1.get().compareTo(o2.get()))
                                 .map((key) -> key.get() + "=" + configuration.getStringValue(key))
                                 .collect(Collectors.joining("\n")));
 

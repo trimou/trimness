@@ -16,9 +16,10 @@
 package org.trimou.trimness.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import javax.enterprise.inject.Instance;
 
 import org.trimou.engine.validation.Validateable;
 import org.trimou.util.ImmutableList;
@@ -31,11 +32,13 @@ public abstract class CompositeComponent<T extends Validateable & WithId> {
         this.components = null;
     }
 
-    protected CompositeComponent(Iterable<T> instances, Comparator<T> comparator) {
+    protected CompositeComponent(Instance<T> instances, Comparator<T> comparator) {
         List<T> components = new ArrayList<>();
         for (T component : instances) {
             if (isComponentValid(component)) {
                 components.add(component);
+            } else if (destroyInvalid()) {
+                instances.destroy(component);
             }
         }
         if (!components.isEmpty()) {
@@ -43,7 +46,7 @@ public abstract class CompositeComponent<T extends Validateable & WithId> {
                 throw new IllegalStateException("Non-unique components found: " + components);
             }
             if (comparator != null) {
-                Collections.sort(components, comparator);
+                components.sort(comparator);
             }
         }
         this.components = ImmutableList.copyOf(components);
@@ -63,6 +66,14 @@ public abstract class CompositeComponent<T extends Validateable & WithId> {
 
     protected boolean isComponentValid(T component) {
         return component.isValid();
+    }
+
+    protected boolean destroyInvalid() {
+        return true;
+    }
+
+    protected T first() {
+        return components.isEmpty() ? null : components.get(0);
     }
 
 }

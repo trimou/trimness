@@ -18,8 +18,7 @@ package org.trimou.trimness.render;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import io.vertx.core.Vertx;
@@ -30,7 +29,7 @@ import io.vertx.core.logging.LoggerFactory;
  *
  * @author Martin Kouba
  */
-@ApplicationScoped
+@Dependent
 public class InMemoryResultRepository implements ResultRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InMemoryResultRepository.class);
@@ -44,12 +43,11 @@ public class InMemoryResultRepository implements ResultRepository {
     @Inject
     private ResultLinkDefinitions resultLinks;
 
-    private ConcurrentMap<String, Result> results;
+    private final ConcurrentMap<String, Result> results;
 
-    private ConcurrentMap<String, ResultLink> links;
+    private final ConcurrentMap<String, ResultLink> links;
 
-    @PostConstruct
-    void init() {
+    InMemoryResultRepository() {
         results = new ConcurrentHashMap<>();
         links = new ConcurrentHashMap<>();
     }
@@ -85,7 +83,7 @@ public class InMemoryResultRepository implements ResultRepository {
             });
         }
         LOGGER.info("Result initialized [id: {0}, template: {1}, timeout: {2}]", result.getId(),
-                renderRequest.getTemplate().getId(), renderRequest.getTimeout());
+                renderRequest.getTemplate().getId(), renderRequest.getTimeout().orElse(null));
         return result;
     }
 

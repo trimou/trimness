@@ -43,7 +43,7 @@ public class ResultHandlers {
     public static class GetHandler implements Handler<RoutingContext> {
 
         @Inject
-        private ResultRepository resultRepository;
+        private DelegateResultRepository resultRepository;
 
         @Override
         public void handle(RoutingContext ctx) {
@@ -87,7 +87,7 @@ public class ResultHandlers {
     public static class RemoveHandler implements Handler<RoutingContext> {
 
         @Inject
-        private ResultRepository resultRepository;
+        private DelegateResultRepository resultRepository;
 
         @Override
         public void handle(RoutingContext ctx) {
@@ -110,7 +110,7 @@ public class ResultHandlers {
         private static final Logger LOGGER = LoggerFactory.getLogger(GetLinkHandler.class);
 
         @Inject
-        private ResultRepository resultRepository;
+        private DelegateResultRepository resultRepository;
 
         @Override
         public void handle(RoutingContext ctx) {

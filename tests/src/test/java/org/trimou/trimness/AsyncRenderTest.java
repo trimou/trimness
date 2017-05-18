@@ -2,7 +2,6 @@ package org.trimou.trimness;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertNotNull;
 import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;
 import static org.trimou.trimness.util.Strings.RESULT_ID;
 
@@ -22,7 +21,6 @@ import org.trimou.exception.MustacheProblem;
 import org.trimou.trimness.util.Strings;
 
 import io.restassured.RestAssured;
-import io.restassured.response.Response;
 
 /**
  *
@@ -47,65 +45,52 @@ public class AsyncRenderTest extends TrimnessTest {
     @RunAsClient
     @Test
     public void testOnetimeAsync(TestContext context) {
-        Response response = RestAssured.given()
+        String resultId = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"async\" : true, \"content\" : \"Hello {{#each model}}{{this}}{{#hasNext}}, {{/hasNext}}{{/each}}!\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
-                .post("/render");
-
-        response.then().assertThat().statusCode(200);
-        String resultId = response.path(RESULT_ID).toString();
-        assertNotNull(resultId);
-
-        response = RestAssured.given()
+                .post("/render").then().assertThat().statusCode(200).extract()
+                .path(RESULT_ID);
+        RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .get("/result/" + resultId + "?resultType=raw");
-        response.then().assertThat().statusCode(200)
+                .get("/result/" + resultId + "?resultType=raw").then()
+                .assertThat().statusCode(200)
                 .body(equalTo("Hello me, Lu, foo!"));
     }
 
     @RunAsClient
     @Test
     public void testAsync(TestContext context) {
-        Response response = RestAssured.given()
+        String resultId = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"async\" : true, \"id\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"timeout\" : 0}")
-                .post("/render");
+                .post("/render").then().assertThat().statusCode(200)
+                .header(Strings.HEADER_CONTENT_TYPE, is(Strings.APP_JSON))
+                .extract().path(RESULT_ID);
 
-        response.then().assertThat().statusCode(200)
-                .header(Strings.HEADER_CONTENT_TYPE, is(Strings.APP_JSON));
-        String resultId = response.path(RESULT_ID).toString();
-        assertNotNull(resultId);
-
-        response = RestAssured.given()
-                .get("/result/" + resultId + "?resultType=raw");
-        response.then().assertThat().statusCode(200)
+        RestAssured.given().get("/result/" + resultId + "?resultType=raw")
+                .then().assertThat().statusCode(200)
                 .header(Strings.HEADER_CONTENT_TYPE, is(Strings.TEXT_PLAIN))
                 .body(equalTo("Hello me, Lu, foo!"));
 
-        response = RestAssured.given().delete("/result/" + resultId);
-        response.then().assertThat().statusCode(200);
-
-        response = RestAssured.given()
-                .get("/result/" + resultId + "?resultType=raw");
-        response.then().assertThat().statusCode(404);
+        RestAssured.given().delete("/result/" + resultId).then().assertThat()
+                .statusCode(200);
+        RestAssured.given().get("/result/" + resultId + "?resultType=raw")
+                .then().assertThat().statusCode(404);
     }
 
     @RunAsClient
     @Test
     public void testOnetimeAsyncFailure(TestContext context) {
-        Response response = RestAssured.given()
+        String resultId = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"async\" : true, \"content\" : \"{{#each}}\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
-                .post("/render");
+                .post("/render").then().assertThat().statusCode(200).extract()
+                .path(RESULT_ID);
 
-        response.then().assertThat().statusCode(200);
-        String resultId = response.path(RESULT_ID).toString();
-        assertNotNull(resultId);
-
-        response = RestAssured.given()
+        RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .get("/result/" + resultId + "?resultType=raw");
-        response.then().assertThat().statusCode(500)
+                .get("/result/" + resultId + "?resultType=raw").then()
+                .assertThat().statusCode(500)
                 .header(Strings.HEADER_CONTENT_TYPE, is(Strings.APP_JSON))
                 .body(StringContains.containsString(
                         MustacheProblem.COMPILE_INVALID_TEMPLATE.toString()));

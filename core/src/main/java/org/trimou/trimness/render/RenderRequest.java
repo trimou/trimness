@@ -17,6 +17,8 @@ package org.trimou.trimness.render;
 
 import java.util.Optional;
 
+import javax.json.JsonObject;
+
 import org.trimou.trimness.template.Template;
 
 /**
@@ -42,8 +44,8 @@ public interface RenderRequest {
      * Parameters are passed along with a render request.
      *
      * @param name
-     * @return the parameter
+     * @return the parameters
      */
-    Optional<Object> getParameter(String name);
+    JsonObject getParameters();
 
 }
