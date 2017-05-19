@@ -19,7 +19,7 @@ Trimness is not yet in Maven central so you'll have to build it locally first:
 
 ## How does it work?
 
-Our business is to render templates.
+Trimness's business is to render templates.
 There are two ways to send a "render request" to trimness.
 
 1. HTTP endpoints
@@ -45,7 +45,7 @@ Let's use `curl` to perform a very simple render request:
 The reply will be `Hello Foo!`.
 Let's analyze the request payload.
 `content` property is used to specify the template for one-off rendering (TODO: It is much better to leverage the template providers and template cache).
-`model` property hold the data used during rendering.
+`model` property holds the data used during rendering.
 By default, the request is synchronous which means that the client is waiting for the rendered output.
 If we change the payload to:
 
@@ -53,7 +53,7 @@ If we change the payload to:
 { "content" : "Hello {{model.name}}!", "model" : { "name" : "Foo"}, "async": true }
 ```
 
-Then trimness replies immetiately with something like:
+Then trimness replies immediately with something like:
 
 ```json
 { "time" : "2017-05-19T11:25:50.393", "resultId" : "1495185748798", "timeout" : "2017-05-19T11:30:50.393"}
