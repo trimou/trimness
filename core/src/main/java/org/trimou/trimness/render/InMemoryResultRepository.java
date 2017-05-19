@@ -74,7 +74,7 @@ public class InMemoryResultRepository implements ResultRepository {
                     }
                 });
         results.put(result.getId(), result);
-        if (renderRequest.getTimeout().orElse(0l) > 0) {
+        if (renderRequest.getTimeout().get() > 0) {
             // Schedule result removal
             vertx.setTimer(renderRequest.getTimeout().get(), (id) -> {
                 if (results.remove(result.getId()) != null) {

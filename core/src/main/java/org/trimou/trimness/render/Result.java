@@ -28,7 +28,7 @@ public interface Result extends WithId {
      *
      * @return the code
      */
-    Code getCode();
+    Status getStatus();
 
     /**
      *
@@ -75,7 +75,7 @@ public interface Result extends WithId {
      * @return
      */
     default boolean isComplete() {
-        return !Code.INCOMPLETE.equals(getCode());
+        return !Status.INCOMPLETE.equals(getStatus());
     }
 
     /**
@@ -83,7 +83,7 @@ public interface Result extends WithId {
      * @return
      */
     default boolean isSucess() {
-        return Code.SUCESS.equals(getCode());
+        return Status.SUCESS.equals(getStatus());
     }
 
     /**
@@ -91,10 +91,10 @@ public interface Result extends WithId {
      * @return
      */
     default boolean isFailure() {
-        return Code.FAILURE.equals(getCode());
+        return Status.FAILURE.equals(getStatus());
     }
 
-    public enum Code {
+    public enum Status {
         SUCESS, FAILURE, INCOMPLETE
     }
 

@@ -15,7 +15,7 @@
  */
 package org.trimou.trimness.template;
 
-import static org.trimou.trimness.util.Requests.badRequest;
+import static org.trimou.trimness.util.RouteHandlers.badRequest;
 import static org.trimou.trimness.util.Strings.APP_JSON;
 import static org.trimou.trimness.util.Strings.HEADER_CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.ID;
@@ -25,7 +25,7 @@ import javax.json.JsonObjectBuilder;
 
 import org.jboss.weld.vertx.web.WebRoute;
 import org.jboss.weld.vertx.web.WebRoute.HandlerType;
-import org.trimou.trimness.util.Requests;
+import org.trimou.trimness.util.RouteHandlers;
 import org.trimou.trimness.util.Strings;
 
 import io.vertx.core.Handler;
@@ -57,11 +57,11 @@ public class TemplateResources {
             Template template = templateCache.get(id);
 
             if (template == null) {
-                Requests.templateNotFound(ctx, id);
+                RouteHandlers.templateNotFound(ctx, id);
                 return;
             }
 
-            JsonObjectBuilder response = Requests.success();
+            JsonObjectBuilder response = RouteHandlers.empty();
             response.add(ID, id);
             response.add(Strings.CONTENT, template.getContent());
             if (template.getContentType() != null) {

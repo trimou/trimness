@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 public class SimpleResult implements Result {
 
     static SimpleResult init(String id, String templateId, String contentType, Consumer<Result> onComplete) {
-        return new SimpleResult(id, templateId, Code.INCOMPLETE, null, null, contentType, onComplete);
+        return new SimpleResult(id, templateId, Status.INCOMPLETE, null, null, contentType, onComplete);
     }
 
     private final String id;
@@ -37,7 +37,7 @@ public class SimpleResult implements Result {
 
     private final LocalDateTime createdAt;
 
-    private final AtomicReference<Code> code;
+    private final AtomicReference<Status> status;
 
     private final AtomicReference<String> errorMessage;
 
@@ -55,10 +55,10 @@ public class SimpleResult implements Result {
      * @param contentType
      * @param onComplete
      */
-    SimpleResult(String id, String templateId, Code code, String errorMessage, String output, String contentType,
+    SimpleResult(String id, String templateId, Status code, String errorMessage, String output, String contentType,
             Consumer<Result> onComplete) {
         this.id = id;
-        this.code = new AtomicReference<>(code);
+        this.status = new AtomicReference<>(code);
         this.errorMessage = new AtomicReference<>();
         this.output = new AtomicReference<>();
         this.templateId = templateId;
@@ -71,8 +71,8 @@ public class SimpleResult implements Result {
         return id;
     }
 
-    public Code getCode() {
-        return code.get();
+    public Status getStatus() {
+        return status.get();
     }
 
     public String getError() {
@@ -97,9 +97,9 @@ public class SimpleResult implements Result {
 
     @Override
     public void fail(String errorMessage) {
-        synchronized (this.code) {
+        synchronized (this.status) {
             checkIsIncomplete();
-            this.code.set(Code.FAILURE);
+            this.status.set(Status.FAILURE);
             this.errorMessage.set(errorMessage);
             onComplete();
         }
@@ -107,9 +107,9 @@ public class SimpleResult implements Result {
 
     @Override
     public void complete(String output) {
-        synchronized (this.code) {
+        synchronized (this.status) {
             checkIsIncomplete();
-            this.code.set(Code.SUCESS);
+            this.status.set(Status.SUCESS);
             this.output.set(output);
             onComplete();
         }

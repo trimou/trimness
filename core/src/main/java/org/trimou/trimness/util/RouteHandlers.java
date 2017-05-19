@@ -16,20 +16,23 @@
 package org.trimou.trimness.util;
 
 import static org.trimou.trimness.util.Strings.APP_JSON;
-import static org.trimou.trimness.util.Strings.CODE;
 import static org.trimou.trimness.util.Strings.CONTENT_TYPE;
-import static org.trimou.trimness.util.Strings.FAILURE;
 import static org.trimou.trimness.util.Strings.HEADER_CONTENT_TYPE;
+import static org.trimou.trimness.util.Strings.ID;
 import static org.trimou.trimness.util.Strings.MSG;
+import static org.trimou.trimness.util.Strings.OUTPUT;
 import static org.trimou.trimness.util.Strings.PARAMS;
 import static org.trimou.trimness.util.Strings.RESULT;
 import static org.trimou.trimness.util.Strings.RESULT_ID;
-import static org.trimou.trimness.util.Strings.SUCCESS;
+import static org.trimou.trimness.util.Strings.STATUS;
 import static org.trimou.trimness.util.Strings.TEMPLATE_ID;
 import static org.trimou.trimness.util.Strings.TIME;
+import static org.trimou.trimness.util.Strings.TIMEOUT;
 
 import java.io.StringReader;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -39,6 +42,7 @@ import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 import javax.json.stream.JsonParsingException;
 
+import org.trimou.trimness.render.RenderRequest;
 import org.trimou.trimness.render.Result;
 import org.trimou.trimness.template.Template;
 
@@ -49,19 +53,17 @@ import io.vertx.ext.web.RoutingContext;
  *
  * @author Martin Kouba
  */
-public final class Requests {
+public final class RouteHandlers {
 
-    private Requests() {
+    private RouteHandlers() {
     }
 
-    public static String metadataResult(Template template, String result) {
-        JsonObjectBuilder metadata = success();
-        metadata.add(RESULT, result);
-        if (template != null) {
-            metadata.add(TEMPLATE_ID, template.getId());
-            if (template.getContentType() != null) {
-                metadata.add(CONTENT_TYPE, template.getContentType());
-            }
+    public static String metadataResult(Template template, String output) {
+        JsonObjectBuilder metadata = empty();
+        metadata.add(OUTPUT, output);
+        metadata.add(TEMPLATE_ID, template.getId());
+        if (template.getContentType() != null) {
+            metadata.add(CONTENT_TYPE, template.getContentType());
         }
         return metadata.build().toString();
     }
@@ -69,7 +71,8 @@ public final class Requests {
     public static String metadataResult(Result result) {
         JsonObjectBuilder builder = Jsons.objectBuilder();
         builder.add(Strings.TEMPLATE_ID, result.getTemplateId());
-        builder.add(Strings.CODE, result.getCode().toString());
+        builder.add(ID, result.getId());
+        builder.add(STATUS, result.getStatus().toString());
         if (result.isFailure()) {
             builder.add(Strings.ERROR, result.getError());
         } else {
@@ -78,7 +81,7 @@ public final class Requests {
                 builder.add(Strings.CONTENT_TYPE, result.getContentType());
             }
         }
-        return success().add(RESULT, builder).build().toString();
+        return empty().add(RESULT, builder).build().toString();
     }
 
     public static JsonObject getBodyAsJsonObject(String body) {
@@ -99,23 +102,11 @@ public final class Requests {
         return Jsons.reader(new StringReader(body)).read();
     }
 
-    public static JsonObjectBuilder success() {
-        return success(null);
+    public static JsonObjectBuilder empty() {
+        return message(null);
     }
 
-    public static JsonObjectBuilder success(String msg, Object... params) {
-        JsonObjectBuilder success = response(msg, params);
-        success.add(CODE, SUCCESS);
-        return success;
-    }
-
-    public static JsonObjectBuilder failure(String msg, Object... params) {
-        JsonObjectBuilder failure = response(msg, params);
-        failure.add(CODE, FAILURE);
-        return failure;
-    }
-
-    public static JsonObjectBuilder response(String msg, Object... params) {
+    public static JsonObjectBuilder message(String msg, Object... params) {
         JsonObjectBuilder response = Jsons.objectBuilder();
         // Server time
         response.add(TIME, LocalDateTime.now().toString());
@@ -125,9 +116,14 @@ public final class Requests {
         return response;
     }
 
-    public static String asyncResult(String resultId) {
-        JsonObjectBuilder metadata = success();
+    public static String asyncResult(String resultId, RenderRequest renderRequest) {
+        JsonObjectBuilder metadata = empty();
         metadata.add(RESULT_ID, resultId);
+        metadata.add(TIMEOUT,
+                LocalDateTime
+                        .ofInstant(Instant.ofEpochMilli(renderRequest.getTime() + renderRequest.getTimeout().get()),
+                                ZoneId.systemDefault())
+                        .toString());
         return metadata.build().toString();
     }
 
@@ -144,7 +140,7 @@ public final class Requests {
     }
 
     public static void templateNotFound(RoutingContext ctx, String id) {
-        notFound(ctx, failure("Template not found for id: %s", id).build().toString());
+        notFound(ctx, message("Template not found for id: %s", id).build().toString());
     }
 
     public static void notFound(RoutingContext ctx, String chunk) {
@@ -156,7 +152,7 @@ public final class Requests {
     }
 
     public static void renderingError(RoutingContext ctx, String id) {
-        internalServerError(ctx, failure("Error rendering template with id: %s", id).toString());
+        internalServerError(ctx, message("Error rendering template with id: %s", id).toString());
     }
 
     public static JsonObject initParams(JsonObject input) {
@@ -176,9 +172,10 @@ public final class Requests {
         }
 
         public static ResultType of(String value) {
-            if (RAW.toString().toLowerCase().equals(value)) {
+            value = value.toUpperCase();
+            if (RAW.toString().equals(value)) {
                 return RAW;
-            } else if (METADATA.toString().toLowerCase().equals(value)) {
+            } else if (METADATA.toString().equals(value)) {
                 return METADATA;
             }
             // The default value

@@ -18,12 +18,12 @@ package org.trimou.trimness.render;
 import static io.vertx.core.http.HttpMethod.POST;
 import static org.jboss.weld.vertx.web.WebRoute.HandlerType.BLOCKING;
 import static org.trimou.trimness.config.TrimnessKey.RESULT_TIMEOUT;
-import static org.trimou.trimness.util.Requests.badRequest;
-import static org.trimou.trimness.util.Requests.failure;
-import static org.trimou.trimness.util.Requests.notFound;
-import static org.trimou.trimness.util.Requests.ok;
-import static org.trimou.trimness.util.Requests.renderingError;
-import static org.trimou.trimness.util.Requests.templateNotFound;
+import static org.trimou.trimness.util.RouteHandlers.badRequest;
+import static org.trimou.trimness.util.RouteHandlers.notFound;
+import static org.trimou.trimness.util.RouteHandlers.ok;
+import static org.trimou.trimness.util.RouteHandlers.renderingError;
+import static org.trimou.trimness.util.RouteHandlers.message;
+import static org.trimou.trimness.util.RouteHandlers.templateNotFound;
 import static org.trimou.trimness.util.Strings.APP_JSON;
 import static org.trimou.trimness.util.Strings.ASYNC;
 import static org.trimou.trimness.util.Strings.CONTENT;
@@ -54,8 +54,8 @@ import org.trimou.trimness.template.ImmutableTemplate;
 import org.trimou.trimness.template.Template;
 import org.trimou.trimness.template.TemplateCache;
 import org.trimou.trimness.util.AsyncHandlers;
-import org.trimou.trimness.util.Requests;
-import org.trimou.trimness.util.Requests.ResultType;
+import org.trimou.trimness.util.RouteHandlers;
+import org.trimou.trimness.util.RouteHandlers.ResultType;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -97,7 +97,7 @@ public class RenderHandler implements Handler<RoutingContext> {
     public void handle(RoutingContext ctx) {
         JsonObject input;
         try {
-            input = Requests.getBodyAsJsonObject(ctx.getBodyAsString());
+            input = RouteHandlers.getBodyAsJsonObject(ctx.getBodyAsString());
         } catch (JsonParsingException e) {
             badRequest(ctx, "Malformed JSON input:" + e.getMessage());
             return;
@@ -141,7 +141,7 @@ public class RenderHandler implements Handler<RoutingContext> {
             }
             mustache = engine.getMustache(template.getId());
             if (mustache == null) {
-                notFound(ctx, failure("No such template found in engine: %s", templateId).toString());
+                notFound(ctx, message("No such template found in engine: %s", templateId).toString());
                 return;
             }
         } else {
@@ -157,14 +157,15 @@ public class RenderHandler implements Handler<RoutingContext> {
         }
 
         try {
-            RenderRequest renderRequest = new SimpleRenderRequest(template, null, Requests.initParams(input));
+            RenderRequest renderRequest = new SimpleRenderRequest(System.currentTimeMillis(), template, null,
+                    RouteHandlers.initParams(input));
             String result = mustache.render(modelInitializer.initModel(renderRequest, input.get(MODEL)));
             switch (resultType) {
             case RAW:
                 ok(ctx, result);
                 break;
             case METADATA:
-                ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON).end(Requests.metadataResult(template, result));
+                ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON).end(RouteHandlers.metadataResult(template, result));
                 break;
             default:
                 throw new IllegalStateException("Unsupported result type: " + resultType);
@@ -191,14 +192,16 @@ public class RenderHandler implements Handler<RoutingContext> {
                     input.getString(CONTENT_TYPE, null));
         }
 
-        RenderRequest renderRequest = new SimpleRenderRequest(template, initTimeout(input), Requests.initParams(input));
+        RenderRequest renderRequest = new SimpleRenderRequest(System.currentTimeMillis(), template, initTimeout(input),
+                RouteHandlers.initParams(input));
         Result result = resultRepository.init(renderRequest);
 
         // Schedule one-shot timer
         vertx.setTimer(1, new AsyncRenderHandler(vertx, result, template, engine,
                 () -> modelInitializer.initModel(renderRequest, input.get(MODEL))));
 
-        Requests.ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON).end(Requests.asyncResult(result.getId()));
+        RouteHandlers.ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON)
+                .end(RouteHandlers.asyncResult(result.getId(), renderRequest));
     }
 
     private long initTimeout(JsonObject input) {

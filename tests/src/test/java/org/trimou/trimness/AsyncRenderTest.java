@@ -90,7 +90,7 @@ public class AsyncRenderTest extends TrimnessTest {
         RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .get("/result/" + resultId + "?resultType=raw").then()
-                .assertThat().statusCode(500)
+                .assertThat().statusCode(200)
                 .header(Strings.HEADER_CONTENT_TYPE, is(Strings.APP_JSON))
                 .body(StringContains.containsString(
                         MustacheProblem.COMPILE_INVALID_TEMPLATE.toString()));

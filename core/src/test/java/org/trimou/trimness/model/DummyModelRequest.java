@@ -13,6 +13,8 @@ class DummyModelRequest implements ModelRequest {
 
     private volatile Object result;
 
+    private final Long time;
+
     private final Template template;
 
     public DummyModelRequest() {
@@ -21,10 +23,11 @@ class DummyModelRequest implements ModelRequest {
 
     public DummyModelRequest(Template template, Map<String, Object> params) {
         this.template = template;
+        this.time = System.currentTimeMillis();
     }
 
     public RenderRequest getRenderRequest() {
-        return new SimpleRenderRequest(template, null, Jsons.EMPTY_OBJECT);
+        return new SimpleRenderRequest(time, template, null, Jsons.EMPTY_OBJECT);
     }
 
     @Override

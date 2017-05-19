@@ -27,6 +27,8 @@ import org.trimou.trimness.template.Template;
  */
 public class SimpleRenderRequest implements RenderRequest {
 
+    private final Long time;
+
     private final Template template;
 
     private final Long timeout;
@@ -35,14 +37,21 @@ public class SimpleRenderRequest implements RenderRequest {
 
     /**
      *
+     * @param time
      * @param template
      * @param timeout
      * @param parameters
      */
-    public SimpleRenderRequest(Template template, Long timeout, JsonObject parameters) {
+    public SimpleRenderRequest(Long time, Template template, Long timeout, JsonObject parameters) {
+        this.time = time;
         this.template = template;
         this.timeout = timeout;
         this.parameters = parameters;
+    }
+
+    @Override
+    public Long getTime() {
+        return time;
     }
 
     @Override

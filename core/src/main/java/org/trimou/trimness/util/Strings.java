@@ -47,6 +47,7 @@ public final class Strings {
     public static final String OUTPUT = "output";
     public static final String CONFIG = "config";
     public static final String LINK = "link";
+    public static final String STATUS = "status";
 
     public static final String APP_JSON = "application/json";
     public static final String APP_JAVASCRIPT = "application/javascript";

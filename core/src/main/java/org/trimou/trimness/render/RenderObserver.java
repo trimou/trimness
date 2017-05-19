@@ -35,8 +35,8 @@ import org.trimou.trimness.model.ModelInitializer;
 import org.trimou.trimness.template.ImmutableTemplate;
 import org.trimou.trimness.template.Template;
 import org.trimou.trimness.template.TemplateCache;
-import org.trimou.trimness.util.Requests;
-import org.trimou.trimness.util.Requests.ResultType;
+import org.trimou.trimness.util.RouteHandlers;
+import org.trimou.trimness.util.RouteHandlers.ResultType;
 
 /**
  * Consumes messages sent over Vert.x event bus.
@@ -74,7 +74,7 @@ public class RenderObserver {
 
         JsonObject input = null;
         try {
-            input = Requests.getBodyAsJsonObject(event.getMessageBody().toString());
+            input = RouteHandlers.getBodyAsJsonObject(event.getMessageBody().toString());
         } catch (Exception e) {
             event.fail(CODE_INVALID_INPUT, "Malformed JSON input:" + e.getMessage());
         }
@@ -118,14 +118,14 @@ public class RenderObserver {
         ResultType resultType = ResultType.of(input.get(RESULT_TYPE));
 
         try {
-            RenderRequest renderRequest = new SimpleRenderRequest(template, null, Requests.initParams(input));
+            RenderRequest renderRequest = new SimpleRenderRequest(System.currentTimeMillis(), template, null, RouteHandlers.initParams(input));
             String result = mustache.render(modelInitializer.initModel(renderRequest, input.get(MODEL)));
             switch (resultType) {
             case RAW:
                 event.setReply(result);
                 break;
             case METADATA:
-                event.setReply(Requests.metadataResult(template, result));
+                event.setReply(RouteHandlers.metadataResult(template, result));
                 break;
             default:
                 throw new IllegalStateException("Unsupported result type: " + resultType);

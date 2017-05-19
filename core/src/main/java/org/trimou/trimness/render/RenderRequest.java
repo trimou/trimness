@@ -30,11 +30,19 @@ public interface RenderRequest {
 
     /**
      *
+     * @return the time the request was accepted
+     * @see System#currentTimeMillis()
+     */
+    Long getTime();
+
+    /**
+     *
      * @return the template
      */
     Template getTemplate();
 
     /**
+     * Must be set for async requests.
      *
      * @return the timeout
      */

@@ -18,6 +18,7 @@ package org.trimou.trimness.render;
 import static io.vertx.core.http.HttpMethod.DELETE;
 import static io.vertx.core.http.HttpMethod.GET;
 import static org.jboss.weld.vertx.web.WebRoute.HandlerType.BLOCKING;
+import static org.trimou.trimness.util.Strings.APP_JSON;
 import static org.trimou.trimness.util.Strings.HEADER_CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.ID;
 import static org.trimou.trimness.util.Strings.RESULT_TYPE;
@@ -25,8 +26,8 @@ import static org.trimou.trimness.util.Strings.RESULT_TYPE;
 import javax.inject.Inject;
 
 import org.jboss.weld.vertx.web.WebRoute;
-import org.trimou.trimness.util.Requests;
-import org.trimou.trimness.util.Requests.ResultType;
+import org.trimou.trimness.util.RouteHandlers;
+import org.trimou.trimness.util.RouteHandlers.ResultType;
 
 import io.vertx.core.Handler;
 import io.vertx.core.logging.Logger;
@@ -50,18 +51,14 @@ public class ResultHandlers {
 
             String id = ctx.request().getParam(ID);
             if (id == null) {
-                Requests.badRequest(ctx, Requests.failure("Result id must be set").build().toString());
+                RouteHandlers.badRequest(ctx, RouteHandlers.message("Result id must be set").build().toString());
                 return;
             }
 
             Result result = resultRepository.get(id);
 
             if (result == null) {
-                Requests.notFound(ctx, Requests.failure("Result not found for id: %s", id).build().toString());
-            } else if (!result.isComplete()) {
-                Requests.ok(ctx, Requests.success("Result %s not complete yet", id).build().toString());
-            } else if (result.isFailure()) {
-                Requests.internalServerError(ctx, Requests.failure(result.getError()).build().toString());
+                RouteHandlers.notFound(ctx, RouteHandlers.message("Result not found for id: %s", id).build().toString());
             } else {
                 if (result.getContentType() != null) {
                     ctx.response().putHeader(HEADER_CONTENT_TYPE, result.getContentType());
@@ -71,12 +68,20 @@ public class ResultHandlers {
 
                 switch (resultType) {
                 case RAW:
-                    Requests.ok(ctx, result.getOutput());
+                    if (!result.isComplete()) {
+                        RouteHandlers.ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON)
+                                .end(RouteHandlers.message("Result %s not complete yet", id).build().toString());
+                    } else if (result.isFailure()) {
+                        RouteHandlers.ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON)
+                                .end(RouteHandlers.message("Result failed: %s", result.getError()).build().toString());
+                    } else {
+                        RouteHandlers.ok(ctx, result.getOutput());
+                    }
                     break;
                 case METADATA:
-                    Requests.ok(ctx, Requests.metadataResult(result));
+                    RouteHandlers.ok(ctx, RouteHandlers.metadataResult(result));
                 default:
-                    throw new IllegalStateException("Unsupported result type: " + resultType);
+                    RouteHandlers.badRequest(ctx, "Unsupported result type: " + resultType);
                 }
             }
         }
@@ -94,11 +99,11 @@ public class ResultHandlers {
 
             String id = ctx.request().getParam(ID);
             if (id == null) {
-                Requests.badRequest(ctx, Requests.failure("Result id must be set").build().toString());
+                RouteHandlers.badRequest(ctx, RouteHandlers.message("Result id must be set").build().toString());
             } else if (resultRepository.remove(id)) {
-                Requests.ok(ctx, Requests.success("Result %s removed", id).build().toString());
+                RouteHandlers.ok(ctx, RouteHandlers.message("Result %s removed", id).build().toString());
             } else {
-                Requests.notFound(ctx, Requests.failure("Result not found for id: %s", id).build().toString());
+                RouteHandlers.notFound(ctx, RouteHandlers.message("Result not found for id: %s", id).build().toString());
             }
         }
 
@@ -117,7 +122,7 @@ public class ResultHandlers {
 
             String linkId = ctx.request().getParam(ID);
             if (linkId == null) {
-                Requests.badRequest(ctx, Requests.failure("Result link id must be set").build().toString());
+                RouteHandlers.badRequest(ctx, RouteHandlers.message("Result link id must be set").build().toString());
                 return;
             }
 
@@ -128,7 +133,7 @@ public class ResultHandlers {
                 LOGGER.info("Result link {0} found reroute to {1}", link, path);
                 ctx.reroute(path);
             } else {
-                Requests.notFound(ctx, Requests.failure("Result link does not exits: %s", link).build().toString());
+                RouteHandlers.notFound(ctx, RouteHandlers.message("Result link does not exits: %s", link).build().toString());
             }
         }
 

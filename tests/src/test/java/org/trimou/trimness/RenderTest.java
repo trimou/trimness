@@ -3,9 +3,7 @@ package org.trimou.trimness;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.trimou.trimness.config.TrimnessKey.GLOBAL_JSON_FILE;
 import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;
-import static org.trimou.trimness.util.Strings.CODE;
-import static org.trimou.trimness.util.Strings.RESULT;
-import static org.trimou.trimness.util.Strings.SUCCESS;
+import static org.trimou.trimness.util.Strings.OUTPUT;
 import static org.trimou.trimness.util.Strings.TEMPLATE_ID;
 
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -81,8 +79,7 @@ public class RenderTest extends TrimnessTest {
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"id\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"contentType\":\"text/plain\", \"resultType\":\"metadata\"}")
                 .post("/render").then().assertThat().statusCode(200)
-                .body(CODE, equalTo(SUCCESS))
-                .body(RESULT, equalTo("Hello me, Lu, foo!"))
+                .body(OUTPUT, equalTo("Hello me, Lu, foo!"))
                 .body(TEMPLATE_ID, equalTo("hello.txt"));
     }
 
