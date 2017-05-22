@@ -31,8 +31,8 @@ public interface ModelProvider extends Validateable, WithId {
     /**
      * The namespace must be unique. Value of <tt>model</tt> is reserved for the
      * data model passed along with the render request. The namespace is used in
-     * templates - all entries returned from {@link #handle(String)}} are put
-     * into a map which is accessible under the namespace key.
+     * templates - the result set via {@link ModelRequest#complete(Object)} is
+     * accessible under the namespace key.
      *
      * @return the namespace
      */

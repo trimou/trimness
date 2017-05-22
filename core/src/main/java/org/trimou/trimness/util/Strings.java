@@ -26,6 +26,7 @@ public final class Strings {
     public static final String NAME = "name";
     public static final String MODEL = "model";
     public static final String TEMPLATE_ID = "templateId";
+    public static final String TEMPLATE_CONTENT = "templateContent";
     public static final String NOW = "now";
     public static final String CONTENT_TYPE = "contentType";
     public static final String CONTENT = "content";
@@ -46,7 +47,7 @@ public final class Strings {
     public static final String ERROR = "error";
     public static final String OUTPUT = "output";
     public static final String CONFIG = "config";
-    public static final String LINK = "link";
+    public static final String LINK_ID = "linkId";
     public static final String STATUS = "status";
 
     public static final String APP_JSON = "application/json";
@@ -64,7 +65,7 @@ public final class Strings {
     public static final String SUFFIX_JSON = "json";
     public static final String SUFFIX_TXT = "txt";
 
-    private static final Pattern LINK_PATTERN = Pattern.compile("^[a-zA-Z_0-9-]{1,50}");
+    private static final Pattern LINK_PATTERN = Pattern.compile("^[a-zA-Z_0-9-]{1,60}");
 
     public static boolean matchesLinkPattern(String input) {
         return LINK_PATTERN.matcher(input).matches();

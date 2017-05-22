@@ -36,7 +36,7 @@ public interface Template {
 
     /**
      *
-     * @return the id of the provider, may be null
+     * @return the id of the provider, may be null (in case of one-off rendering)
      * @see TemplateProvider
      */
     String getProviderId();

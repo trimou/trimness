@@ -47,7 +47,7 @@ public class AsyncRenderTest extends TrimnessTest {
     public void testOnetimeAsync(TestContext context) {
         String resultId = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .body("{\"async\" : true, \"content\" : \"Hello {{#each model}}{{this}}{{#hasNext}}, {{/hasNext}}{{/each}}!\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
+                .body("{\"async\" : true, \"templateContent\" : \"Hello {{#each model}}{{this}}{{#hasNext}}, {{/hasNext}}{{/each}}!\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
                 .post("/render").then().assertThat().statusCode(200).extract()
                 .path(RESULT_ID);
         RestAssured.given()
@@ -62,7 +62,7 @@ public class AsyncRenderTest extends TrimnessTest {
     public void testAsync(TestContext context) {
         String resultId = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .body("{\"async\" : true, \"id\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"timeout\" : 0}")
+                .body("{\"async\" : true, \"templateId\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"timeout\" : 0}")
                 .post("/render").then().assertThat().statusCode(200)
                 .header(Strings.HEADER_CONTENT_TYPE, is(Strings.APP_JSON))
                 .extract().path(RESULT_ID);
@@ -83,7 +83,7 @@ public class AsyncRenderTest extends TrimnessTest {
     public void testOnetimeAsyncFailure(TestContext context) {
         String resultId = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .body("{\"async\" : true, \"content\" : \"{{#each}}\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
+                .body("{\"async\" : true, \"templateContent\" : \"{{#each}}\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
                 .post("/render").then().assertThat().statusCode(200).extract()
                 .path(RESULT_ID);
 

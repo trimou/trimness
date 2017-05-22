@@ -36,7 +36,7 @@ public class ModelInitializerTest {
         configuration.put(TrimnessKey.MODEL_INIT_TIMEOUT, TIMEOUT);
 
         ModelInitializer initializer = weld.select(ModelInitializer.class).get();
-        Map<String, Object> model = initializer.initModel(new SimpleRenderRequest(System.currentTimeMillis(), ImmutableTemplate.of("test"), null, Jsons.EMPTY_OBJECT), null);
+        Map<String, Object> model = initializer.initModel(new SimpleRenderRequest(ImmutableTemplate.of("test"), Jsons.EMPTY_OBJECT), null);
         assertEquals(2, model.size());
         assertEquals(Collections.emptyMap(), model.get("model"));
         assertEquals("1", model.get("simple"));

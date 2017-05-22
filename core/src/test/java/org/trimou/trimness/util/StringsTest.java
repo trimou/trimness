@@ -19,7 +19,7 @@ public class StringsTest {
         assertFalse(matchesLinkPattern(" 1"));
         assertFalse(matchesLinkPattern("čedar"));
         assertFalse(matchesLinkPattern(""));
-        assertFalse(matchesLinkPattern("too-long-link-name-must-have-at-least-50-chars-to-fail"));
+        assertFalse(matchesLinkPattern("too-long-link-name-must-have-at-least-60-chars-to-fail-but-its-enough-for-real-scenarios"));
     }
 
 }

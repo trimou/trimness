@@ -61,10 +61,9 @@ public interface ResultRepository extends WithId, WithPriority, Validateable {
      * throw a runtime exception.
      * </p>
      * <p>
-     * If the returned result is completed successfully the repository should
-     * update any result link for which a {@link ResultLinkDefinition} exists,
-     * such that {@link ResultLinkDefinition#canUpdate(RenderRequest)} returns
-     * <code>true</code>.
+     * If the returned result is completed successfully and
+     * {@link RenderRequest#getLinkId()} is specified a result link should be
+     * created/updated.
      * </p>
      *
      * @param renderRequest

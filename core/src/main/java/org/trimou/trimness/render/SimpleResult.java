@@ -31,6 +31,10 @@ public class SimpleResult implements Result {
 
     private final String id;
 
+    private final Long created;
+
+    private final AtomicReference<Long> completed;
+
     private final String templateId;
 
     private final String contentType;
@@ -58,6 +62,8 @@ public class SimpleResult implements Result {
     SimpleResult(String id, String templateId, Status code, String errorMessage, String output, String contentType,
             Consumer<Result> onComplete) {
         this.id = id;
+        this.created = System.currentTimeMillis();
+        this.completed = new AtomicReference<Long>();
         this.status = new AtomicReference<>(code);
         this.errorMessage = new AtomicReference<>();
         this.output = new AtomicReference<>();
@@ -67,26 +73,42 @@ public class SimpleResult implements Result {
         this.onComplete = onComplete;
     }
 
+    @Override
     public String getId() {
         return id;
     }
 
+    @Override
+    public Long getCreatedTime() {
+        return created;
+    }
+
+    @Override
+    public Long getCompletedTime() {
+        return completed.get();
+    }
+
+    @Override
     public Status getStatus() {
         return status.get();
     }
 
+    @Override
     public String getError() {
         return errorMessage.get();
     }
 
+    @Override
     public String getOutput() {
         return output.get();
     }
 
+    @Override
     public String getTemplateId() {
         return templateId;
     }
 
+    @Override
     public String getContentType() {
         return contentType;
     }
@@ -100,6 +122,7 @@ public class SimpleResult implements Result {
         synchronized (this.status) {
             checkIsIncomplete();
             this.status.set(Status.FAILURE);
+            this.completed.set(System.currentTimeMillis());
             this.errorMessage.set(errorMessage);
             onComplete();
         }
@@ -110,6 +133,7 @@ public class SimpleResult implements Result {
         synchronized (this.status) {
             checkIsIncomplete();
             this.status.set(Status.SUCESS);
+            this.completed.set(System.currentTimeMillis());
             this.output.set(output);
             onComplete();
         }

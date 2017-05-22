@@ -56,7 +56,7 @@ public class RenderObserverTest {
         Vertx vertx = CDI.current().select(Vertx.class).get();
         BlockingQueue<Object> synchronizer = new LinkedBlockingQueue<>();
         vertx.eventBus().send(RenderObserver.ADDR_RENDER,
-                "{ \"content\" : \"Hello {{model.name}}!\", \"model\" : { \"name\" : \"Lu\"}}",
+                "{ \"templateContent\" : \"Hello {{model.name}}!\", \"model\" : { \"name\" : \"Lu\"}}",
                 (result) -> {
                     if (result.succeeded()) {
                         synchronizer.add(result.result().body());
@@ -75,7 +75,7 @@ public class RenderObserverTest {
         Vertx vertx = CDI.current().select(Vertx.class).get();
         BlockingQueue<Object> synchronizer = new LinkedBlockingQueue<>();
         vertx.eventBus().send(RenderObserver.ADDR_RENDER,
-                "{\"id\" : \"hello.txt\", \"model\" : [ \"Lu\" ] }}",
+                "{\"templateId\" : \"hello.txt\", \"model\" : [ \"Lu\" ] }}",
                 (result) -> {
                     if (result.succeeded()) {
                         synchronizer.add(result.result().body());
@@ -94,7 +94,7 @@ public class RenderObserverTest {
         Vertx vertx = CDI.current().select(Vertx.class).get();
         BlockingQueue<Object> synchronizer = new LinkedBlockingQueue<>();
         vertx.eventBus().send(RenderObserver.ADDR_RENDER,
-                "{\"id\" : \"hello-global-data.txt\", \"model\" : { \"name\":1 }}",
+                "{\"templateId\" : \"hello-global-data.txt\", \"model\" : { \"name\":1 }}",
                 (result) -> {
                     if (result.succeeded()) {
                         synchronizer.add(result.result().body());
@@ -114,7 +114,7 @@ public class RenderObserverTest {
         Vertx vertx = CDI.current().select(Vertx.class).get();
         BlockingQueue<Object> synchronizer = new LinkedBlockingQueue<>();
         vertx.eventBus().send(RenderObserver.ADDR_RENDER,
-                "{ \"content\" : \"Hello\"", (result) -> {
+                "{ \"templateContent\" : \"Hello\"", (result) -> {
                     if (result.failed()) {
                         synchronizer.add(result.cause());
                     } else {

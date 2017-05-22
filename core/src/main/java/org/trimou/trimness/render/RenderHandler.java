@@ -19,19 +19,20 @@ import static io.vertx.core.http.HttpMethod.POST;
 import static org.jboss.weld.vertx.web.WebRoute.HandlerType.BLOCKING;
 import static org.trimou.trimness.config.TrimnessKey.RESULT_TIMEOUT;
 import static org.trimou.trimness.util.RouteHandlers.badRequest;
+import static org.trimou.trimness.util.RouteHandlers.message;
 import static org.trimou.trimness.util.RouteHandlers.notFound;
 import static org.trimou.trimness.util.RouteHandlers.ok;
 import static org.trimou.trimness.util.RouteHandlers.renderingError;
-import static org.trimou.trimness.util.RouteHandlers.message;
 import static org.trimou.trimness.util.RouteHandlers.templateNotFound;
 import static org.trimou.trimness.util.Strings.APP_JSON;
 import static org.trimou.trimness.util.Strings.ASYNC;
-import static org.trimou.trimness.util.Strings.CONTENT;
 import static org.trimou.trimness.util.Strings.CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.HEADER_CONTENT_TYPE;
-import static org.trimou.trimness.util.Strings.ID;
+import static org.trimou.trimness.util.Strings.LINK_ID;
 import static org.trimou.trimness.util.Strings.MODEL;
 import static org.trimou.trimness.util.Strings.RESULT_TYPE;
+import static org.trimou.trimness.util.Strings.TEMPLATE_CONTENT;
+import static org.trimou.trimness.util.Strings.TEMPLATE_ID;
 import static org.trimou.trimness.util.Strings.TIMEOUT;
 
 import java.util.Map;
@@ -106,7 +107,7 @@ public class RenderHandler implements Handler<RoutingContext> {
             badRequest(ctx, "Input must be JSON object");
             return;
         }
-        if (!input.containsKey(ID) && !input.containsKey(CONTENT)) {
+        if (!input.containsKey(TEMPLATE_ID) && !input.containsKey(TEMPLATE_CONTENT)) {
             badRequest(ctx, "Template id or content must be set");
             return;
         }
@@ -128,9 +129,9 @@ public class RenderHandler implements Handler<RoutingContext> {
         Template template = null;
         HttpServerResponse response = ctx.response();
 
-        if (input.containsKey(ID)) {
+        if (input.containsKey(TEMPLATE_ID)) {
 
-            String templateId = input.getString(ID, null);
+            String templateId = input.getString(TEMPLATE_ID, null);
             if (templateId != null) {
                 template = templateCache.get(templateId);
             }
@@ -146,7 +147,7 @@ public class RenderHandler implements Handler<RoutingContext> {
             }
         } else {
             // Onetime rendering - we can be sure the content is set
-            String content = input.getString(CONTENT, "");
+            String content = input.getString(TEMPLATE_CONTENT, "");
             template = ImmutableTemplate.of(idGenerator.nextOneoffTemplateId(), content,
                     input.getString(CONTENT_TYPE, null));
             mustache = engine.compileMustache(template.getId(), content);
@@ -157,8 +158,7 @@ public class RenderHandler implements Handler<RoutingContext> {
         }
 
         try {
-            RenderRequest renderRequest = new SimpleRenderRequest(System.currentTimeMillis(), template, null,
-                    RouteHandlers.initParams(input));
+            RenderRequest renderRequest = new SimpleRenderRequest(template, RouteHandlers.initParams(input));
             String result = mustache.render(modelInitializer.initModel(renderRequest, input.get(MODEL)));
             switch (resultType) {
             case RAW:
@@ -180,20 +180,20 @@ public class RenderHandler implements Handler<RoutingContext> {
         String templateId = null;
         Template template;
 
-        if (input.containsKey(ID)) {
-            templateId = input.getString(ID, null);
+        if (input.containsKey(TEMPLATE_ID)) {
+            templateId = input.getString(TEMPLATE_ID, null);
             template = templateId != null ? templateCache.get(templateId) : null;
             if (template == null) {
                 templateNotFound(ctx, templateId);
                 return;
             }
         } else {
-            template = ImmutableTemplate.of(idGenerator.nextOneoffTemplateId(), input.getString(CONTENT, ""),
+            template = ImmutableTemplate.of(idGenerator.nextOneoffTemplateId(), input.getString(TEMPLATE_CONTENT, ""),
                     input.getString(CONTENT_TYPE, null));
         }
 
-        RenderRequest renderRequest = new SimpleRenderRequest(System.currentTimeMillis(), template, initTimeout(input),
-                RouteHandlers.initParams(input));
+        RenderRequest renderRequest = new SimpleRenderRequest(template, initTimeout(input),
+                input.getString(LINK_ID, null), RouteHandlers.initParams(input));
         Result result = resultRepository.init(renderRequest);
 
         // Schedule one-shot timer

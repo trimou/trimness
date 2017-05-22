@@ -40,7 +40,7 @@ There are two ways to send a "render request" to trimness.
 
 Let's use `curl` to perform a very simple render request:
 
-> curl -X POST -H "Content-Type: application/json" -d '{ "content" : "Hello {{model.name}}!", "model" : { "name" : "Foo"} }' http://localhost:8080/render
+> curl -X POST -H "Content-Type: application/json" -d '{ "templateContent" : "Hello {{model.name}}!", "model" : { "name" : "Foo"} }' http://localhost:8080/render
 
 The reply will be `Hello Foo!`.
 Let's analyze the request payload.
@@ -50,7 +50,7 @@ By default, the request is synchronous which means that the client is waiting fo
 If we change the payload to:
 
 ```json
-{ "content" : "Hello {{model.name}}!", "model" : { "name" : "Foo"}, "async": true }
+{ "templateContent" : "Hello {{model.name}}!", "model" : { "name" : "Foo"}, "async": true }
 ```
 
 Then trimness replies immediately with something like:
@@ -66,6 +66,15 @@ The `resultId` is used to pick up the result later:
 > curl http://localhost:8080/result/1495185748798
 
 And the reply should be again `Hello Foo!`.
+Sometimes it might be useful to specify a more memorable link that could be used instead of the result id:
+
+```json
+{ "templateContent" : "Hello {{model.name}}!", "model" : { "name" : "Foo"}, "async": true, "linkId" : "foo-1" }
+```
+`linkId` is used to specify a link that could be also used to get the result:
+
+> curl http://localhost:8080/result/link/foo-1
+
 We can also specify the result type:
 
 > curl http://localhost:8080/result/1495185748798?resultType=metadata

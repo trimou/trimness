@@ -48,7 +48,7 @@ public class RenderTest extends TrimnessTest {
     public void testOnetimeHello() {
         RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .body("{\"content\" : \"Hello {{#each model}}{{this}}{{#hasNext}}, {{/hasNext}}{{/each}}!\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
+                .body("{\"templateContent\" : \"Hello {{#each model}}{{this}}{{#hasNext}}, {{/hasNext}}{{/each}}!\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
                 .post("/render").then().assertThat().statusCode(200)
                 .body(equalTo("Hello me, Lu, foo!"));
     }
@@ -67,7 +67,7 @@ public class RenderTest extends TrimnessTest {
     public void testHello() {
         RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .body("{\"id\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"contentType\":\"text/plain\"}")
+                .body("{\"templateId\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"contentType\":\"text/plain\"}")
                 .post("/render").then().assertThat().statusCode(200)
                 .body(equalTo("Hello me, Lu, foo!"));
     }
@@ -77,7 +77,7 @@ public class RenderTest extends TrimnessTest {
     public void testHelloMetadata() {
         RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .body("{\"id\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"contentType\":\"text/plain\", \"resultType\":\"metadata\"}")
+                .body("{\"templateId\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"contentType\":\"text/plain\", \"resultType\":\"metadata\"}")
                 .post("/render").then().assertThat().statusCode(200)
                 .body(OUTPUT, equalTo("Hello me, Lu, foo!"))
                 .body(TEMPLATE_ID, equalTo("hello.txt"));
@@ -88,7 +88,7 @@ public class RenderTest extends TrimnessTest {
     public void testHelloGlobalData() {
         RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .body("{\"id\" : \"hello-global-data.txt\", \"model\" : {\"name\":1}, \"contentType\":\"text/plain\"}")
+                .body("{\"templateId\" : \"hello-global-data.txt\", \"model\" : {\"name\":1}, \"contentType\":\"text/plain\"}")
                 .post("/render").then().assertThat().statusCode(200)
                 .body(equalTo("##hello-global-data.txt## Hello 1 and bar!"));
     }
@@ -98,7 +98,7 @@ public class RenderTest extends TrimnessTest {
     public void testMetadata() {
         RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .body("{\"content\" : \"{{meta.config.host}}:{{meta.config.port}}\" }")
+                .body("{\"templateContent\" : \"{{meta.config.host}}:{{meta.config.port}}\" }")
                 .post("/render").then().assertThat().statusCode(200)
                 .body(equalTo("localhost:8080"));
     }

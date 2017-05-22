@@ -23,7 +23,6 @@ import org.trimou.trimness.util.WithId;
  * the path.
  *
  * @author Martin Kouba
- * @see ResultLinkDefinition
  * @see GetLinkHandler
  */
 public interface ResultLink extends WithId {

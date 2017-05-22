@@ -17,6 +17,7 @@ package org.trimou.trimness.util;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.enterprise.inject.Instance;
@@ -24,7 +25,7 @@ import javax.enterprise.inject.Instance;
 import org.trimou.engine.validation.Validateable;
 import org.trimou.util.ImmutableList;
 
-public abstract class CompositeComponent<T extends Validateable & WithId> {
+public abstract class CompositeComponent<T extends Validateable & WithId> implements Iterable<T> {
 
     protected final List<T> components;
 
@@ -58,6 +59,11 @@ public abstract class CompositeComponent<T extends Validateable & WithId> {
 
     public boolean isEmpty() {
         return components.isEmpty();
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return components.iterator();
     }
 
     protected boolean checkUniqueIds() {

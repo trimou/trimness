@@ -15,8 +15,6 @@
  */
 package org.trimou.trimness.render;
 
-import java.util.Optional;
-
 import javax.json.JsonObject;
 
 import org.trimou.trimness.template.Template;
@@ -42,14 +40,23 @@ public interface RenderRequest {
     Template getTemplate();
 
     /**
-     * Must be set for async requests.
+     * Timeout is always set for async requests.
      *
-     * @return the timeout
+     * @return the timeout, may be <code>null</code>
      */
-    Optional<Long> getTimeout();
+    Long getTimeout();
 
     /**
-     * Parameters are passed along with a render request.
+     * The link id must match the <code>^[a-zA-Z_0-9-]{1,60}</code> pattern.
+     *
+     * @return the id of a link that should be created/updated if the request is
+     *         completed sucessfully
+     * @see ResultLink
+     */
+    String getLinkId();
+
+    /**
+     * Parameters could be passed along with a render request.
      *
      * @param name
      * @return the parameters

@@ -41,7 +41,7 @@ public class TemplateProvidersTest extends TrimnessTest {
     public void testClassPathTemplateRepository() {
         Response response = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .body("{\"id\" : \"hello.html\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"contentType\":\"text/plain\"}")
+                .body("{\"templateId\" : \"hello.html\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"contentType\":\"text/plain\"}")
                 .post("/render");
         response.then().assertThat().statusCode(200).body(equalTo("meLufoo"));
     }

@@ -27,7 +27,7 @@ class DummyModelRequest implements ModelRequest {
     }
 
     public RenderRequest getRenderRequest() {
-        return new SimpleRenderRequest(time, template, null, Jsons.EMPTY_OBJECT);
+        return new SimpleRenderRequest(time, template, null, null, Jsons.EMPTY_OBJECT);
     }
 
     @Override

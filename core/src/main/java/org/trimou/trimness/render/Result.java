@@ -26,6 +26,18 @@ public interface Result extends WithId {
 
     /**
      *
+     * @return the time the result was created
+     */
+    Long getCreatedTime();
+
+    /**
+     *
+     * @return the time the result was completed, may be <code>null</code>
+     */
+    Long getCompletedTime();
+
+    /**
+     *
      * @return the code
      */
     Status getStatus();

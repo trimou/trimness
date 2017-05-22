@@ -15,8 +15,6 @@
  */
 package org.trimou.trimness.render;
 
-import java.util.Optional;
-
 import javax.json.JsonObject;
 
 import org.trimou.trimness.template.Template;
@@ -33,19 +31,43 @@ public class SimpleRenderRequest implements RenderRequest {
 
     private final Long timeout;
 
+    private final String linkId;
+
     private final JsonObject parameters;
+
+    /**
+     *
+     * @param template
+     * @param parameters
+     */
+    public SimpleRenderRequest(Template template, JsonObject parameters) {
+        this(template, null, null, parameters);
+    }
+
+    /**
+     *
+     * @param template
+     * @param timeout
+     * @param linkId
+     * @param parameters
+     */
+    public SimpleRenderRequest(Template template, Long timeout, String linkId, JsonObject parameters) {
+        this(System.currentTimeMillis(), template, timeout, linkId, parameters);
+    }
 
     /**
      *
      * @param time
      * @param template
      * @param timeout
+     * @param linkId
      * @param parameters
      */
-    public SimpleRenderRequest(Long time, Template template, Long timeout, JsonObject parameters) {
+    public SimpleRenderRequest(Long time, Template template, Long timeout, String linkId, JsonObject parameters) {
         this.time = time;
         this.template = template;
         this.timeout = timeout;
+        this.linkId = linkId;
         this.parameters = parameters;
     }
 
@@ -60,8 +82,13 @@ public class SimpleRenderRequest implements RenderRequest {
     }
 
     @Override
-    public Optional<Long> getTimeout() {
-        return Optional.ofNullable(timeout);
+    public Long getTimeout() {
+        return timeout;
+    }
+
+    @Override
+    public String getLinkId() {
+        return linkId;
     }
 
     @Override

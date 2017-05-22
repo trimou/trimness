@@ -15,11 +15,11 @@
  */
 package org.trimou.trimness.render;
 
-import static org.trimou.trimness.util.Strings.CONTENT;
 import static org.trimou.trimness.util.Strings.CONTENT_TYPE;
-import static org.trimou.trimness.util.Strings.ID;
 import static org.trimou.trimness.util.Strings.MODEL;
 import static org.trimou.trimness.util.Strings.RESULT_TYPE;
+import static org.trimou.trimness.util.Strings.TEMPLATE_CONTENT;
+import static org.trimou.trimness.util.Strings.TEMPLATE_ID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -81,16 +81,16 @@ public class RenderObserver {
         if (input == null) {
             event.fail(CODE_INVALID_INPUT, "Input must be JSON object");
         }
-        if (!input.containsKey(ID) && !input.containsKey(CONTENT)) {
+        if (!input.containsKey(TEMPLATE_ID) && !input.containsKey(TEMPLATE_CONTENT)) {
             event.fail(CODE_INVALID_INPUT, "Template id or content must be set");
         }
 
         Mustache mustache = null;
         Template template = null;
 
-        if (input.containsKey(ID)) {
+        if (input.containsKey(TEMPLATE_ID)) {
 
-            String templateId = input.getString(ID, null);
+            String templateId = input.getString(TEMPLATE_ID, null);
             if (templateId != null) {
                 template = templateCache.get(templateId);
             }
@@ -104,7 +104,7 @@ public class RenderObserver {
             }
         } else {
             // Onetime rendering - we can be sure the content is set
-            String content = input.getString(CONTENT, "");
+            String content = input.getString(TEMPLATE_CONTENT, "");
             template = ImmutableTemplate.of(idGenerator.nextOneoffTemplateId(), content,
                     input.getString(CONTENT_TYPE, null));
             try {
@@ -118,7 +118,7 @@ public class RenderObserver {
         ResultType resultType = ResultType.of(input.get(RESULT_TYPE));
 
         try {
-            RenderRequest renderRequest = new SimpleRenderRequest(System.currentTimeMillis(), template, null, RouteHandlers.initParams(input));
+            RenderRequest renderRequest = new SimpleRenderRequest(template, RouteHandlers.initParams(input));
             String result = mustache.render(modelInitializer.initModel(renderRequest, input.get(MODEL)));
             switch (resultType) {
             case RAW:

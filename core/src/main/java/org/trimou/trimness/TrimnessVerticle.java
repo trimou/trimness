@@ -32,7 +32,6 @@ import org.trimou.handlebars.HelpersBuilder;
 import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.config.TrimnessKey;
 import org.trimou.trimness.model.ModelProvider;
-import org.trimou.trimness.render.ResultLinkDefinitions;
 import org.trimou.trimness.render.DelegateResultRepository;
 import org.trimou.util.Strings;
 
@@ -74,8 +73,6 @@ public class TrimnessVerticle extends AbstractVerticle {
                     }
                     namespaces.add(provider.getNamespace());
                 }
-                // Make sure result link ids are unique
-                container.select(ResultLinkDefinitions.class).get().getComponents();
                 // Make sure a result repository is available
                 container.select(DelegateResultRepository.class).get();
 

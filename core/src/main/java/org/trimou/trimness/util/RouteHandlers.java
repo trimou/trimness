@@ -120,10 +120,8 @@ public final class RouteHandlers {
         JsonObjectBuilder metadata = empty();
         metadata.add(RESULT_ID, resultId);
         metadata.add(TIMEOUT,
-                LocalDateTime
-                        .ofInstant(Instant.ofEpochMilli(renderRequest.getTime() + renderRequest.getTimeout().get()),
-                                ZoneId.systemDefault())
-                        .toString());
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(renderRequest.getTime() + renderRequest.getTimeout()),
+                        ZoneId.systemDefault()).toString());
         return metadata.build().toString();
     }
 
