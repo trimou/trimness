@@ -28,13 +28,13 @@ public interface Result extends WithId {
      *
      * @return the time the result was created
      */
-    Long getCreatedTime();
+    Long getCreated();
 
     /**
      *
      * @return the time the result was completed, may be <code>null</code>
      */
-    Long getCompletedTime();
+    Long getCompleted();
 
     /**
      *
@@ -44,15 +44,9 @@ public interface Result extends WithId {
 
     /**
      *
-     * @return the error message, may be <code>null</code>
+     * @return the rendered output or the error message in case of failure
      */
-    String getError();
-
-    /**
-     *
-     * @return the output
-     */
-    String getOutput();
+    String getValue();
 
     /**
      *

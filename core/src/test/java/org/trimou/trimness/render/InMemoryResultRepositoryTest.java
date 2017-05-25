@@ -42,7 +42,7 @@ public class InMemoryResultRepositoryTest {
         Result result2 = repository.get(result.getId());
         assertNotNull(result2);
         assertEquals(result.getId(), result2.getId());
-        assertEquals("hello", result2.getOutput());
+        assertEquals("hello", result2.getValue());
         try {
             result.fail("foo");
             fail();
@@ -73,7 +73,7 @@ public class InMemoryResultRepositoryTest {
         result.complete("hello");
         ResultLink link = repository.getLink("test");
         assertNotNull(link);
-        assertEquals("hello", repository.get(link.getResultId()).getOutput());
+        assertEquals("hello", repository.get(link.getResultId()).getValue());
     }
 
 }

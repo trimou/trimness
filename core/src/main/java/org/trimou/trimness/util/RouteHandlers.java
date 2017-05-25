@@ -74,9 +74,9 @@ public final class RouteHandlers {
         builder.add(ID, result.getId());
         builder.add(STATUS, result.getStatus().toString());
         if (result.isFailure()) {
-            builder.add(Strings.ERROR, result.getError());
+            builder.add(Strings.ERROR, result.getValue());
         } else {
-            builder.add(Strings.OUTPUT, result.getOutput());
+            builder.add(Strings.OUTPUT, result.getValue());
             if (result.getContentType() != null) {
                 builder.add(Strings.CONTENT_TYPE, result.getContentType());
             }

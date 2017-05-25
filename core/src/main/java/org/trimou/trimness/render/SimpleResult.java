@@ -15,7 +15,6 @@
  */
 package org.trimou.trimness.render;
 
-import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -39,13 +38,9 @@ public class SimpleResult implements Result {
 
     private final String contentType;
 
-    private final LocalDateTime createdAt;
-
     private final AtomicReference<Status> status;
 
-    private final AtomicReference<String> errorMessage;
-
-    private final AtomicReference<String> output;
+    private final AtomicReference<String> value;
 
     private final Consumer<Result> onComplete;
 
@@ -65,11 +60,9 @@ public class SimpleResult implements Result {
         this.created = System.currentTimeMillis();
         this.completed = new AtomicReference<Long>();
         this.status = new AtomicReference<>(code);
-        this.errorMessage = new AtomicReference<>();
-        this.output = new AtomicReference<>();
+        this.value = new AtomicReference<>();
         this.templateId = templateId;
         this.contentType = contentType;
-        this.createdAt = LocalDateTime.now();
         this.onComplete = onComplete;
     }
 
@@ -79,12 +72,12 @@ public class SimpleResult implements Result {
     }
 
     @Override
-    public Long getCreatedTime() {
+    public Long getCreated() {
         return created;
     }
 
     @Override
-    public Long getCompletedTime() {
+    public Long getCompleted() {
         return completed.get();
     }
 
@@ -94,13 +87,8 @@ public class SimpleResult implements Result {
     }
 
     @Override
-    public String getError() {
-        return errorMessage.get();
-    }
-
-    @Override
-    public String getOutput() {
-        return output.get();
+    public String getValue() {
+        return value.get();
     }
 
     @Override
@@ -113,39 +101,27 @@ public class SimpleResult implements Result {
         return contentType;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
     @Override
     public void fail(String errorMessage) {
         synchronized (this.status) {
-            checkIsIncomplete();
-            this.status.set(Status.FAILURE);
-            this.completed.set(System.currentTimeMillis());
-            this.errorMessage.set(errorMessage);
-            onComplete();
+            complete(Status.FAILURE, errorMessage);
         }
     }
 
     @Override
     public void complete(String output) {
         synchronized (this.status) {
-            checkIsIncomplete();
-            this.status.set(Status.SUCESS);
-            this.completed.set(System.currentTimeMillis());
-            this.output.set(output);
-            onComplete();
+            complete(Status.SUCESS, output);
         }
     }
 
-    private void checkIsIncomplete() {
+    private void complete(Status status, String output) {
         if (isComplete()) {
             throw new IllegalStateException("Result " + getId() + " already completed!");
         }
-    }
-
-    private void onComplete() {
+        this.status.set(Status.SUCESS);
+        this.completed.set(System.currentTimeMillis());
+        this.value.set(output);
         if (onComplete != null) {
             onComplete.accept(this);
         }

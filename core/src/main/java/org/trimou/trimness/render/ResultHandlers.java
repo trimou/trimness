@@ -73,9 +73,9 @@ public class ResultHandlers {
                                 .end(RouteHandlers.message("Result %s not complete yet", id).build().toString());
                     } else if (result.isFailure()) {
                         RouteHandlers.ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON)
-                                .end(RouteHandlers.message("Result failed: %s", result.getError()).build().toString());
+                                .end(RouteHandlers.message("Result failed: %s", result.getValue()).build().toString());
                     } else {
-                        RouteHandlers.ok(ctx, result.getOutput());
+                        RouteHandlers.ok(ctx, result.getValue());
                     }
                     break;
                 case METADATA:
