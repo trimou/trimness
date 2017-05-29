@@ -6,10 +6,18 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.jboss.weld.junit4.WeldInitiator;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.trimou.trimness.DummyConfiguration;
 import org.trimou.trimness.MockVertxProducer;
+import org.trimou.trimness.config.TrimnessKey;
 import org.trimou.trimness.render.Result.Status;
 import org.trimou.trimness.template.ImmutableTemplate;
 import org.trimou.trimness.util.Jsons;
@@ -18,15 +26,23 @@ import org.trimou.trimness.util.Jsons;
  *
  * @author Martin Kouba
  */
-public class InMemoryResultRepositoryTest {
+public class FileSystemResultRepositoryTest {
 
     @Rule
-    public WeldInitiator weld = WeldInitiator.of(InMemoryResultRepository.class, IdGenerator.class,
-            MockVertxProducer.class);
+    public WeldInitiator weld = WeldInitiator.of(FileSystemResultRepository.class, IdGenerator.class,
+            MockVertxProducer.class, DummyConfiguration.class);
+
+    @Before
+    public void init() throws IOException {
+        Path temp = Files.createTempDirectory("trimness_");
+        File tempDir = temp.toFile();
+        tempDir.deleteOnExit();
+        weld.select(DummyConfiguration.class).get().put(TrimnessKey.RESULT_DIR, tempDir.getAbsolutePath());
+    }
 
     @Test
     public void testBasicOperations() {
-        InMemoryResultRepository repository = weld.select(InMemoryResultRepository.class).get();
+        FileSystemResultRepository repository = weld.select(FileSystemResultRepository.class).get();
         repository.clear();
         assertEquals(0, repository.size());
         Result result = repository
@@ -55,7 +71,7 @@ public class InMemoryResultRepositoryTest {
 
     @Test
     public void testTimeout() throws InterruptedException {
-        InMemoryResultRepository repository = weld.select(InMemoryResultRepository.class).get();
+        FileSystemResultRepository repository = weld.select(FileSystemResultRepository.class).get();
         repository.clear();
         Result result = repository
                 .init(new SimpleRenderRequest(ImmutableTemplate.of("foo"), 100l, null, Jsons.EMPTY_OBJECT));
@@ -65,7 +81,7 @@ public class InMemoryResultRepositoryTest {
 
     @Test
     public void testLink() throws InterruptedException {
-        InMemoryResultRepository repository = weld.select(InMemoryResultRepository.class).get();
+        FileSystemResultRepository repository = weld.select(FileSystemResultRepository.class).get();
         repository.clear();
         assertNull(repository.getLink("test"));
         Result result = repository

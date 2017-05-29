@@ -45,10 +45,12 @@ public final class Strings {
     public static final String MSG = "msg";
     public static final String PARAMS = "params";
     public static final String ERROR = "error";
-    public static final String OUTPUT = "output";
+    public static final String VALUE = "value";
     public static final String CONFIG = "config";
     public static final String LINK_ID = "linkId";
     public static final String STATUS = "status";
+    public static final String CREATED = "created";
+    public static final String COMPLETED = "completed";
 
     public static final String APP_JSON = "application/json";
     public static final String APP_JAVASCRIPT = "application/javascript";
@@ -65,10 +67,11 @@ public final class Strings {
     public static final String SUFFIX_JSON = "json";
     public static final String SUFFIX_TXT = "txt";
 
-    private static final Pattern LINK_PATTERN = Pattern.compile("^[a-zA-Z_0-9-]{1,60}");
+    public static final String LINK_PATTERN = "^[a-zA-Z_0-9-]{1,60}";
+    private static final Pattern LINK_COMPILED_PATTERN = Pattern.compile(LINK_PATTERN);
 
     public static boolean matchesLinkPattern(String input) {
-        return LINK_PATTERN.matcher(input).matches();
+        return LINK_COMPILED_PATTERN.matcher(input).matches();
     }
 
 }

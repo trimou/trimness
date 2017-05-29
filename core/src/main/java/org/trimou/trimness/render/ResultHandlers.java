@@ -58,13 +58,18 @@ public class ResultHandlers {
             Result result = resultRepository.get(id);
 
             if (result == null) {
-                RouteHandlers.notFound(ctx, RouteHandlers.message("Result not found for id: %s", id).build().toString());
+                RouteHandlers.notFound(ctx,
+                        RouteHandlers.message("Result not found for id: %s", id).build().toString());
             } else {
                 if (result.getContentType() != null) {
                     ctx.response().putHeader(HEADER_CONTENT_TYPE, result.getContentType());
                 }
 
-                ResultType resultType = ResultType.of(ctx.request().getParam(RESULT_TYPE));
+                String resultTypeParam = ctx.request().getParam(RESULT_TYPE);
+                if (resultTypeParam == null) {
+                    resultTypeParam = ctx.get(RESULT_TYPE);
+                }
+                ResultType resultType = ResultType.of(resultTypeParam);
 
                 switch (resultType) {
                 case RAW:
@@ -80,6 +85,7 @@ public class ResultHandlers {
                     break;
                 case METADATA:
                     RouteHandlers.ok(ctx, RouteHandlers.metadataResult(result));
+                    break;
                 default:
                     RouteHandlers.badRequest(ctx, "Unsupported result type: " + resultType);
                 }
@@ -103,7 +109,8 @@ public class ResultHandlers {
             } else if (resultRepository.remove(id)) {
                 RouteHandlers.ok(ctx, RouteHandlers.message("Result %s removed", id).build().toString());
             } else {
-                RouteHandlers.notFound(ctx, RouteHandlers.message("Result not found for id: %s", id).build().toString());
+                RouteHandlers.notFound(ctx,
+                        RouteHandlers.message("Result not found for id: %s", id).build().toString());
             }
         }
 
@@ -131,9 +138,11 @@ public class ResultHandlers {
             if (link != null) {
                 String path = "/result/" + link.getResultId();
                 LOGGER.info("Result link {0} found reroute to {1}", link, path);
+                ctx.put(RESULT_TYPE, ctx.request().getParam(RESULT_TYPE));
                 ctx.reroute(path);
             } else {
-                RouteHandlers.notFound(ctx, RouteHandlers.message("Result link does not exits: %s", link).build().toString());
+                RouteHandlers.notFound(ctx,
+                        RouteHandlers.message("Result link does not exits: %s", linkId).build().toString());
             }
         }
 

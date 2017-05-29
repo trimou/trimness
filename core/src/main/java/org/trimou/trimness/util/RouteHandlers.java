@@ -20,7 +20,7 @@ import static org.trimou.trimness.util.Strings.CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.HEADER_CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.ID;
 import static org.trimou.trimness.util.Strings.MSG;
-import static org.trimou.trimness.util.Strings.OUTPUT;
+import static org.trimou.trimness.util.Strings.VALUE;
 import static org.trimou.trimness.util.Strings.PARAMS;
 import static org.trimou.trimness.util.Strings.RESULT;
 import static org.trimou.trimness.util.Strings.RESULT_ID;
@@ -60,7 +60,7 @@ public final class RouteHandlers {
 
     public static String metadataResult(Template template, String output) {
         JsonObjectBuilder metadata = empty();
-        metadata.add(OUTPUT, output);
+        metadata.add(VALUE, output);
         metadata.add(TEMPLATE_ID, template.getId());
         if (template.getContentType() != null) {
             metadata.add(CONTENT_TYPE, template.getContentType());
@@ -76,7 +76,7 @@ public final class RouteHandlers {
         if (result.isFailure()) {
             builder.add(Strings.ERROR, result.getValue());
         } else {
-            builder.add(Strings.OUTPUT, result.getValue());
+            builder.add(Strings.VALUE, result.getValue());
             if (result.getContentType() != null) {
                 builder.add(Strings.CONTENT_TYPE, result.getContentType());
             }
@@ -170,11 +170,13 @@ public final class RouteHandlers {
         }
 
         public static ResultType of(String value) {
-            value = value.toUpperCase();
-            if (RAW.toString().equals(value)) {
-                return RAW;
-            } else if (METADATA.toString().equals(value)) {
-                return METADATA;
+            if (value != null) {
+                value = value.toUpperCase();
+                if (RAW.toString().equals(value)) {
+                    return RAW;
+                } else if (METADATA.toString().equals(value)) {
+                    return METADATA;
+                }
             }
             // The default value
             return RAW;

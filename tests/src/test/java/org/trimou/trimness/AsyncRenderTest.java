@@ -9,7 +9,6 @@ import org.hamcrest.core.StringContains;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.arquillian.test.spi.context.TestContext;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -44,7 +43,7 @@ public class AsyncRenderTest extends TrimnessTest {
 
     @RunAsClient
     @Test
-    public void testOnetimeAsync(TestContext context) {
+    public void testOnetimeAsync() {
         String resultId = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"async\" : true, \"templateContent\" : \"Hello {{#each model}}{{this}}{{#hasNext}}, {{/hasNext}}{{/each}}!\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
@@ -59,7 +58,7 @@ public class AsyncRenderTest extends TrimnessTest {
 
     @RunAsClient
     @Test
-    public void testAsync(TestContext context) {
+    public void testAsync() {
         String resultId = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"async\" : true, \"templateId\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"timeout\" : 0}")
@@ -80,7 +79,7 @@ public class AsyncRenderTest extends TrimnessTest {
 
     @RunAsClient
     @Test
-    public void testOnetimeAsyncFailure(TestContext context) {
+    public void testOnetimeAsyncFailure() {
         String resultId = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"async\" : true, \"templateContent\" : \"{{#each}}\", \"model\" : [ \"me\", \"Lu\", \"foo\" ]}")
@@ -94,6 +93,29 @@ public class AsyncRenderTest extends TrimnessTest {
                 .header(Strings.HEADER_CONTENT_TYPE, is(Strings.APP_JSON))
                 .body(StringContains.containsString(
                         MustacheProblem.COMPILE_INVALID_TEMPLATE.toString()));
+    }
+
+    @RunAsClient
+    @Test
+    public void testLink() {
+        RestAssured.given()
+                .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
+                .body("{\"async\" : true, \"templateContent\" : \"Hello {{#each model}}{{this}}{{#hasNext}}, {{/hasNext}}{{/each}}!\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"linkId\":\"test-link\"}")
+                .post("/render").then().assertThat().statusCode(200);
+        RestAssured.given()
+                .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
+                .get("/result/link/test-link?resultType=raw").then()
+                .assertThat().statusCode(200)
+                .body(equalTo("Hello me, Lu, foo!"));
+    }
+
+    @RunAsClient
+    @Test
+    public void testInvalidLink() {
+        RestAssured.given()
+                .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
+                .body("{\"async\" : true, \"templateContent\" : \"Hello {{#each model}}{{this}}{{#hasNext}}, {{/hasNext}}{{/each}}!\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"linkId\":\"test link\"}")
+                .post("/render").then().assertThat().statusCode(400);
     }
 
 }

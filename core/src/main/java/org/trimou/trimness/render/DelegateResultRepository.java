@@ -56,6 +56,11 @@ public class DelegateResultRepository extends CompositeComponent<ResultRepositor
     }
 
     @Override
+    public ResultLink getLink(String linkId) {
+        return first().getLink(linkId);
+    }
+
+    @Override
     public Result init(RenderRequest renderRequest) {
         return first().init(renderRequest);
     }

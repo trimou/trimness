@@ -57,6 +57,7 @@ import org.trimou.trimness.template.TemplateCache;
 import org.trimou.trimness.util.AsyncHandlers;
 import org.trimou.trimness.util.RouteHandlers;
 import org.trimou.trimness.util.RouteHandlers.ResultType;
+import org.trimou.trimness.util.Strings;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -192,8 +193,14 @@ public class RenderHandler implements Handler<RoutingContext> {
                     input.getString(CONTENT_TYPE, null));
         }
 
+        String linkId = input.getString(LINK_ID, null);
+        if (linkId != null && !Strings.matchesLinkPattern(linkId)) {
+            badRequest(ctx, "Link id does not match " + Strings.LINK_PATTERN);
+            return;
+        }
+
         RenderRequest renderRequest = new SimpleRenderRequest(template, initTimeout(input),
-                input.getString(LINK_ID, null), RouteHandlers.initParams(input));
+                linkId, RouteHandlers.initParams(input));
         Result result = resultRepository.init(renderRequest);
 
         // Schedule one-shot timer

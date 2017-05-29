@@ -18,6 +18,7 @@ package org.trimou.trimness.render;
 import javax.json.JsonObject;
 
 import org.trimou.trimness.template.Template;
+import org.trimou.trimness.util.Strings;
 
 /**
  * Render request.
@@ -47,7 +48,7 @@ public interface RenderRequest {
     Long getTimeout();
 
     /**
-     * The link id must match the <code>^[a-zA-Z_0-9-]{1,60}</code> pattern.
+     * The link id must match the {@link Strings#LINK_PATTERN} pattern.
      *
      * @return the id of a link that should be created/updated if the request is
      *         completed sucessfully

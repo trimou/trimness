@@ -25,7 +25,8 @@ import java.util.function.Consumer;
 public class SimpleResult implements Result {
 
     static SimpleResult init(String id, String templateId, String contentType, Consumer<Result> onComplete) {
-        return new SimpleResult(id, templateId, Status.INCOMPLETE, null, null, contentType, onComplete);
+        return new SimpleResult(id, System.currentTimeMillis(), null, templateId, contentType, Status.INCOMPLETE, null,
+                onComplete);
     }
 
     private final String id;
@@ -47,20 +48,21 @@ public class SimpleResult implements Result {
     /**
      *
      * @param id
-     * @param code
-     * @param errorMessage
-     * @param output
+     * @param created
+     * @param completed
      * @param templateId
      * @param contentType
+     * @param status
+     * @param value
      * @param onComplete
      */
-    SimpleResult(String id, String templateId, Status code, String errorMessage, String output, String contentType,
-            Consumer<Result> onComplete) {
+    SimpleResult(String id, Long created, Long completed, String templateId, String contentType, Status status,
+            String value, Consumer<Result> onComplete) {
         this.id = id;
-        this.created = System.currentTimeMillis();
-        this.completed = new AtomicReference<Long>();
-        this.status = new AtomicReference<>(code);
-        this.value = new AtomicReference<>();
+        this.created = created;
+        this.completed = new AtomicReference<Long>(completed);
+        this.status = new AtomicReference<>(status);
+        this.value = new AtomicReference<>(value);
         this.templateId = templateId;
         this.contentType = contentType;
         this.onComplete = onComplete;
@@ -115,13 +117,13 @@ public class SimpleResult implements Result {
         }
     }
 
-    private void complete(Status status, String output) {
+    private void complete(Status status, String value) {
         if (isComplete()) {
             throw new IllegalStateException("Result " + getId() + " already completed!");
         }
-        this.status.set(Status.SUCESS);
+        this.status.set(status);
         this.completed.set(System.currentTimeMillis());
-        this.value.set(output);
+        this.value.set(value);
         if (onComplete != null) {
             onComplete.accept(this);
         }

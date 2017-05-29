@@ -3,13 +3,12 @@ package org.trimou.trimness;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.trimou.trimness.config.TrimnessKey.GLOBAL_JSON_FILE;
 import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;
-import static org.trimou.trimness.util.Strings.OUTPUT;
 import static org.trimou.trimness.util.Strings.TEMPLATE_ID;
+import static org.trimou.trimness.util.Strings.VALUE;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.arquillian.test.spi.context.TestContext;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -55,7 +54,7 @@ public class RenderTest extends TrimnessTest {
 
     @RunAsClient
     @Test
-    public void testOnetimeInvalidInput(TestContext context) {
+    public void testOnetimeInvalidInput() {
         RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"foo\":\"bar\"}").post("/render").then().assertThat()
@@ -79,7 +78,7 @@ public class RenderTest extends TrimnessTest {
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body("{\"templateId\" : \"hello.txt\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"contentType\":\"text/plain\", \"resultType\":\"metadata\"}")
                 .post("/render").then().assertThat().statusCode(200)
-                .body(OUTPUT, equalTo("Hello me, Lu, foo!"))
+                .body(VALUE, equalTo("Hello me, Lu, foo!"))
                 .body(TEMPLATE_ID, equalTo("hello.txt"));
     }
 

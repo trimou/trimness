@@ -22,6 +22,8 @@ import java.util.function.Consumer;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import org.trimou.trimness.util.AsyncHandlers;
+
 import io.vertx.core.Vertx;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -66,7 +68,7 @@ public class InMemoryResultRepository implements ResultRepository {
         Consumer<Result> onComplete = renderRequest.getLinkId() == null ? null : (r) -> {
             if (r.isSucess()) {
                 links.put(renderRequest.getLinkId(), new SimpleResultLink(renderRequest.getLinkId(), r.getId()));
-                LOGGER.info("Result link {0} updated to: {1}", renderRequest.getLinkId(), r.getId());
+                LOGGER.info("Result link updated [linkId: {0}, resultId: {1}]", renderRequest.getLinkId(), r.getId());
             }
         };
         SimpleResult result = SimpleResult.init("" + idGenerator.nextId(), renderRequest.getTemplate().getId(),
@@ -75,9 +77,13 @@ public class InMemoryResultRepository implements ResultRepository {
         if (renderRequest.getTimeout() != null && renderRequest.getTimeout() > 0) {
             // Schedule result removal
             vertx.setTimer(renderRequest.getTimeout(), (id) -> {
-                if (results.remove(result.getId()) != null) {
-                    LOGGER.info("Result timed out [id: {0}]", result.getId());
-                }
+                vertx.executeBlocking((future) -> {
+                    if (results.remove(result.getId()) != null) {
+                        LOGGER.info("Result timed out [id: {0}]", result.getId());
+                    }
+                    future.complete();
+                }, AsyncHandlers.NOOP_HANDLER);
+
             });
         }
         LOGGER.info("Result initialized [id: {0}, template: {1}, timeout: {2}]", result.getId(),

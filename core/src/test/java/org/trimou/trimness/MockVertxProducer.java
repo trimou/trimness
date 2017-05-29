@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 
@@ -56,6 +57,18 @@ public class MockVertxProducer {
                 return 1l;
             }
         });
+        Mockito.doAnswer(new Answer<Void>() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                executor.execute(() -> {
+                    Handler<Future<?>> handler = (Handler<Future<?>>) args[0];
+                    handler.handle(Future.future());
+                });
+                return null;
+            }
+        }).when(vertx).executeBlocking(ArgumentMatchers.any(), ArgumentMatchers.any());
         return vertx;
     }
 

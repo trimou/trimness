@@ -18,6 +18,8 @@ package org.trimou.trimness.config;
 import org.trimou.trimness.TrimnessVerticle;
 import org.trimou.trimness.model.GlobalJsonModelProvider;
 import org.trimou.trimness.model.ModelInitializer;
+import org.trimou.trimness.render.FileSystemResultRepository;
+import org.trimou.trimness.render.InMemoryResultRepository;
 import org.trimou.trimness.render.RenderHandler;
 import org.trimou.trimness.template.ClassPathTemplateProvider;
 import org.trimou.trimness.template.FileSystemTemplateProvider;
@@ -101,6 +103,15 @@ public enum TrimnessKey implements Key {
      * @see GlobalJsonModelProvider
      */
     GLOBAL_JSON_FILE(""),
+
+    /**
+     * <tt>org.trimou.trimness.resultDir</tt>
+     *
+     * Filesystem path. If empty, {@link InMemoryResultRepository} is used by default.
+     *
+     * @see FileSystemResultRepository
+     */
+    RESULT_DIR("")
 
     ;
 
