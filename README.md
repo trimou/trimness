@@ -40,7 +40,9 @@ There are two ways to send a "render request".
 
 Let's use `curl` to perform a very simple render request:
 
-> curl -X POST -H "Content-Type: application/json" -d '{ "templateContent" : "Hello {{model.name}}!", "model" : { "name" : "Foo"} }' http://localhost:8080/render
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{ "templateContent" : "Hello {{model.name}}!", "model" : { "name" : "Foo"} }' http://localhost:8080/render
+```
 
 The reply should be `Hello Foo!`.
 Let's analyze the request payload.
@@ -66,7 +68,9 @@ Then trimness replies immediately with something like:
 `timeout` is the time after which the result might be removed automatically (it depends on the underlying result repository implementation).
 The `resultId` is used to pick up the result later:
 
-> curl http://localhost:8080/result/1495185748798
+```bash
+curl http://localhost:8080/result/1495185748798
+```
 
 And the reply should be again `Hello Foo!`.
 
@@ -79,13 +83,17 @@ Sometimes it might be useful to specify a more memorable link that could be used
 ```
 `linkId` is used to specify a link that could be also used to get the result:
 
-> curl http://localhost:8080/result/link/foo-1
+```bash
+curl http://localhost:8080/result/link/foo-1
+```
 
 ##### Result metadata
 
 We can also specify the result type:
 
-> curl http://localhost:8080/result/1495185748798?resultType=metadata
+```bash
+curl http://localhost:8080/result/1495185748798?resultType=metadata
+```
 
 In this case, the reply would be:
 
