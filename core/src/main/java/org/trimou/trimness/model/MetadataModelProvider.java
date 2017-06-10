@@ -20,6 +20,7 @@ import static org.trimou.trimness.util.Strings.TEMPLATE_ID;
 import static org.trimou.trimness.util.Strings.TIME;
 
 import java.time.LocalDateTime;
+import java.util.Iterator;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -43,22 +44,11 @@ public class MetadataModelProvider implements ModelProvider {
     @Inject
     private Configuration configuration;
 
-    private Mapper configMapper;
+    private ConfigurationModel configModel;
 
     @PostConstruct
     void init() {
-        configMapper = new Mapper() {
-            @Override
-            public Object get(String key) {
-                for (Key configKey : configuration) {
-                    if (configKey.get().equals(key) || configKey.getEnvKey().equals(key)
-                            || configKey.get().endsWith(key)) {
-                        return configuration.getValue(configKey);
-                    }
-                }
-                return null;
-            }
-        };
+        configModel = new ConfigurationModel();
     }
 
     @Override
@@ -74,7 +64,26 @@ public class MetadataModelProvider implements ModelProvider {
                 // Template id
                 .put(TEMPLATE_ID, request.getRenderRequest().getTemplate().getId())
                 // Trimness configuration
-                .put(CONFIG, configMapper).build());
+                .put(CONFIG, configModel).build());
+    }
+
+    class ConfigurationModel implements Mapper, Iterable<Key> {
+
+        @Override
+        public Iterator<Key> iterator() {
+            return configuration.iterator();
+        }
+
+        @Override
+        public Object get(String key) {
+            for (Key configKey : configuration) {
+                if (configKey.get().equals(key) || configKey.getEnvKey().equals(key) || configKey.get().endsWith(key)) {
+                    return configuration.getValue(configKey);
+                }
+            }
+            return null;
+        }
+
     }
 
 }

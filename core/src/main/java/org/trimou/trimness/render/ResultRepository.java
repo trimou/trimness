@@ -22,7 +22,7 @@ import org.trimou.engine.validation.Validateable;
 import org.trimou.trimness.util.WithId;
 
 /**
- * This component is used to store the results of asynchronous render requests.
+ * This component is used to store the results of render requests.
  * <p>
  * A valid repository with the highest priority is used. It's recommended to use
  * {@link Dependent} scope - see also {@link DelegateResultRepository}.

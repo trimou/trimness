@@ -48,7 +48,6 @@ import javax.json.stream.JsonParsingException;
 import org.jboss.weld.vertx.web.WebRoute;
 import org.trimou.Mustache;
 import org.trimou.engine.MustacheEngine;
-import org.trimou.exception.MustacheException;
 import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.model.ModelInitializer;
 import org.trimou.trimness.template.ImmutableTemplate;
@@ -158,20 +157,44 @@ public class RenderHandler implements Handler<RoutingContext> {
             response.putHeader(HEADER_CONTENT_TYPE, template.getContentType());
         }
 
+        Result result = null;
         try {
-            RenderRequest renderRequest = new SimpleRenderRequest(template, RouteHandlers.initParams(input));
-            String result = mustache.render(modelInitializer.initModel(renderRequest, input.get(MODEL)));
+            RenderRequest renderRequest;
+
+            if (input.containsKey(LINK_ID) || input.containsKey(TIMEOUT)) {
+                // We need to store the result of sync rendering
+                String linkId = input.getString(LINK_ID, null);
+                if (linkId != null && !Strings.matchesLinkPattern(linkId)) {
+                    badRequest(ctx, "Link id does not match " + Strings.LINK_PATTERN);
+                    return;
+                }
+                renderRequest = new SimpleRenderRequest(template, initTimeout(input), linkId,
+                        RouteHandlers.initParams(input));
+                result = resultRepository.init(renderRequest);
+            } else {
+                renderRequest = new SimpleRenderRequest(template, RouteHandlers.initParams(input));
+            }
+
+            String resultOutput = mustache.render(modelInitializer.initModel(renderRequest, input.get(MODEL)));
             switch (resultType) {
             case RAW:
-                ok(ctx, result);
+                ok(ctx, resultOutput);
                 break;
             case METADATA:
-                ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON).end(RouteHandlers.metadataResult(template, result));
+                ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON).end(result != null
+                        ? RouteHandlers.metadataResult(result) : RouteHandlers.metadataResult(template, resultOutput));
                 break;
             default:
                 throw new IllegalStateException("Unsupported result type: " + resultType);
             }
-        } catch (MustacheException e) {
+            if (result != null) {
+                result.complete(resultOutput);
+            }
+
+        } catch (Exception e) {
+            if (result != null) {
+                result.fail(e.getMessage());
+            }
             renderingError(ctx, mustache.getName());
         }
     }
@@ -199,8 +222,8 @@ public class RenderHandler implements Handler<RoutingContext> {
             return;
         }
 
-        RenderRequest renderRequest = new SimpleRenderRequest(template, initTimeout(input),
-                linkId, RouteHandlers.initParams(input));
+        RenderRequest renderRequest = new SimpleRenderRequest(template, initTimeout(input), linkId,
+                RouteHandlers.initParams(input));
         Result result = resultRepository.init(renderRequest);
 
         // Schedule one-shot timer

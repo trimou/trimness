@@ -1,0 +1,273 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>Trimnes - Simple Test Form</title>
+<link rel="stylesheet"
+   href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+   integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+   crossorigin="anonymous">
+<link rel="stylesheet"
+   href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/codemirror.css"
+   integrity="sha256-7sZe9dsqyNZC9Mk+WPRB7nVvPPPXyorzm2QKqlgXC4k="
+   crossorigin="anonymous" />
+<style type="text/css">
+.CodeMirror {
+  height: auto;
+  border: 1px solid silver;
+}
+</style>
+</head>
+
+<body>
+
+   <div class="container">
+
+      <div class="row">
+         <h1>Trimnes - Simple Test Form</h1>
+
+      </div>
+
+      <div class="row">
+
+         <div class="col-md-6">
+
+            <p>
+               Send asynchronous test requests to <strong>{{meta.config.host}}:{{meta.config.port}}/render</strong>.
+            </p>
+
+            <form id="renderForm">
+               <div class="form-group">
+                  <label for="inputTemplateId">Template id</label> <input
+                     type="text" class="form-control"
+                     name="inputTemplateId"
+                     placeholder="If set the template content is ignored">
+               </div>
+               <div class="form-group">
+                  <label for="areaTemplateContent">Template
+                     content</label>
+                  <div style="height: 20em;">
+                     <textarea id="areaTemplateContent"
+                        name="areaTemplateContent" class="form-control"
+                        rows="3" placeholder="Template contents"></textarea>
+                  </div>
+               </div>
+               <div class="form-group">
+                  <label for="areaModel">Model <span
+                     class="text-muted">could be used inside the
+                        template under "model" namespace.</span></label>
+                  <div style="height: 10em;">
+                     <textarea id="areaModel" name="areaModel"
+                        class="form-control" rows="3">{}</textarea>
+                  </div>
+               </div>
+               <div class="form-group">
+                  <label for="areaParams">Parameters <span
+                     class="text-muted">could be used by model
+                        providers and other components.</span></label>
+                  <div style="height: 5em;">
+                     <textarea id="areaParams" name="areaParams"
+                        class="form-control" rows="3"></textarea>
+                  </div>
+               </div>
+               <div class="form-group">
+                  <label for="inputLink">Link</label> <input type="text"
+                     class="form-control" name="inputLink"
+                     placeholder="Link ">
+               </div>
+               <div class="form-group">
+                  <label for="inputTimeout">Timeout</label> <input
+                     type="text" class="form-control"
+                     name="inputTimeout"
+                     placeholder="Timeout in milliseconds">
+               </div>
+               <div class="form-group">
+                  <button id="butRender" type="submit"
+                     class="btn btn-info">Render</button>
+                  <button id="butPreview" type="submit"
+                     class="btn btn-default">JSON preview</button>
+               </div>
+
+            </form>
+
+         </div>
+
+         <div class="col-md-6">
+
+            <h2>Results</h2>
+
+            <form id="renderForm">
+               <div class="form-group">
+                  <button id="butClear" type="submit"
+                     class="btn btn-default">Clear table</button>
+               </div>
+            </form>
+
+            <table class="table table-striped" id="tableResults">
+               <thead>
+                  <tr>
+                     <th>#</th>
+                     <th>Sent</th>
+                     <th>Result ID</th>
+                     <th>Timeout</th>
+                     <!-- TODO link -->
+                  </tr>
+               </thead>
+               <tbody>
+               </tbody>
+            </table>
+
+         </div>
+
+      </div>
+
+      <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+         integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+         crossorigin="anonymous"></script>
+      <script
+         src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+         crossorigin="anonymous"></script>
+      <script
+         src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/codemirror.min.js"
+         integrity="sha256-UQey9E6ZZXhvoLNXvVmU5lRSbOcCZe707EBLJTtMwSc="
+         crossorigin="anonymous"></script>
+      <script
+         src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/mode/javascript/javascript.min.js"
+         integrity="sha256-Zci/fLjT1ALmFze3qSOXnHkYOOpyj5WUHM/Ioy+Bpyo="
+         crossorigin="anonymous"></script>
+      <script
+         src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/mode/htmlmixed/htmlmixed.min.js"
+         integrity="sha256-fYwhT0v38tXMnxU+JibUW1drchatADDwdPWvOuxI/yg="
+         crossorigin="anonymous"></script>
+      <script
+         src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/addon/mode/simple.js"
+         integrity="sha256-qit6/p+SB2gjD9kD3/OI/bMLRJJ1j8dL249dTw1jZU0="
+         crossorigin="anonymous"></script>
+      <script
+         src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/addon/mode/multiplex.js"
+         integrity="sha256-XgMRAeogyZkC5fl1aKJ+9QHuEm164WSSwsIxAJOcqqk="
+         crossorigin="anonymous"></script>
+      <script
+         src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/mode/xml/xml.min.js"
+         integrity="sha256-ERFGS58tayDq5kkyNwd/89iZZ+HglMH7eYXxG1hxTvA="
+         crossorigin="anonymous"></script>
+      <script
+         src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/mode/handlebars/handlebars.min.js"
+         integrity="sha256-li44OITmfBUoeIp/llfzGSLPoHwBJ0NkrDwccyJP/jY="
+         crossorigin="anonymous"></script>
+
+      <script>
+              var counter = 0;
+              var urlBase = "http://localhost:8080";
+              // var urlBase = "http://{{meta.config.host}}:{{meta.config.port}}";
+
+              function buildData() {
+                modelCode.save();
+                paramsCode.save();
+                templateCode.save();
+                var data = new Object();
+                data.async = true;
+                var fields = $("#renderForm").serializeArray()
+                    .forEach(
+                        function(field) {
+                          if (field.name == "areaModel") {
+                            data.model = field.value ? JSON.parse(field.value)
+                                : null;
+                          } else if (field.name == "areaTemplateContent") {
+                            data.templateContent = field.value;
+                          } else if (field.name == "areaParams") {
+                            data.params = field.value ? JSON.parse(field.value)
+                                : null;
+                          } else if (field.name == "inputTemplateId"
+                              && field.value) {
+                            data.templateId = field.value;
+                          } else if (field.name == "inputTimeout"
+                              && field.value) {
+                            data.timeout = field.value;
+                          } else if (field.name == "inputLink" && field.value) {
+                            data.linkId = field.value;
+                          }
+                        });
+                return JSON.stringify(data);
+              }
+
+              $(document)
+                  .ready(
+                      function() {
+                        $("#butRender")
+                            .click(
+                                function(e) {
+                                  counter++;
+                                  $
+                                      .ajax({
+                                        url : urlBase + "/render",
+                                        type : 'POST',
+                                        headers : {
+                                          "Content-Type" : "application/json"
+                                        },
+                                        data : buildData()
+                                      })
+                                      .done(
+                                          function(data) {
+                                            var resultLink = urlBase
+                                                + "/result/" + data.resultId;
+                                            $("#tableResults tbody")
+                                                .append(
+                                                    '<tr><td>'
+                                                        + counter
+                                                        + '</td><td>'
+                                                        + data.time
+                                                        + '</td><td><a href="'+resultLink+'" target="_blank">'
+                                                        + data.resultId
+                                                        + '</a></td><td>'
+                                                        + data.timeout
+                                                        + '</td></tr>')
+                                          }).fail(function(data) {
+                                        alert("Unable to get response data");
+                                      });
+                                  e.preventDefault();
+                                });
+
+                        $("#butPreview").click(function(e) {
+                          alert(buildData());
+                          e.preventDefault();
+                        });
+
+                        $("#butClear").click(function(e) {
+                          counter = 0;
+                          $("#tableResults tbody").html("");
+                          e.preventDefault();
+                        });
+
+                      });
+
+              var modelCode = CodeMirror.fromTextArea(document
+                  .getElementById('areaModel'), {
+                value : "{}",
+                mode : {
+                  name : "javascript",
+                  json : true
+                },
+                lineNumbers : true
+              });
+              var paramsCode = CodeMirror.fromTextArea(document
+                  .getElementById('areaParams'), {
+                value : "{}",
+                mode : {
+                  name : "javascript",
+                  json : true
+                },
+                lineNumbers : true
+              });
+              var templateCode = CodeMirror.fromTextArea(document
+                  .getElementById("areaTemplateContent"), {
+                lineNumbers : true,
+                matchBrackets : true,
+                mode : {
+                  name : "handlebars",
+                  base : "text/html"
+                }
+              });
+            </script>
+</body>
+</html>

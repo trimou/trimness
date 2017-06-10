@@ -33,12 +33,15 @@ import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.config.TrimnessKey;
 import org.trimou.trimness.model.ModelProvider;
 import org.trimou.trimness.render.DelegateResultRepository;
-import org.trimou.util.Strings;
+import org.trimou.trimness.util.Strings;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.CorsHandler;
 
 /**
  * The core component which starts CDI container, builds template engine and
@@ -88,7 +91,11 @@ public class TrimnessVerticle extends AbstractVerticle {
                 container.select(TrimouEngine.class).get().setMustacheEngine(engine);
 
                 // Start web server
-                vertx.createHttpServer().requestHandler(weldVerticle.createRouter()::accept).listen(
+                Router router = weldVerticle.createRouter();
+                // TODO only for debug?
+                router.route().order(-1).handler(CorsHandler.create("*").allowedMethod(HttpMethod.POST)
+                        .allowedMethod(HttpMethod.GET).allowedHeader(Strings.HEADER_CONTENT_TYPE));
+                vertx.createHttpServer().requestHandler(router::accept).listen(
                         configuration.getIntegerValue(TrimnessKey.PORT),
                         configuration.getStringValue(TrimnessKey.HOST));
 
@@ -97,7 +104,7 @@ public class TrimnessVerticle extends AbstractVerticle {
                 if (buildProperties != null) {
                     version = buildProperties.getProperty("version");
                 }
-                if (Strings.isEmpty(version)) {
+                if (version == null || version.isEmpty()) {
                     version = "SNAPSHOT";
                 }
 
