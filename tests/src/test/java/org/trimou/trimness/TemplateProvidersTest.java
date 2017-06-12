@@ -11,6 +11,7 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.trimou.trimness.util.Jsons;
 import org.trimou.trimness.util.Strings;
 
 import io.restassured.RestAssured;
@@ -41,7 +42,9 @@ public class TemplateProvidersTest extends TrimnessTest {
     public void testClassPathTemplateRepository() {
         Response response = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
-                .body("{\"templateId\" : \"hello.html\", \"model\" : [ \"me\", \"Lu\", \"foo\" ], \"contentType\":\"text/plain\"}")
+                .body(Jsons.objectBuilder().add("templateId", "hello.html")
+                        .add("model", Jsons.arrayBuilder("me", "Lu", "foo"))
+                        .add("contenType", "text/plain").build().toString())
                 .post("/render");
         response.then().assertThat().statusCode(200).body(equalTo("meLufoo"));
     }
