@@ -23,6 +23,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.json.JsonArray;
 import javax.json.JsonException;
@@ -30,6 +31,8 @@ import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 
+import org.trimou.engine.MustacheEngineBuilder;
+import org.trimou.lambda.Lambda;
 import org.trimou.trimness.model.ModelProvider;
 import org.trimou.trimness.model.ModelRequest;
 import org.trimou.trimness.util.Jsons;
@@ -51,15 +54,13 @@ public class GithubModelProvider implements ModelProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GithubModelProvider.class.getName());
 
-    static final String REPOSITORY = "repo";
+    static final String REPO = "repo";
 
     static final String HOST = "api.github.com";
 
     static final String COMMITS_RESOURCE_PREFIX = "/repos/";
 
     static final String COMMITS_RESOURCE_SUFFIX = "/commits";
-
-    static final String DEFAULT_REPO = "trimou/trimness";
 
     static final String COMMITS = "commits";
 
@@ -75,7 +76,7 @@ public class GithubModelProvider implements ModelProvider {
 
     @Override
     public String getNamespace() {
-        return REPOSITORY;
+        return REPO;
     }
 
     @Override
@@ -86,7 +87,7 @@ public class GithubModelProvider implements ModelProvider {
             return;
         }
 
-        String repository = request.getRenderRequest().getParameters().getString(REPOSITORY, DEFAULT_REPO);
+        String repository = request.getRenderRequest().getParameters().getString(REPO, "trimou/trimness");
 
         LOGGER.info("Handle model request for {0} using thread {1}", repository, Thread.currentThread().getName());
 
@@ -103,7 +104,7 @@ public class GithubModelProvider implements ModelProvider {
                         LOGGER.warn("Unable to parse the response from {0}", uri);
                         json = JsonValue.NULL;
                     }
-                    LOGGER.info("Last commits fetched successfully from {0} in {1} ms", uri, (System.currentTimeMillis() - start));
+                    LOGGER.info("Last commits fetched from {0} in {1} ms", uri, (System.currentTimeMillis() - start));
                     if (request.getRenderRequest().getTemplate().getId().contains("charts")) {
                         // Prepare chart data
                         request.complete(ImmutableMap.builder().put(ID, repository).put("chart", prepareChartData(json)).build());
@@ -120,6 +121,16 @@ public class GithubModelProvider implements ModelProvider {
                 .putHeader("Accept", "application/vnd.github.v3+json")
                 // User-Agent header is required
                 .putHeader("User-Agent", "Trimness-Simple-Example").end();
+    }
+
+    /**
+     * Additional Trimou configuration.
+     *
+     * @param builder
+     */
+    void configureTrimou(@Observes MustacheEngineBuilder builder) {
+        Lambda putInQuotes = (text) -> "\"" + text + "\"";
+        builder.addGlobalData("putInQuotes", putInQuotes);
     }
 
     private Object prepareChartData(JsonValue json) {

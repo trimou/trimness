@@ -33,6 +33,7 @@ import org.trimou.trimness.render.Result;
 import org.trimou.trimness.template.Template;
 
 import javax.json.JsonWriter;
+import javax.json.spi.JsonProvider;
 
 /**
  * To avoid service provider lookup for every {@link Jsons} static method
@@ -42,7 +43,7 @@ import javax.json.JsonWriter;
  */
 public final class Jsons {
 
-    public static final javax.json.spi.JsonProvider INSTANCE = javax.json.spi.JsonProvider.provider();
+    public static final JsonProvider INSTANCE = JsonProvider.provider();
 
     public static final JsonObject EMPTY_OBJECT = objectBuilder().build();
 
