@@ -18,7 +18,7 @@ package org.trimou.trimness.render;
 import org.trimou.trimness.util.WithId;
 
 /**
- * Represents a result of an async template rendering.
+ * Represents a result of a rendering request.
  *
  * @author Martin Kouba
  */

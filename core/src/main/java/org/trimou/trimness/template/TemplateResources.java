@@ -25,6 +25,7 @@ import javax.json.JsonObjectBuilder;
 
 import org.jboss.weld.vertx.web.WebRoute;
 import org.jboss.weld.vertx.web.WebRoute.HandlerType;
+import org.trimou.trimness.util.Jsons;
 import org.trimou.trimness.util.RouteHandlers;
 import org.trimou.trimness.util.Strings;
 
@@ -61,7 +62,7 @@ public class TemplateResources {
                 return;
             }
 
-            JsonObjectBuilder response = RouteHandlers.empty();
+            JsonObjectBuilder response = Jsons.empty();
             response.add(ID, id);
             response.add(Strings.CONTENT, template.getContent());
             if (template.getContentType() != null) {

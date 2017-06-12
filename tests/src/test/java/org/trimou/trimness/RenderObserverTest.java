@@ -21,6 +21,8 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.trimou.trimness.render.RenderObserver;
+import org.trimou.trimness.render.Renderer;
+import org.trimou.trimness.util.Jsons;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.ReplyException;
@@ -38,10 +40,11 @@ public class RenderObserverTest {
     @Deployment
     public static Archive<?> createTestArchive() {
         return TrimnessTest.createDefaultClassPath()
-                .add(ShrinkWrap.create(JavaArchive.class).addAsManifestResource(
-                        new StringAsset(
-                                "{\"foo\":\"bar\"}"),
-                        "global-data.json"))
+                .add(ShrinkWrap.create(JavaArchive.class)
+                        .addAsManifestResource(
+                                new StringAsset(Jsons.objectBuilder()
+                                        .add("foo", "bar").build().toString()),
+                                "global-data.json"))
                 .addSystemProperty(TEMPLATE_DIR.get(),
                         "src/test/resources/templates")
                 .addSystemProperty(GLOBAL_JSON_FILE.get(),
@@ -56,7 +59,10 @@ public class RenderObserverTest {
         Vertx vertx = CDI.current().select(Vertx.class).get();
         BlockingQueue<Object> synchronizer = new LinkedBlockingQueue<>();
         vertx.eventBus().send(RenderObserver.ADDR_RENDER,
-                "{ \"templateContent\" : \"Hello {{model.name}}!\", \"model\" : { \"name\" : \"Lu\"}}",
+                Jsons.objectBuilder()
+                        .add("templateContent", "Hello {{model.name}}!")
+                        .add("model", Jsons.objectBuilder().add("name", "Lu"))
+                        .build().toString(),
                 (result) -> {
                     if (result.succeeded()) {
                         synchronizer.add(result.result().body());
@@ -75,7 +81,9 @@ public class RenderObserverTest {
         Vertx vertx = CDI.current().select(Vertx.class).get();
         BlockingQueue<Object> synchronizer = new LinkedBlockingQueue<>();
         vertx.eventBus().send(RenderObserver.ADDR_RENDER,
-                "{\"templateId\" : \"hello.txt\", \"model\" : [ \"Lu\" ] }}",
+                Jsons.objectBuilder().add("templateId", "hello.txt")
+                        .add("model", Jsons.arrayBuilder("Lu"))
+                        .build().toString(),
                 (result) -> {
                     if (result.succeeded()) {
                         synchronizer.add(result.result().body());
@@ -94,7 +102,9 @@ public class RenderObserverTest {
         Vertx vertx = CDI.current().select(Vertx.class).get();
         BlockingQueue<Object> synchronizer = new LinkedBlockingQueue<>();
         vertx.eventBus().send(RenderObserver.ADDR_RENDER,
-                "{\"templateId\" : \"hello-global-data.txt\", \"model\" : { \"name\":1 }}",
+                Jsons.objectBuilder().add("templateId", "hello-global-data.txt")
+                        .add("model", Jsons.objectBuilder().add("name", 1))
+                        .build().toString(),
                 (result) -> {
                     if (result.succeeded()) {
                         synchronizer.add(result.result().body());
@@ -126,8 +136,7 @@ public class RenderObserverTest {
         assertNotNull(reply);
         assertTrue(reply instanceof ReplyException);
         ReplyException exception = (ReplyException) reply;
-        assertEquals(RenderObserver.CODE_INVALID_INPUT,
-                exception.failureCode());
+        assertEquals(Renderer.ERR_CODE_INVALID_INPUT, exception.failureCode());
         assertEquals(ReplyFailure.RECIPIENT_FAILURE, exception.failureType());
     }
 

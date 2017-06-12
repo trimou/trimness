@@ -26,8 +26,9 @@ import static org.trimou.trimness.util.Strings.RESULT_TYPE;
 import javax.inject.Inject;
 
 import org.jboss.weld.vertx.web.WebRoute;
+import org.trimou.trimness.render.Renderer.ResultType;
+import org.trimou.trimness.util.Jsons;
 import org.trimou.trimness.util.RouteHandlers;
-import org.trimou.trimness.util.RouteHandlers.ResultType;
 
 import io.vertx.core.Handler;
 import io.vertx.core.logging.Logger;
@@ -51,15 +52,14 @@ public class ResultHandlers {
 
             String id = ctx.request().getParam(ID);
             if (id == null) {
-                RouteHandlers.badRequest(ctx, RouteHandlers.message("Result id must be set").build().toString());
+                RouteHandlers.badRequest(ctx, Jsons.message("Result id must be set").build().toString());
                 return;
             }
 
             Result result = resultRepository.get(id);
 
             if (result == null) {
-                RouteHandlers.notFound(ctx,
-                        RouteHandlers.message("Result not found for id: %s", id).build().toString());
+                RouteHandlers.notFound(ctx, Jsons.message("Result not found for id: %s", id).build().toString());
             } else {
                 if (result.getContentType() != null) {
                     ctx.response().putHeader(HEADER_CONTENT_TYPE, result.getContentType());
@@ -75,16 +75,16 @@ public class ResultHandlers {
                 case RAW:
                     if (!result.isComplete()) {
                         RouteHandlers.ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON)
-                                .end(RouteHandlers.message("Result %s not complete yet", id).build().toString());
+                                .end(Jsons.message("Result %s not complete yet", id).build().toString());
                     } else if (result.isFailure()) {
                         RouteHandlers.ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON)
-                                .end(RouteHandlers.message("Result failed: %s", result.getValue()).build().toString());
+                                .end(Jsons.message("Result failed: %s", result.getValue()).build().toString());
                     } else {
                         RouteHandlers.ok(ctx, result.getValue());
                     }
                     break;
                 case METADATA:
-                    RouteHandlers.ok(ctx, RouteHandlers.metadataResult(result));
+                    RouteHandlers.ok(ctx, Jsons.metadataResult(result));
                     break;
                 default:
                     RouteHandlers.badRequest(ctx, "Unsupported result type: " + resultType);
@@ -105,12 +105,11 @@ public class ResultHandlers {
 
             String id = ctx.request().getParam(ID);
             if (id == null) {
-                RouteHandlers.badRequest(ctx, RouteHandlers.message("Result id must be set").build().toString());
+                RouteHandlers.badRequest(ctx, Jsons.message("Result id must be set").build().toString());
             } else if (resultRepository.remove(id)) {
-                RouteHandlers.ok(ctx, RouteHandlers.message("Result %s removed", id).build().toString());
+                RouteHandlers.ok(ctx, Jsons.message("Result %s removed", id).build().toString());
             } else {
-                RouteHandlers.notFound(ctx,
-                        RouteHandlers.message("Result not found for id: %s", id).build().toString());
+                RouteHandlers.notFound(ctx, Jsons.message("Result not found for id: %s", id).build().toString());
             }
         }
 
@@ -129,7 +128,7 @@ public class ResultHandlers {
 
             String linkId = ctx.request().getParam(ID);
             if (linkId == null) {
-                RouteHandlers.badRequest(ctx, RouteHandlers.message("Result link id must be set").build().toString());
+                RouteHandlers.badRequest(ctx, Jsons.message("Result link id must be set").build().toString());
                 return;
             }
 
@@ -141,8 +140,7 @@ public class ResultHandlers {
                 ctx.put(RESULT_TYPE, ctx.request().getParam(RESULT_TYPE));
                 ctx.reroute(path);
             } else {
-                RouteHandlers.notFound(ctx,
-                        RouteHandlers.message("Result link does not exits: %s", linkId).build().toString());
+                RouteHandlers.notFound(ctx, Jsons.message("Result link does not exits: %s", linkId).build().toString());
             }
         }
 
