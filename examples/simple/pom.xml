@@ -43,8 +43,7 @@
                         <transformer
                            implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                      </transformers>
-                     <shadedArtifactAttached>true</shadedArtifactAttached>
-                     <shadedClassifierName>shaded</shadedClassifierName>
+                     <shadedArtifactAttached>false</shadedArtifactAttached>
                      <finalName>trimness-example-simple-shaded</finalName>
                   </configuration>
                </execution>

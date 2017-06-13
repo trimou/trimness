@@ -1,10 +1,11 @@
-package org.trimou.trimness;
+package org.trimou.trimness.test;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.jboss.arquillian.container.se.api.LaunchServices;
+import org.trimou.trimness.TrimnessVerticle;
 
 import io.vertx.core.Vertx;
 

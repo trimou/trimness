@@ -53,7 +53,7 @@
       <version.vertx>3.4.1</version.vertx>
       <version.jandex>2.0.3.Final</version.jandex>
       <version.junit>4.12</version.junit>
-      <version.rest.assured>3.0.1</version.rest.assured>
+      <version.restassured>3.0.1</version.restassured>
       <version.mockito>2.2.7</version.mockito>
       <version.arquillian>1.1.11.Final</version.arquillian>
       <version.arquillian.se.container>1.0.1.Final</version.arquillian.se.container>
@@ -154,7 +154,7 @@
          <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>${version.rest.assured}</version>
+            <version>${version.restassured}</version>
             <scope>test</scope>
          </dependency>
 

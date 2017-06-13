@@ -1,4 +1,4 @@
-package org.trimou.trimness;
+package org.trimou.trimness.test;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;

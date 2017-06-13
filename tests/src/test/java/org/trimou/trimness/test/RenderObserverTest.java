@@ -1,16 +1,19 @@
-package org.trimou.trimness;
+package org.trimou.trimness.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.trimou.trimness.config.TrimnessKey.GLOBAL_JSON_FILE;
 import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;
+import static org.trimou.trimness.test.Timeouts.DEFAULT_TIMEOUT;
+import static org.trimou.trimness.util.Strings.RESULT_ID;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.inject.spi.CDI;
+import javax.json.JsonObject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -20,8 +23,11 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.trimou.trimness.render.DelegateResultRepository;
 import org.trimou.trimness.render.RenderObserver;
 import org.trimou.trimness.render.Renderer;
+import org.trimou.trimness.render.Result;
+import org.trimou.trimness.render.ResultRepository;
 import org.trimou.trimness.util.Jsons;
 
 import io.vertx.core.Vertx;
@@ -34,8 +40,6 @@ import io.vertx.core.eventbus.ReplyFailure;
  */
 @RunWith(Arquillian.class)
 public class RenderObserverTest {
-
-    static final long DEFAULT_TIMEOUT = 5000;
 
     @Deployment
     public static Archive<?> createTestArchive() {
@@ -50,7 +54,7 @@ public class RenderObserverTest {
                 .addSystemProperty(GLOBAL_JSON_FILE.get(),
                         "META-INF/global-data.json")
                 .add(ShrinkWrap.create(JavaArchive.class)
-                        .addClasses(RenderObserverTest.class))
+                        .addClasses(RenderObserverTest.class, Timer.class))
                 .build();
     }
 
@@ -82,8 +86,8 @@ public class RenderObserverTest {
         BlockingQueue<Object> synchronizer = new LinkedBlockingQueue<>();
         vertx.eventBus().send(RenderObserver.ADDR_RENDER,
                 Jsons.objectBuilder().add("templateId", "hello.txt")
-                        .add("model", Jsons.arrayBuilder("Lu"))
-                        .build().toString(),
+                        .add("model", Jsons.arrayBuilder("Lu")).build()
+                        .toString(),
                 (result) -> {
                     if (result.succeeded()) {
                         synchronizer.add(result.result().body());
@@ -138,6 +142,40 @@ public class RenderObserverTest {
         ReplyException exception = (ReplyException) reply;
         assertEquals(Renderer.ERR_CODE_INVALID_INPUT, exception.failureCode());
         assertEquals(ReplyFailure.RECIPIENT_FAILURE, exception.failureType());
+    }
+
+    @Test
+    public void testHelloAsync() throws InterruptedException {
+        Vertx vertx = CDI.current().select(Vertx.class).get();
+        BlockingQueue<Object> synchronizer = new LinkedBlockingQueue<>();
+        vertx.eventBus().send(RenderObserver.ADDR_RENDER,
+                Jsons.objectBuilder().add("templateId", "hello.txt")
+                        .add("model", Jsons.arrayBuilder("Lu"))
+                        .add("async", true).build().toString(),
+                (result) -> {
+                    if (result.succeeded()) {
+                        synchronizer.add(result.result().body());
+                    } else {
+                        synchronizer.add(result.cause());
+                    }
+                });
+        Object reply = synchronizer.poll(DEFAULT_TIMEOUT,
+                TimeUnit.MILLISECONDS);
+        assertNotNull(reply);
+        JsonObject response = Jsons.asJsonObject(reply.toString());
+        String resultId = response.getString(RESULT_ID);
+        ResultRepository resultRepository = CDI.current()
+                .select(DelegateResultRepository.class).get();
+
+        Timer.of(DEFAULT_TIMEOUT).stopIf(() -> {
+            Result result = resultRepository.get(resultId);
+            if (result.isComplete()) {
+                synchronizer.add(result.getValue());
+                return true;
+            }
+            return false;
+        }).countDown();
+        assertEquals("Hello Lu!", synchronizer.poll().toString());
     }
 
 }

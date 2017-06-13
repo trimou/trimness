@@ -1,10 +1,13 @@
-package org.trimou.trimness;
+package org.trimou.trimness.test;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.trimou.trimness.config.TrimnessKey.GLOBAL_JSON_FILE;
 import static org.trimou.trimness.config.TrimnessKey.TEMPLATE_DIR;
+import static org.trimou.trimness.test.Timeouts.DEFAULT_TIMEOUT;
+import static org.trimou.trimness.util.Strings.RESULT;
 import static org.trimou.trimness.util.Strings.RESULT_ID;
+import static org.trimou.trimness.util.Strings.STATUS;
 import static org.trimou.trimness.util.Strings.TEMPLATE_ID;
 import static org.trimou.trimness.util.Strings.VALUE;
 
@@ -20,10 +23,12 @@ import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.trimou.exception.MustacheProblem;
+import org.trimou.trimness.render.Result;
 import org.trimou.trimness.util.Jsons;
 import org.trimou.trimness.util.Strings;
 
 import io.restassured.RestAssured;
+import io.restassured.response.Response;
 
 /**
  *
@@ -45,7 +50,8 @@ public class RenderHandlerTest extends TrimnessTest {
     }
 
     @Rule
-    public Timeout globalTimeout = Timeout.millis(5000);
+    public Timeout globalTimeout = Timeout
+            .millis(Timeouts.DEFAULT_GLOBAL_TIMEOUT);
 
     @RunAsClient
     @Test
@@ -125,7 +131,7 @@ public class RenderHandlerTest extends TrimnessTest {
 
     @RunAsClient
     @Test
-    public void testOnetimeAsync() {
+    public void testOnetimeAsync() throws InterruptedException {
         String resultId = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body(Jsons.objectBuilder().add("async", true)
@@ -135,6 +141,9 @@ public class RenderHandlerTest extends TrimnessTest {
                         .build().toString())
                 .post("/render").then().assertThat().statusCode(200).extract()
                 .path(RESULT_ID);
+
+        assertResultSuccess(resultId);
+
         RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .get("/result/" + resultId + "?resultType=raw").then()
@@ -144,7 +153,7 @@ public class RenderHandlerTest extends TrimnessTest {
 
     @RunAsClient
     @Test
-    public void testAsync() {
+    public void testAsync() throws InterruptedException {
         String resultId = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body(Jsons.objectBuilder().add("async", true)
@@ -154,6 +163,8 @@ public class RenderHandlerTest extends TrimnessTest {
                 .post("/render").then().assertThat().statusCode(200)
                 .header(Strings.HEADER_CONTENT_TYPE, is(Strings.APP_JSON))
                 .extract().path(RESULT_ID);
+
+        assertResultSuccess(resultId);
 
         RestAssured.given().get("/result/" + resultId + "?resultType=raw")
                 .then().assertThat().statusCode(200)
@@ -168,7 +179,7 @@ public class RenderHandlerTest extends TrimnessTest {
 
     @RunAsClient
     @Test
-    public void testOnetimeAsyncFailure() {
+    public void testOnetimeAsyncFailure() throws InterruptedException {
         String resultId = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body(Jsons.objectBuilder().add("async", true)
@@ -177,6 +188,8 @@ public class RenderHandlerTest extends TrimnessTest {
                         .build().toString())
                 .post("/render").then().assertThat().statusCode(200).extract()
                 .path(RESULT_ID);
+
+        assertResult(resultId, Result.Status.FAILURE.toString());
 
         RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
@@ -189,15 +202,19 @@ public class RenderHandlerTest extends TrimnessTest {
 
     @RunAsClient
     @Test
-    public void testLinkAsync() {
-        RestAssured.given()
+    public void testLinkAsync() throws InterruptedException {
+        String resultId = RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .body(Jsons.objectBuilder().add("async", true)
                         .add("templateContent",
                                 "Hello {{#each model}}{{this}}{{#hasNext}}, {{/hasNext}}{{/each}}!")
                         .add("model", Jsons.arrayBuilder("me", "Lu", "foo"))
                         .add("linkId", "test-link").build().toString())
-                .post("/render").then().assertThat().statusCode(200);
+                .post("/render").then().assertThat().statusCode(200).extract()
+                .path(RESULT_ID);
+
+        assertResultSuccess(resultId);
+
         RestAssured.given()
                 .header(Strings.HEADER_CONTENT_TYPE, Strings.APP_JSON)
                 .get("/result/link/test-link?resultType=raw").then()
@@ -216,6 +233,26 @@ public class RenderHandlerTest extends TrimnessTest {
                         .add("model", Jsons.arrayBuilder("me", "Lu", "foo"))
                         .add("linkId", "test link").build().toString())
                 .post("/render").then().assertThat().statusCode(400);
+    }
+
+    private void assertResultSuccess(String resultId)
+            throws InterruptedException {
+        assertResult(resultId, Result.Status.SUCESS.toString());
+    }
+
+    private void assertResult(String resultId, String status)
+            throws InterruptedException {
+        Timer.of(DEFAULT_TIMEOUT).stopIf(() -> {
+            Response response = RestAssured.given()
+                    .get("/result/" + resultId + "?resultType=metadata");
+            if (response.getStatusCode() == 200
+                    && Jsons.asJsonObject(response.getBody().asString())
+                            .getJsonObject(RESULT).getString(STATUS, "")
+                            .equalsIgnoreCase(status)) {
+                return true;
+            }
+            return false;
+        }).setFailIfElapsed(true).countDown();
     }
 
 }

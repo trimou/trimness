@@ -1,4 +1,4 @@
-package org.trimou.trimness;
+package org.trimou.trimness.test;
 
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.IsEqual.equalTo;

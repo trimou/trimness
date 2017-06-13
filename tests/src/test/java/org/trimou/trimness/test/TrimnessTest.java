@@ -1,4 +1,4 @@
-package org.trimou.trimness;
+package org.trimou.trimness.test;
 
 import org.jboss.arquillian.container.se.api.ClassPath;
 import org.jboss.arquillian.container.se.api.LaunchServices;
