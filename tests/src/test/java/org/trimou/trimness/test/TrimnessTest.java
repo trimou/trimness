@@ -16,7 +16,7 @@ public abstract class TrimnessTest {
     static ClassPath.Builder createDefaultClassPath() {
         return ClassPath.builder()
                 .add(ShrinkWrap.create(JavaArchive.class)
-                        .addClasses(TrimnessLaunchServices.class))
+                        .addClasses(TrimnessLaunchServices.class, Timeouts.class))
                 .addSystemProperty(
                         LaunchServices.SYSTEM_PROPERTY_LAUNCH_SERVICES_CLASS,
                         TrimnessLaunchServices.class.getName())
