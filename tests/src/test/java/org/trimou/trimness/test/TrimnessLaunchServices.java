@@ -11,8 +11,6 @@ import io.vertx.core.Vertx;
 
 public class TrimnessLaunchServices extends LaunchServices {
 
-    private static final int TIMEOUT = 5;
-
     private Vertx vertx;
 
     @Override
@@ -27,11 +25,11 @@ public class TrimnessLaunchServices extends LaunchServices {
             }
         });
         try {
-            Object result = synchronizer.poll(TIMEOUT, TimeUnit.SECONDS);
+            Object result = synchronizer.poll(Timeouts.DEFAULT_GLOBAL_TIMEOUT, TimeUnit.MILLISECONDS);
             if (result == null) {
                 throw new IllegalStateException(
-                        "Trimness verticle not started within " + TIMEOUT
-                                + " seconds");
+                        "Trimness verticle not started within " + Timeouts.DEFAULT_GLOBAL_TIMEOUT
+                                + " ms");
             }
             if (result instanceof Throwable) {
                 throw new IllegalStateException((Throwable) result);
