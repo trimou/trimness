@@ -159,6 +159,7 @@
       <script>
               var counter = 0;
               var urlBase = "http://localhost:8080";
+              // For testing and development purposes
               // var urlBase = "http://{{meta.config.host}}:{{meta.config.port}}";
 
               function buildData() {
@@ -183,7 +184,7 @@
                             data.templateId = field.value;
                           } else if (field.name == "inputTimeout"
                               && field.value) {
-                            data.timeout = field.value;
+                            data.timeout = parseInt(field.value);
                           } else if (field.name == "inputLink" && field.value) {
                             data.linkId = field.value;
                           }

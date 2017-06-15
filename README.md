@@ -1,21 +1,31 @@
 # Trimness
 
-[![Travis CI Build Status](https://img.shields.io/travis/trimou/trimness/master.svg)](https://travis-ci.org/trimou/trimness)
-[![License](https://img.shields.io/badge/license-Apache%20License%202.0-yellow.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+![Travis CI Build Status](https://img.shields.io/travis/trimou/trimness/master.svg)](https://travis-ci.org/trimou/trimness)
+![License](https://img.shields.io/badge/license-Apache%20License%202.0-yellow.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
-Trimness aims to be an extensible tool to build a lightweight service for rendering templates (i.e. a simple reporting application).
-It's built on many open source projects.
-The fundamental ones are:
-
-* [Trimou](http://trimou.org/) - mustache/handlebars-like templating engine
-* [Weld](http://weld.cdi-spec.org) - component model, extensibility
-* [Vert.x](http://vertx.io) - web server, routing, event bus
+Trimness aims to be an extensible tool to build a **lightweight service for rendering templates** (e.g. a **simple reporting application**).
+It's built on several open source projects.
+The fundamental ones are [Trimou](http://trimou.org/) (mustache/handlebars-like templating engine), [Weld](http://weld.cdi-spec.org) (component model, extensibility) and [Vert.x](http://vertx.io) (web server, routing, event bus).
 
 ## Get started
 
-Trimness is not yet in Maven central so you'll have to build it locally first:
+Trimness is not in Maven central yet so you'll have to build it locally first:
 
-> $ mvn clean install
+```bash
+$ git clone git@github.com:trimou/trimness.git
+$ mvn clean install
+```
+
+The best place to start is probably the [simple example](https://github.com/trimou/trimness/tree/master/examples/simple).
+To run an executable shaded/fat jar just type:
+
+```bash
+$ java -jar examples/simple/target/trimness-example-simple-shaded.jar
+```
+
+A simple UI with test form is located at `localhost:8080/test`.
+Insert `commits-list.html` in template id field and hit render button.
+You should get a link to a result - HTML page with list of last commits from this repository.
 
 ## How does it work?
 
@@ -29,12 +39,12 @@ There are two ways to send a "render request".
 
 | HTTP method | Path          | Consumes | Description |
 |------------|---------------|--------------|--------------|
-| POST | /render | application/json | Render request |
-| GET | /result/{resultId} | - | Get the result of an async render request |
-| DELETE | /result/{resultId} | - | Remove the result of an async render request |
+| POST | /render | application/json | Send sync/async render request |
+| GET | /result/{resultId} | - | Get the result of a render request |
+| DELETE | /result/{resultId} | - | Remove the result of a render request |
 | GET | /result/link/{linkId} | - | Get the result for the specified link |
 | GET | /monitor/health | - | Simple health-check resource |
-| GET | /template/{id} | - | Attempts to find the template with the given id |
+| GET | /template/{id} | - | Attempt to find the template with the given id |
 
 #### HTTP endpoints basics
 
@@ -105,7 +115,7 @@ In this case, the reply would be:
 
 A Vert.x message consumer is automatically registered for address `org.trimou.trimness.render`.
 The consumer replies to the message with the result of rendering request.
-The message payload should be the same as for the `/render` HTTP endpoint, except that `async` option is ignored.
+The message payload should be the same as for the `/render` HTTP endpoint.
 
 ### Template providers
 
