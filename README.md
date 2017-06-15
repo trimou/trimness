@@ -1,7 +1,7 @@
 # Trimness
 
-![Travis CI Build Status](https://img.shields.io/travis/trimou/trimness/master.svg)](https://travis-ci.org/trimou/trimness)
-![License](https://img.shields.io/badge/license-Apache%20License%202.0-yellow.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![Travis CI Build Status](https://img.shields.io/travis/trimou/trimness/master.svg)](https://travis-ci.org/trimou/trimness)
+[![License](https://img.shields.io/badge/license-Apache%20License%202.0-yellow.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 Trimness aims to be an extensible tool to build a **lightweight service for rendering templates** (e.g. a **simple reporting application**).
 It's built on several open source projects.
