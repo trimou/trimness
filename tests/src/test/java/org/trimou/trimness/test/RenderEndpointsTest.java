@@ -35,7 +35,7 @@ import io.restassured.response.Response;
  * @author Martin Kouba
  */
 @RunWith(Arquillian.class)
-public class RenderHandlerTest extends TrimnessTest {
+public class RenderEndpointsTest extends TrimnessTest {
 
     @Deployment
     public static Archive<?> createTestArchive() {
@@ -45,7 +45,7 @@ public class RenderHandlerTest extends TrimnessTest {
                 .addSystemProperty(GLOBAL_JSON_FILE.get(),
                         "src/test/resources/global-data.json")
                 .add(ShrinkWrap.create(JavaArchive.class)
-                        .addClasses(RenderHandlerTest.class))
+                        .addClasses(RenderEndpointsTest.class))
                 .build();
     }
 

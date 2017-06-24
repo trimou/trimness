@@ -17,6 +17,7 @@ package org.trimou.trimness.render;
 
 import static org.trimou.trimness.config.TrimnessKey.RESULT_TIMEOUT;
 import static org.trimou.trimness.util.Strings.APP_JSON;
+import static org.trimou.trimness.util.Strings.APP_JSON_UTF8;
 import static org.trimou.trimness.util.Strings.ASYNC;
 import static org.trimou.trimness.util.Strings.CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.LINK_ID;
@@ -62,14 +63,9 @@ import io.vertx.core.logging.LoggerFactory;
  * @author Martin Kouba
  */
 @ApplicationScoped
-public class Renderer {
+public class RenderLogic {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RenderHandler.class.getName());
-
-    public static final int ERR_CODE_INVALID_INPUT = 1;
-    public static final int ERR_CODE_TEMPLATE_NOT_FOUND = 2;
-    public static final int ERR_CODE_COMPILATION_ERROR = 4;
-    public static final int ERR_CODE_RENDER_ERROR = 5;
 
     @Inject
     private TemplateCache templateCache;
@@ -106,15 +102,15 @@ public class Renderer {
         try {
             input = Jsons.asJsonObject(inputJson);
         } catch (JsonParsingException e) {
-            errorConsumer.accept(ERR_CODE_INVALID_INPUT, "Malformed JSON input:" + e.getMessage());
+            errorConsumer.accept(Codes.CODE_INVALID_INPUT, "Malformed JSON input:" + e.getMessage());
             return;
         }
         if (input == null) {
-            errorConsumer.accept(ERR_CODE_INVALID_INPUT, "Input must be JSON object");
+            errorConsumer.accept(Codes.CODE_INVALID_INPUT, "Input must be JSON object");
             return;
         }
         if (!input.containsKey(TEMPLATE_ID) && !input.containsKey(TEMPLATE_CONTENT)) {
-            errorConsumer.accept(ERR_CODE_INVALID_INPUT, "Template id or content must be set");
+            errorConsumer.accept(Codes.CODE_INVALID_INPUT, "Template id or content must be set");
             return;
         }
         if (isAsync(input)) {
@@ -138,12 +134,12 @@ public class Renderer {
             }
 
             if (template == null) {
-                errorConsumer.accept(ERR_CODE_TEMPLATE_NOT_FOUND, "Template not found: " + templateId);
+                errorConsumer.accept(Codes.CODE_TEMPLATE_NOT_FOUND, "Template not found: " + templateId);
                 return;
             }
             mustache = engine.getMustache(template.getId());
             if (mustache == null) {
-                errorConsumer.accept(ERR_CODE_TEMPLATE_NOT_FOUND, "Template not found in engine: " + templateId);
+                errorConsumer.accept(Codes.CODE_TEMPLATE_NOT_FOUND, "Template not found in engine: " + templateId);
                 return;
             }
         } else {
@@ -155,7 +151,7 @@ public class Renderer {
                 mustache = engine.compileMustache(template.getId(), content);
             } catch (MustacheException e) {
                 // Handle possible compilation problems
-                errorConsumer.accept(ERR_CODE_COMPILATION_ERROR, "Template compilation failed: " + e.getMessage());
+                errorConsumer.accept(Codes.CODE_COMPILATION_ERROR, "Template compilation failed: " + e.getMessage());
                 return;
             }
         }
@@ -168,7 +164,7 @@ public class Renderer {
                 // We need to store the result of sync rendering
                 String linkId = input.getString(LINK_ID, null);
                 if (linkId != null && !Strings.matchesLinkPattern(linkId)) {
-                    errorConsumer.accept(ERR_CODE_INVALID_INPUT, "Link id does not match " + Strings.LINK_PATTERN);
+                    errorConsumer.accept(Codes.CODE_INVALID_INPUT, "Link id does not match " + Strings.LINK_PATTERN);
                     return;
                 }
                 renderRequest = new SimpleRenderRequest(template, initTimeout(input), linkId, initParams(input));
@@ -190,7 +186,7 @@ public class Renderer {
             case METADATA:
                 resultConsumer.accept(
                         result != null ? Jsons.metadataResult(result) : Jsons.metadataResult(template, resultOutput),
-                        APP_JSON);
+                        APP_JSON_UTF8);
                 break;
             default:
                 throw new IllegalStateException("Unsupported result type: " + resultType);
@@ -202,7 +198,7 @@ public class Renderer {
             }
             String msg = "Error rendering template " + template.getId() + ": ";
             LOGGER.error(msg, e);
-            errorConsumer.accept(ERR_CODE_RENDER_ERROR, msg + e.getMessage());
+            errorConsumer.accept(Codes.CODE_RENDER_ERROR, msg + e.getMessage());
         }
     }
 
@@ -216,7 +212,7 @@ public class Renderer {
             templateId = input.getString(TEMPLATE_ID, null);
             template = templateId != null ? templateCache.get(templateId) : null;
             if (template == null) {
-                errorConsumer.accept(ERR_CODE_TEMPLATE_NOT_FOUND, "Template not found: " + templateId);
+                errorConsumer.accept(Codes.CODE_TEMPLATE_NOT_FOUND, "Template not found: " + templateId);
                 return;
             }
         } else {
@@ -226,7 +222,7 @@ public class Renderer {
 
         String linkId = input.getString(LINK_ID, null);
         if (linkId != null && !Strings.matchesLinkPattern(linkId)) {
-            errorConsumer.accept(ERR_CODE_INVALID_INPUT, "Link id does not match " + Strings.LINK_PATTERN);
+            errorConsumer.accept(Codes.CODE_INVALID_INPUT, "Link id does not match " + Strings.LINK_PATTERN);
             return;
         }
 

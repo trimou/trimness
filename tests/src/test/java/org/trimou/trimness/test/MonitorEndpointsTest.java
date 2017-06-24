@@ -30,13 +30,13 @@ import io.restassured.response.Response;
  *
  */
 @RunWith(Arquillian.class)
-public class MonitorResourcesTest extends TrimnessTest {
+public class MonitorEndpointsTest extends TrimnessTest {
 
     @Deployment
     public static Archive<?> createTestArchive() {
         return TrimnessTest.createDefaultClassPath()
                 .add(ShrinkWrap.create(JavaArchive.class)
-                        .addClasses(MonitorResourcesTest.class))
+                        .addClasses(MonitorEndpointsTest.class))
                 .build();
     }
 

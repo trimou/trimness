@@ -23,7 +23,7 @@ import io.restassured.response.Response;
  *
  */
 @RunWith(Arquillian.class)
-public class TemplateResourcesTest extends TrimnessTest {
+public class TemplateEndpointsTest extends TrimnessTest {
 
     @Deployment
     public static Archive<?> createTestArchive() {
@@ -31,7 +31,7 @@ public class TemplateResourcesTest extends TrimnessTest {
                 .addSystemProperty(TEMPLATE_DIR.get(),
                         "src/test/resources/templates")
                 .add(ShrinkWrap.create(JavaArchive.class)
-                        .addClasses(TemplateResourcesTest.class))
+                        .addClasses(TemplateEndpointsTest.class))
                 .build();
     }
 

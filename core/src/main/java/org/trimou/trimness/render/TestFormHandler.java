@@ -40,7 +40,7 @@ public class TestFormHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext ctx) {
-        vertx.eventBus().send(RenderObserver.ADDR_RENDER, "{ \"templateId\" : \"trimness:test.html\" }", (result) -> {
+        vertx.eventBus().send(Consumers.ADDR_RENDER, "{ \"templateId\" : \"trimness:test.html\" }", (result) -> {
             if (result.succeeded()) {
                 RouteHandlers.ok(ctx).putHeader(HEADER_CONTENT_TYPE, TEXT_HTML).end(result.result().body().toString());
             } else {

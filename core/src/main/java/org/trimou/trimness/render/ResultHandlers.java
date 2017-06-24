@@ -18,7 +18,6 @@ package org.trimou.trimness.render;
 import static io.vertx.core.http.HttpMethod.DELETE;
 import static io.vertx.core.http.HttpMethod.GET;
 import static org.jboss.weld.vertx.web.WebRoute.HandlerType.BLOCKING;
-import static org.trimou.trimness.util.Strings.APP_JSON;
 import static org.trimou.trimness.util.Strings.HEADER_CONTENT_TYPE;
 import static org.trimou.trimness.util.Strings.ID;
 import static org.trimou.trimness.util.Strings.RESULT_TYPE;
@@ -26,11 +25,11 @@ import static org.trimou.trimness.util.Strings.RESULT_TYPE;
 import javax.inject.Inject;
 
 import org.jboss.weld.vertx.web.WebRoute;
-import org.trimou.trimness.render.Renderer.ResultType;
 import org.trimou.trimness.util.Jsons;
 import org.trimou.trimness.util.RouteHandlers;
 
 import io.vertx.core.Handler;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.RoutingContext;
@@ -45,51 +44,34 @@ public class ResultHandlers {
     public static class GetHandler implements Handler<RoutingContext> {
 
         @Inject
-        private DelegateResultRepository resultRepository;
+        private ResultLogic resultLogic;
 
         @Override
         public void handle(RoutingContext ctx) {
 
-            String id = ctx.request().getParam(ID);
-            if (id == null) {
-                RouteHandlers.badRequest(ctx, Jsons.message("Result id must be set").build().toString());
-                return;
+            String resultTypeParam = ctx.request().getParam(RESULT_TYPE);
+            if (resultTypeParam == null) {
+                resultTypeParam = ctx.get(RESULT_TYPE);
             }
-
-            Result result = resultRepository.get(id);
-
-            if (result == null) {
-                RouteHandlers.notFound(ctx, Jsons.message("Result not found for id: %s", id).build().toString());
-            } else {
-                if (result.getContentType() != null) {
-                    ctx.response().putHeader(HEADER_CONTENT_TYPE, result.getContentType());
+            resultLogic.get(ctx.request().getParam(ID), resultTypeParam, (result, contentType) -> {
+                HttpServerResponse response = RouteHandlers.ok(ctx);
+                if (contentType != null) {
+                    response.putHeader(HEADER_CONTENT_TYPE, contentType);
                 }
-
-                String resultTypeParam = ctx.request().getParam(RESULT_TYPE);
-                if (resultTypeParam == null) {
-                    resultTypeParam = ctx.get(RESULT_TYPE);
-                }
-                ResultType resultType = ResultType.of(resultTypeParam);
-
-                switch (resultType) {
-                case RAW:
-                    if (!result.isComplete()) {
-                        RouteHandlers.ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON)
-                                .end(Jsons.message("Result %s not complete yet", id).build().toString());
-                    } else if (result.isFailure()) {
-                        RouteHandlers.ok(ctx).putHeader(HEADER_CONTENT_TYPE, APP_JSON)
-                                .end(Jsons.message("Result failed: %s", result.getValue()).build().toString());
-                    } else {
-                        RouteHandlers.ok(ctx, result.getValue());
-                    }
+                response.end(result);
+            }, (code, message) -> {
+                switch (code) {
+                case Codes.CODE_ID_NOT_SET:
+                case Codes.CODE_INVALID_RESULT_TYPE:
+                    RouteHandlers.badRequest(ctx, Jsons.message(message).build().toString());
                     break;
-                case METADATA:
-                    RouteHandlers.ok(ctx, Jsons.metadataResult(result));
+                case Codes.CODE_NOT_FOUND:
+                    RouteHandlers.notFound(ctx, message);
                     break;
                 default:
-                    RouteHandlers.badRequest(ctx, "Unsupported result type: " + resultType);
+                    RouteHandlers.internalServerError(ctx, message);
                 }
-            }
+            });
         }
 
     }
@@ -98,19 +80,28 @@ public class ResultHandlers {
     public static class RemoveHandler implements Handler<RoutingContext> {
 
         @Inject
-        private DelegateResultRepository resultRepository;
+        private ResultLogic resultLogic;
 
         @Override
         public void handle(RoutingContext ctx) {
-
-            String id = ctx.request().getParam(ID);
-            if (id == null) {
-                RouteHandlers.badRequest(ctx, Jsons.message("Result id must be set").build().toString());
-            } else if (resultRepository.remove(id)) {
-                RouteHandlers.ok(ctx, Jsons.message("Result %s removed", id).build().toString());
-            } else {
-                RouteHandlers.notFound(ctx, Jsons.message("Result not found for id: %s", id).build().toString());
-            }
+            resultLogic.remove(ctx.request().getParam(ID), (result, contentType) -> {
+                HttpServerResponse response = RouteHandlers.ok(ctx);
+                if (contentType != null) {
+                    response.putHeader(HEADER_CONTENT_TYPE, contentType);
+                }
+                response.end(result);
+            }, (code, message) -> {
+                switch (code) {
+                case Codes.CODE_ID_NOT_SET:
+                    RouteHandlers.badRequest(ctx, Jsons.message(message).build().toString());
+                    break;
+                case Codes.CODE_NOT_FOUND:
+                    RouteHandlers.notFound(ctx, message);
+                    break;
+                default:
+                    RouteHandlers.internalServerError(ctx, message);
+                }
+            });
         }
 
     }
@@ -121,27 +112,28 @@ public class ResultHandlers {
         private static final Logger LOGGER = LoggerFactory.getLogger(GetLinkHandler.class);
 
         @Inject
-        private DelegateResultRepository resultRepository;
+        private ResultLogic resultLogic;
 
         @Override
         public void handle(RoutingContext ctx) {
 
-            String linkId = ctx.request().getParam(ID);
-            if (linkId == null) {
-                RouteHandlers.badRequest(ctx, Jsons.message("Result link id must be set").build().toString());
-                return;
-            }
-
-            ResultLink link = resultRepository.getLink(linkId);
-
-            if (link != null) {
+            resultLogic.getLink(ctx.request().getParam(ID), (link) -> {
                 String path = "/result/" + link.getResultId();
                 LOGGER.info("Result link {0} found reroute to {1}", link, path);
                 ctx.put(RESULT_TYPE, ctx.request().getParam(RESULT_TYPE));
                 ctx.reroute(path);
-            } else {
-                RouteHandlers.notFound(ctx, Jsons.message("Result link does not exits: %s", linkId).build().toString());
-            }
+            }, (code, message) -> {
+                switch (code) {
+                case Codes.CODE_ID_NOT_SET:
+                    RouteHandlers.badRequest(ctx, Jsons.message(message).build().toString());
+                    break;
+                case Codes.CODE_NOT_FOUND:
+                    RouteHandlers.notFound(ctx, message);
+                    break;
+                default:
+                    RouteHandlers.internalServerError(ctx, message);
+                }
+            });
         }
 
     }

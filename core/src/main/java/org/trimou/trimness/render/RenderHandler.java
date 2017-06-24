@@ -38,11 +38,11 @@ import io.vertx.ext.web.RoutingContext;
 public class RenderHandler implements Handler<RoutingContext> {
 
     @Inject
-    private Renderer renderer;
+    private RenderLogic renderLogic;
 
     @Override
     public void handle(RoutingContext ctx) {
-        renderer.render(ctx.getBodyAsString(), (result, contentType) -> {
+        renderLogic.render(ctx.getBodyAsString(), (result, contentType) -> {
             HttpServerResponse response = RouteHandlers.ok(ctx);
             if (contentType != null) {
                 response.putHeader(HEADER_CONTENT_TYPE, contentType);
@@ -50,18 +50,16 @@ public class RenderHandler implements Handler<RoutingContext> {
             response.end(result);
         }, (code, message) -> {
             switch (code) {
-            case Renderer.ERR_CODE_TEMPLATE_NOT_FOUND:
+            case Codes.CODE_TEMPLATE_NOT_FOUND:
                 RouteHandlers.notFound(ctx, message);
                 break;
-            case Renderer.ERR_CODE_INVALID_INPUT:
+            case Codes.CODE_INVALID_INPUT:
                 RouteHandlers.badRequest(ctx, message);
                 break;
-            case Renderer.ERR_CODE_COMPILATION_ERROR:
-            case Renderer.ERR_CODE_RENDER_ERROR:
-                RouteHandlers.internalServerError(ctx, message);
-                break;
+            case Codes.CODE_COMPILATION_ERROR:
+            case Codes.CODE_RENDER_ERROR:
             default:
-                break;
+                RouteHandlers.internalServerError(ctx, message);
             }
         });
     }
