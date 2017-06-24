@@ -117,7 +117,7 @@ Vert.x message consumers are automatically registered for addresses listed below
 The message/reply payload is always JSON and follows the contract used for HTTP endpoints (where possible).
 
 | Address | Description |
-|------------|---------------|--------------|--------------|
+|------------|--------------|
 | `org.trimou.trimness.render` | Sync/async render request |
 | `org.trimou.trimness.result` | Get the result of a render request |
 | `org.trimou.trimness.result.remove` | Remove the result of a render request |
