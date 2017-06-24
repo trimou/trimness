@@ -46,7 +46,7 @@ There are two ways to send a "render request".
 | GET | /monitor/health | - | Simple health-check resource |
 | GET | /template/{id} | - | Attempt to find the template with the given id |
 
-#### HTTP endpoints basics
+#### Basics
 
 Let's use `curl` to perform a very simple render request:
 
@@ -59,7 +59,7 @@ Let's analyze the request payload.
 `content` property is used to specify the template for one-off rendering (TIP: it's much better to leverage the template providers and template cache - see below).
 `model` property holds the data used during rendering (TIP: model is not the only source of data - see model providers below).
 
-##### Asynchronous render requests
+#### Asynchronous render requests
 
 By default, the request is synchronous which means that the client is waiting for the rendered output.
 If we change the payload to:
@@ -84,7 +84,7 @@ curl http://localhost:8080/result/1495185748798
 
 And the reply should be again `Hello Foo!`.
 
-##### Result links
+#### Result links
 
 Sometimes it might be useful to specify a more memorable link that could be used instead of the result id:
 
@@ -97,7 +97,7 @@ Sometimes it might be useful to specify a more memorable link that could be used
 curl http://localhost:8080/result/link/foo-1
 ```
 
-##### Result metadata
+#### Result metadata
 
 We can also specify the result type:
 
@@ -113,26 +113,48 @@ In this case, the reply would be:
 
 ### Vert.x Event Bus
 
-A Vert.x message consumer is automatically registered for address `org.trimou.trimness.render`.
-The consumer replies to the message with the result of rendering request.
-The message payload should be the same as for the `/render` HTTP endpoint.
+Vert.x message consumers are automatically registered for addresses listed below.
+The message/reply payload is always JSON and follows the contract used for HTTP endpoints (where possible).
 
-### Template providers
+| Address | Description |
+|------------|---------------|--------------|--------------|
+| `org.trimou.trimness.render` | Sync/async render request |
+| `org.trimou.trimness.result` | Get the result of a render request |
+| `org.trimou.trimness.result.remove` | Remove the result of a render request |
+| `org.trimou.trimness.result.link` | Get the result for the specified link |
 
-TODO
+## Extension points
 
-### Model providers
+### Template provider
 
-TODO
+The template provider is responsible for looking up and loading contents of the templates.
+There might be several template providers installed.
+Providers with higher priority are queried first.
+There are two built-in template providers available.
+`FileSystemTemplateProvider` which loads templates from the local filesystem.
+And `ClassPathTemplateProvider` which loads templates from the class path.
+
+### Model provider
+
+Provides data models for templates.
+The model can be used in templates - the result set via `ModelRequest#complete(Object)` is accessible under the namespace key (defined by `getNamespace()`).
+If a model request is not processed within `TrimnessKey#MODEL_INIT_TIMEOUT` the potential result is ignored afterwards.
+A simple example is the [GithubModelProvider](https://github.com/trimou/trimness/blob/master/examples/simple/src/main/java/org/trimou/trimness/example/simple/GithubModelProvider.java).
+This model provider fetches info about repository commits using `api.github.com` which is later used in [the template](https://github.com/trimou/trimness/blob/master/examples/simple/src/main/resources/META-INF/templates/commits-list.html#L15).
+There is one built-in model provider - `GlobalJsonModelProvider` which attempts to read a JSON file from the class path or the filesystem and if it exists and can be read, then provide all the data found to all templates.
 
 ### Result repository
 
-TODO
+This component is used to store the results of render requests.
+A valid repository with the highest priority is used.
+By default, `InMemoryResultRepository` is used.
 
-### Configuration
+## Configuration
 
-TODO
+Trimness can be configured through system properties, environment variables and `trimness.properties` file.
+The built-in options are listed in an enum: https://github.com/trimou/trimness/blob/master/core/src/main/java/org/trimou/trimness/config/TrimnessKey.java.
 
-### Packaging and Deployment
+## Packaging and deployment
 
-TODO
+Trimness is not meant to be deployed to a container (such as Java EE).
+Instead, add `trimness-core.jar` and its dependencies to the class path of your application or use `maven-shade-plugin` to build a fat jar, see for example: https://github.com/trimou/trimness/blob/master/examples/simple/pom.xml#L25.
