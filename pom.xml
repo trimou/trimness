@@ -47,10 +47,10 @@
       <build.timestamp>${maven.build.timestamp}</build.timestamp>
       <!-- Versions -->
       <version.trimou>2.2.0.Final</version.trimou>
-      <version.weld>2.4.3.Final</version.weld>
-      <version.weld-vertx>1.0.0.CR6</version.weld-vertx>
+      <version.weld>3.0.0.Final</version.weld>
+      <version.weld-vertx>1.0.0.Final</version.weld-vertx>
       <version.weld-junit>1.1.0.Final</version.weld-junit>
-      <version.vertx>3.4.1</version.vertx>
+      <version.vertx>3.4.2</version.vertx>
       <version.jandex>2.0.3.Final</version.jandex>
       <version.junit>4.12</version.junit>
       <version.restassured>3.0.1</version.restassured>
