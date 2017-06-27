@@ -92,7 +92,7 @@ public class TrimnessVerticle extends AbstractVerticle {
 
                 // Start web server
                 Router router = weldVerticle.createRouter();
-                // TODO only for debug?
+                // Setup CORS handler
                 router.route().order(-1).handler(CorsHandler.create("*").allowedMethod(HttpMethod.POST)
                         .allowedMethod(HttpMethod.GET).allowedHeader(Strings.HEADER_CONTENT_TYPE));
                 vertx.createHttpServer().requestHandler(router::accept).listen(

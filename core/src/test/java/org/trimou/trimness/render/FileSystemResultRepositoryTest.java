@@ -30,7 +30,8 @@ public class FileSystemResultRepositoryTest {
 
     @Rule
     public WeldInitiator weld = WeldInitiator.of(FileSystemResultRepository.class, IdGenerator.class,
-            MockVertxProducer.class, DummyConfiguration.class);
+            InMemoryResultRepository.class, DelegateResultRepository.class, MockVertxProducer.class,
+            DummyConfiguration.class);
 
     @Before
     public void init() throws IOException {
@@ -90,6 +91,13 @@ public class FileSystemResultRepositoryTest {
         ResultLink link = repository.getLink("test");
         assertNotNull(link);
         assertEquals("hello", repository.get(link.getResultId()).getValue());
+    }
+
+    @Test
+    public void testPriority() {
+        DelegateResultRepository repository = weld.select(DelegateResultRepository.class).get();
+        assertEquals(2, repository.getComponents().size());
+        assertTrue(repository.getComponents().get(0) instanceof FileSystemResultRepository);
     }
 
 }

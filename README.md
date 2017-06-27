@@ -148,6 +148,8 @@ There is one built-in model provider - `GlobalJsonModelProvider` which attempts 
 This component is used to store the results of render requests.
 A valid repository with the highest priority is used.
 By default, `InMemoryResultRepository` is used.
+If `org.trimou.trimness.resultDir` property is set and represents a valid directory path then `FileSystemResultRepository` is used instead.
+This repository is slower but results survive application restart.
 
 ## Configuration
 

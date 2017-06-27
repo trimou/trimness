@@ -94,6 +94,11 @@ public class FileSystemResultRepository implements ResultRepository {
     }
 
     @Override
+    public int getPriority() {
+        return DEFAULT_PRIORITY + 1;
+    }
+
+    @Override
     public Result get(String resultId) {
         return readResult(new File(resultDir, resultId + ".json"));
     }
