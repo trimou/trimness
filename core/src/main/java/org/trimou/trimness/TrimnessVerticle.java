@@ -28,7 +28,7 @@ import org.jboss.weld.vertx.web.WeldWebVerticle;
 import org.trimou.engine.MustacheEngine;
 import org.trimou.engine.MustacheEngineBuilder;
 import org.trimou.engine.locator.MapTemplateLocator;
-import org.trimou.handlebars.HelpersBuilder;
+import org.trimou.handlebars.NumericExpressionHelper;
 import org.trimou.trimness.config.Configuration;
 import org.trimou.trimness.config.TrimnessKey;
 import org.trimou.trimness.model.ModelProvider;
@@ -84,7 +84,7 @@ public class TrimnessVerticle extends AbstractVerticle {
                 builder.addTemplateLocator(templateLocator);
                 builder.addTemplateLocator(
                         MapTemplateLocator.builder().put(TrimouEngine.TEST_TEMPLATE, "{{this}}").build());
-                builder.registerHelpers(HelpersBuilder.extra().build());
+                builder.registerHelpers(NumericExpressionHelper.forEachOperator().addExtra().build());
                 // Make it possible to configure the builder
                 container.event().select(MustacheEngineBuilder.class).fire(builder);
                 MustacheEngine engine = builder.build();

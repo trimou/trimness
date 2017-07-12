@@ -46,7 +46,7 @@
       <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss.SSSZ</maven.build.timestamp.format>
       <build.timestamp>${maven.build.timestamp}</build.timestamp>
       <!-- Versions -->
-      <version.trimou>2.2.0.Final</version.trimou>
+      <version.trimou>2.2.1.Final</version.trimou>
       <version.weld>3.0.0.Final</version.weld>
       <version.weld-vertx>1.0.0.Final</version.weld-vertx>
       <version.weld-junit>1.1.0.Final</version.weld-junit>

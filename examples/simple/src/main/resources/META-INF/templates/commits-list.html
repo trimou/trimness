@@ -8,17 +8,17 @@
   <tr>
     <th></th>
     <th>Date</th>
-    <th>SHA</th>
-    <th>Message</th>
     <th>Author</th>
+    <th>SHA Link</th>
+    <th>Message (first line)</th>
   </tr>
   {{#each repo.commits}}
   <tr>
     <td>{{index}}.</td>
-    <td>{{commit.author.date}}</td>
-    <td><a href="{{html_url}}">{{sha}}</a></td>
-    <td>{{commit.message}}</td>
+    <td><span title="{{commit.author.date}}">{{pretty commit.author.date}}</span></td>
     <td>{{author.login}}</td>
+    <td><a href="{{html_url}}" target="_blank">{{sha}}</a></td>
+    <td>{{firstLine commit.message}}</td>
   </tr>
   {{/each}}
 </table>

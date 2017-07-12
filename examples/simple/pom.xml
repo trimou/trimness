@@ -17,6 +17,12 @@
          <version>${project.version}</version>
       </dependency>
 
+      <dependency>
+         <groupId>org.trimou</groupId>
+         <artifactId>trimou-extension-prettytime</artifactId>
+         <version>${version.trimou}</version>
+      </dependency>
+
    </dependencies>
 
    <build>

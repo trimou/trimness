@@ -54,7 +54,7 @@ class ResultLogic {
                     resultConsumer.accept(Jsons.message("Result %s not complete yet", resultId).build().toString(),
                             Strings.APP_JSON);
                 } else if (result.isFailure()) {
-                    resultConsumer.accept(Jsons.message("Result failed: %s", result.getValue()).build().toString(),
+                    resultConsumer.accept(Jsons.message("Rendering failed with message: %s", result.getValue()).build().toString(),
                             Strings.APP_JSON);
                 } else {
                     resultConsumer.accept(result.getValue(), result.getContentType());

@@ -19,6 +19,7 @@ import static org.trimou.trimness.util.Strings.ID;
 
 import java.io.StringReader;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -32,7 +33,11 @@ import javax.json.JsonValue;
 import javax.json.JsonValue.ValueType;
 
 import org.trimou.engine.MustacheEngineBuilder;
+import org.trimou.engine.convert.ObjectToDateConverter;
+import org.trimou.engine.locale.FixedLocaleSupport;
 import org.trimou.lambda.Lambda;
+import org.trimou.prettytime.DefaultPrettyTimeFactory;
+import org.trimou.prettytime.PrettyTimeHelper;
 import org.trimou.trimness.model.ModelProvider;
 import org.trimou.trimness.model.ModelRequest;
 import org.trimou.trimness.util.Jsons;
@@ -131,6 +136,14 @@ public class GithubModelProvider implements ModelProvider {
     void configureTrimou(@Observes MustacheEngineBuilder builder) {
         Lambda putInQuotes = (text) -> "\"" + text + "\"";
         builder.addGlobalData("putInQuotes", putInQuotes);
+        builder.registerHelper(PrettyTimeHelper.DEFAULT_NAME,
+                new PrettyTimeHelper(new DefaultPrettyTimeFactory(), new ObjectToDateConverter("yyyy-MM-dd'T'HH:mm:ssX")), true);
+        builder.registerHelper("firstLine", (o) -> {
+            String value = o.getParameter(0, "").toString();
+            int idx = value.indexOf("\n");
+            o.append(value.substring(0, idx > 1 ? idx : value.length()));
+        });
+        builder.setLocaleSupport(FixedLocaleSupport.from(Locale.ENGLISH));
     }
 
     private Object prepareChartData(JsonValue json) {
