@@ -23,9 +23,9 @@
    </licenses>
 
    <scm>
-      <connection>scm:git:git://github.com/trimou/trimou-basis.git</connection>
-      <developerConnection>scm:git:git@github.com:trimou/trimou-basis.git</developerConnection>
-      <url>https://github.com/trimou/trimou-base</url>
+      <connection>scm:git:git://github.com/trimou/trimness.git</connection>
+      <developerConnection>scm:git:git@github.com:trimou/trimness.git</developerConnection>
+      <url>https://github.com/trimou/trimness</url>
    </scm>
 
    <developers>
@@ -36,7 +36,7 @@
 
    <issueManagement>
       <system>GitHub</system>
-      <url>https://github.com/trimou/trimou/issues</url>
+      <url>https://github.com/trimou/trimness/issues</url>
    </issueManagement>
 
    <properties>
@@ -65,8 +65,6 @@
 
    <modules>
       <module>core</module>
-      <module>tests</module>
-      <module>examples/simple</module>
    </modules>
 
    <dependencyManagement>
@@ -195,5 +193,21 @@
 
       </dependencies>
    </dependencyManagement>
+
+   <profiles>
+      <profile>
+         <id>development-build</id>
+         <activation>
+            <activeByDefault>false</activeByDefault>
+            <property>
+               <name>!release</name>
+            </property>
+         </activation>
+         <modules>
+            <module>tests</module>
+            <module>examples/simple</module>
+         </modules>
+      </profile>
+   </profiles>
 
 </project>
