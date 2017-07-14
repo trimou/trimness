@@ -1,5 +1,6 @@
 # Trimness
 
+[![Maven Central](http://img.shields.io/maven-central/v/org.trimou/trimness-core.svg)](http://search.maven.org/#search|ga|1|trimness-core)
 [![Travis CI Build Status](https://img.shields.io/travis/trimou/trimness/master.svg)](https://travis-ci.org/trimou/trimness)
 [![License](https://img.shields.io/badge/license-Apache%20License%202.0-yellow.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
@@ -7,19 +8,24 @@ Trimness aims to be an extensible tool to build a **lightweight service for rend
 It's built on several open source projects.
 The fundamental ones are [Trimou](http://trimou.org/) (mustache/handlebars-like templating engine), [Weld](http://weld.cdi-spec.org) (component model, extensibility) and [Vert.x](http://vertx.io) (web server, routing, event bus).
 
+## Available in the Maven Central Repository
+
+```xml
+<dependency>
+  <groupId>org.trimou</groupId>
+  <artifactId>trimness-core</artifactId>
+  <version>${version.trimness}</version>
+</dependency>
+```
+
 ## Get started
 
-Trimness is not in Maven central yet so you'll have to build it locally first:
+The best place to start is probably the [simple example](https://github.com/trimou/trimness/tree/master/examples/simple).
+Clone the repository, build the project and run the example shaded jar:
 
 ```bash
 $ git clone git@github.com:trimou/trimness.git
 $ mvn clean install
-```
-
-The best place to start is probably the [simple example](https://github.com/trimou/trimness/tree/master/examples/simple).
-To run an executable shaded/fat jar just type:
-
-```bash
 $ java -jar examples/simple/target/trimness-example-simple-shaded.jar
 ```
 
